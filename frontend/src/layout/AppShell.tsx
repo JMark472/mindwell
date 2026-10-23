@@ -1,6 +1,9 @@
-import { NavLink } from "react-router";
+import { useEffect, useState } from "react";
+import { NavLink, useLocation } from "react-router";
 import { useAuth } from "@/context/AuthContext";
 import { cn } from "@/utils/cn";
+import PatternBackdrop from "@/components/ui/PatternBackdrop";
+import { getUnreadMessageCount } from "@/api/messages";
 import {
   BarChart3,
   Bell,
@@ -16,6 +19,7 @@ import {
   LayoutDashboard,
   LifeBuoy,
   LogOut,
+  MessageSquare,
   NotebookPen,
   Settings,
   ShieldCheck,
@@ -35,6 +39,7 @@ const studentLinks: SidebarLink[] = [
   { to: "/student/check-in", label: "Mood Check-In", icon: HeartPulse },
   { to: "/student/appointments/book", label: "Book Counseling", icon: CalendarPlus },
   { to: "/student/appointments", label: "My Appointments", icon: CalendarDays },
+  { to: "/student/messages", label: "Messages", icon: MessageSquare },
   { to: "/student/resources", label: "Resources", icon: BookOpen },
   { to: "/student/notifications", label: "Notifications", icon: Bell },
   { to: "/student/profile", label: "Profile & Settings", icon: Settings },
@@ -44,6 +49,7 @@ const studentLinks: SidebarLink[] = [
 const counselorLinks: SidebarLink[] = [
   { to: "/counselor/dashboard", label: "Dashboard", icon: LayoutDashboard },
   { to: "/counselor/requests", label: "Appointment Requests", icon: Inbox },
+  { to: "/counselor/messages", label: "Messages", icon: MessageSquare },
   { to: "/counselor/schedule", label: "Schedule", icon: CalendarRange },
   { to: "/counselor/cases", label: "Student Cases", icon: Users },
   { to: "/counselor/notes", label: "Session Notes", icon: NotebookPen },
@@ -64,13 +70,46 @@ const adminLinks: SidebarLink[] = [
 
 export function AppSidebar() {
   const { user, logout } = useAuth();
+  const { pathname } = useLocation();
+  const [unread, setUnread] = useState(0);
 
   const links =
     user?.role === "admin" ? adminLinks : user?.role === "counselor" ? counselorLinks : studentLinks;
 
+  useEffect(() => {
+    if (user?.role !== "student" && user?.role !== "counselor") {
+      setUnread(0);
+      return;
+    }
+
+    let active = true;
+    const load = () => {
+      getUnreadMessageCount()
+        .then((count) => {
+          if (active) setUnread(count);
+        })
+        .catch(() => {
+          // A transient polling failure should never surface in the UI.
+        });
+    };
+
+    load();
+    const timer = window.setInterval(load, 30_000);
+    const onChange = () => load();
+    window.addEventListener("mindwell:messages-changed", onChange);
+
+    return () => {
+      active = false;
+      window.clearInterval(timer);
+      window.removeEventListener("mindwell:messages-changed", onChange);
+    };
+  }, [user?.role, pathname]);
+
   return (
-    <aside className="mw-scrollbar sticky top-0 z-20 flex h-screen w-[272px] flex-col border-r border-line bg-surface">
-      <div className="flex items-center gap-2.5 px-6 py-5">
+    <aside className="mw-scrollbar relative isolate sticky top-0 z-20 flex h-screen w-[272px] flex-col overflow-hidden border-r border-line bg-gradient-to-b from-mint-soft/60 via-surface to-surface">
+      <PatternBackdrop />
+
+      <div className="relative z-10 flex items-center gap-2.5 px-6 py-5">
         <img src="/logo.png" alt="Mindwell" className="h-9 w-9 rounded-field object-cover" />
         <div>
           <p className="text-sm font-semibold">Mindwell</p>
@@ -80,10 +119,11 @@ export function AppSidebar() {
         </div>
       </div>
 
-      <nav className="flex-1 px-3" aria-label="Main navigation">
+      <nav className="relative z-10 flex-1 px-3" aria-label="Main navigation">
         <ul className="flex flex-col gap-1">
           {links.map((link) => {
             const Icon = link.icon;
+            const showBadge = link.to.endsWith("/messages") && unread > 0;
             return (
               <li key={link.to}>
                 <NavLink
@@ -110,6 +150,14 @@ export function AppSidebar() {
                         )}
                       />
                       <span className="truncate">{link.label}</span>
+                      {showBadge ? (
+                        <span
+                          aria-label={`${unread} unread message${unread === 1 ? "" : "s"}`}
+                          className="ml-auto rounded-pill bg-teal px-1.5 py-0.5 text-[10px] font-semibold leading-none text-white"
+                        >
+                          {unread > 9 ? "9+" : unread}
+                        </span>
+                      ) : null}
                     </>
                   )}
                 </NavLink>
@@ -119,7 +167,7 @@ export function AppSidebar() {
         </ul>
       </nav>
 
-      <div className="border-t border-line px-6 py-4">
+      <div className="relative z-10 border-t border-line px-6 py-4">
         <p className="truncate text-sm font-medium">{user?.fullName}</p>
         <p className="truncate text-xs text-ink-400">{user?.email}</p>
         <button

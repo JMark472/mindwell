@@ -2,7 +2,7 @@ import "dotenv/config";
 import bcrypt from "bcrypt";
 import { eq } from "drizzle-orm";
 import { db, pool } from "@/db";
-import { notifications, studentProfiles, systemSettings, users } from "@/db/schema";
+import { notifications, studentProfiles, systemSettings, users, conversations, conversationParticipants, messages } from "@/db/schema";
 
 /**
  * Development seeder. All data is fictional.
@@ -83,6 +83,104 @@ async function main() {
           link: "/student/resources",
         },
       ])
+      .execute();
+  }
+
+  // Sample 1:1 message threads so the Messages screen has content in dev.
+  const now = Date.now();
+  const threads: Array<{
+    student: string;
+    counselor: string;
+    messages: Array<{ from: "student" | "counselor"; body: string }>;
+  }> = [
+    {
+      student: "student@mindwell.test",
+      counselor: "counselor@mindwell.test",
+      messages: [
+        {
+          from: "counselor",
+          body: "Hi Juan — I saw your check-in this week. How are you feeling about the upcoming exams?",
+        },
+        {
+          from: "student",
+          body: "Hi Dr. Santos. A bit overwhelmed, but I've been trying the 25-minute focus blocks from the resources page.",
+        },
+        {
+          from: "counselor",
+          body: "That's a great start. Would you like to talk it through in a short session this week?",
+        },
+      ],
+    },
+    {
+      student: "student2@mindwell.test",
+      counselor: "counselor@mindwell.test",
+      messages: [
+        {
+          from: "student",
+          body: "Good morning, Dr. Santos. I'd like to follow up on the breathing exercise we discussed.",
+        },
+        {
+          from: "counselor",
+          body: "Of course. Try the 4-7-8 pattern twice a day and note how you feel afterwards.",
+        },
+        {
+          from: "student",
+          body: "Thank you — I'll bring my notes to our next session.",
+        },
+      ],
+    },
+  ];
+
+  for (const thread of threads) {
+    const studentId = ids[thread.student];
+    const counselorId = ids[thread.counselor];
+    const pairKey = `${Math.min(studentId, counselorId)}:${Math.max(studentId, counselorId)}`;
+
+    const existingThread = await db
+      .select({ id: conversations.id })
+      .from(conversations)
+      .where(eq(conversations.pairKey, pairKey))
+      .limit(1);
+    if (existingThread.length) continue;
+
+    const createdAt = thread.messages.map(
+      (_, index) => new Date(now - (thread.messages.length - index) * 36 * 60 * 1000),
+    );
+    const lastAt = createdAt[createdAt.length - 1];
+    const lastFrom = thread.messages[thread.messages.length - 1].from;
+
+    const [created] = await db
+      .insert(conversations)
+      .values({ pairKey, lastMessageAt: lastAt })
+      .execute();
+    const conversationId = Number(created.insertId);
+
+    await db
+      .insert(conversationParticipants)
+      .values([
+        {
+          conversationId,
+          userId: studentId,
+          lastReadAt: lastFrom === "student" ? lastAt : null,
+        },
+        {
+          conversationId,
+          userId: counselorId,
+          lastReadAt: lastFrom === "counselor" ? lastAt : null,
+        },
+      ])
+      .execute();
+
+    await db
+      .insert(messages)
+      .values(
+        thread.messages.map((message, index) => ({
+          conversationId,
+          senderUserId: message.from === "student" ? studentId : counselorId,
+          body: message.body,
+          createdAt: createdAt[index],
+        })),
+      )
       .execute();
   }
 

@@ -16,6 +16,7 @@ import BookingConfirmationPage from "@/pages/student/BookingConfirmationPage";
 import StudentAppointmentDetailPage from "@/pages/student/StudentAppointmentDetailPage";
 import MoodHistoryPage from "@/pages/student/MoodHistoryPage";
 import NotificationsPage from "@/pages/student/NotificationsPage";
+import MessagesPage from "@/pages/messages/MessagesPage";
 import ProfileSettingsPage from "@/pages/student/ProfileSettingsPage";
 import HelpCrisisPage from "@/pages/student/HelpCrisisPage";
 import AssessmentPage from "@/pages/student/AssessmentPage";
@@ -62,6 +63,7 @@ export default function App() {
         <Route path="/student/appointments" element={<AppointmentsPage />} />
         <Route path="/student/appointments/confirmation" element={<BookingConfirmationPage />} />
         <Route path="/student/appointments/:id" element={<StudentAppointmentDetailPage />} />
+        <Route path="/student/messages" element={<MessagesPage />} />
         <Route path="/student/resources" element={<ResourcesPage />} />
         <Route path="/student/resources/:slug" element={<ResourceDetailPage />} />
         <Route path="/student/mood-history" element={<MoodHistoryPage />} />
@@ -78,6 +80,7 @@ export default function App() {
         <Route path="/counselor/schedule" element={<CounselorSchedulePage />} />
         <Route path="/counselor/cases" element={<StudentCasesPage />} />
         <Route path="/counselor/cases/:id" element={<CaseDetailPage />} />
+        <Route path="/counselor/messages" element={<MessagesPage />} />
         <Route path="/counselor/notes" element={<StudentCasesPage />} />
         <Route path="/counselor/resources" element={<ResourcesPage />} />
         <Route path="/counselor/profile" element={<CounselorProfilePage />} />

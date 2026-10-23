@@ -120,6 +120,76 @@ export const notifications = mysqlTable(
   ],
 );
 
+/*
+ * Direct messaging between a student and a counselor.
+ *
+ * A conversation is always 1:1 (enforced by `pairKey` = "smallerId:largerId")
+ * and messaging is only available across roles: students cannot message other
+ * students, counselors cannot message other counselors, and admins do not take
+ * part in conversations. Access is checked against `conversation_participants`
+ * on every request, never against an ID supplied by the client.
+ */
+export const conversations = mysqlTable(
+  "conversations",
+  {
+    id: bigint("id", { mode: "number" }).autoincrement().primaryKey(),
+    pairKey: varchar("pair_key", { length: 64 }).notNull(),
+    lastMessageAt: datetime("last_message_at", { mode: "date" })
+      .notNull()
+      .default(sql`CURRENT_TIMESTAMP`),
+    createdAt: datetime("created_at", { mode: "date" })
+      .notNull()
+      .default(sql`CURRENT_TIMESTAMP`),
+  },
+  (table) => [
+    uniqueIndex("conversations_pair_key_unique").on(table.pairKey),
+    index("conversations_last_message_idx").on(table.lastMessageAt),
+  ],
+);
+
+export const conversationParticipants = mysqlTable(
+  "conversation_participants",
+  {
+    conversationId: bigint("conversation_id", { mode: "number" })
+      .notNull()
+      .references(() => conversations.id, { onDelete: "cascade" }),
+    userId: bigint("user_id", { mode: "number" })
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+    lastReadAt: datetime("last_read_at", { mode: "date" }),
+    createdAt: datetime("created_at", { mode: "date" })
+      .notNull()
+      .default(sql`CURRENT_TIMESTAMP`),
+  },
+  (table) => [
+    primaryKey({ columns: [table.conversationId, table.userId] }),
+    index("conversation_participants_user_idx").on(table.userId),
+  ],
+);
+
+export const messages = mysqlTable(
+  "messages",
+  {
+    id: bigint("id", { mode: "number" }).autoincrement().primaryKey(),
+    conversationId: bigint("conversation_id", { mode: "number" })
+      .notNull()
+      .references(() => conversations.id, { onDelete: "cascade" }),
+    senderUserId: bigint("sender_user_id", { mode: "number" })
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+    body: text("body").notNull(),
+    createdAt: datetime("created_at", { mode: "date" })
+      .notNull()
+      .default(sql`CURRENT_TIMESTAMP`),
+  },
+  (table) => [
+    index("messages_conversation_created_idx").on(
+      table.conversationId,
+      table.createdAt,
+    ),
+  ],
+);
+
 export const auditLogs = mysqlTable(
   "audit_logs",
   {
@@ -155,3 +225,6 @@ export type NewUser = typeof users.$inferInsert;
 export type StudentProfile = typeof studentProfiles.$inferSelect;
 export type Notification = typeof notifications.$inferSelect;
 export type AuditLog = typeof auditLogs.$inferSelect;
+export type Conversation = typeof conversations.$inferSelect;
+export type ConversationParticipant = typeof conversationParticipants.$inferSelect;
+export type Message = typeof messages.$inferSelect;
