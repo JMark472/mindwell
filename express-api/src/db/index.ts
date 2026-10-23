@@ -16,6 +16,14 @@ export const pool = mysql.createPool({
   timezone: "Z", // all timestamps stored in UTC
 });
 
+// `timezone: "Z"` tells mysql2 how to parse DATETIME values, but it does not
+// change the session time zone. Without this, `CURRENT_TIMESTAMP` defaults
+// written by MySQL use the server's local time while explicit JS dates are
+// UTC, so rows can appear hours apart. Pin every pooled connection to UTC.
+pool.on("connection", (connection) => {
+  connection.query("SET time_zone = '+00:00'");
+});
+
 export const db = drizzle(pool, { schema, mode: "default" });
 
 export async function withTransaction<T>(

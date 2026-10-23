@@ -95,6 +95,7 @@ async function main() {
     body: JSON.stringify({ email: smokeEmail, password: "Password123", fullName: "Test Student" }),
     headers: { "x-csrf-token": csrfNow() },
   }, jar);
+  jar.store(reg.setCookies);
   check("register 201", reg.status === 201, `got ${reg.status} ${JSON.stringify(reg.body)}`);
 
   // 10. duplicate register -> 409
@@ -103,7 +104,96 @@ async function main() {
     body: JSON.stringify({ email: smokeEmail, password: "Password123", fullName: "Test Student" }),
     headers: { "x-csrf-token": csrfNow() },
   }, jar);
+  jar.store(dup.setCookies);
   check("duplicate register 409", dup.status === 409, `got ${dup.status}`);
+
+  // The registration response does not switch the browser session. Log in as
+  // the fresh student so the messaging tests run as an unrelated account.
+  const smokeLogin = await req("/auth/login", {
+    method: "POST",
+    body: JSON.stringify({ email: smokeEmail, password: "Password123" }),
+    headers: { "x-csrf-token": csrfNow() },
+  }, jar);
+  jar.store(smokeLogin.setCookies);
+  check(
+    "smoke user login 200",
+    smokeLogin.status === 200 && smokeLogin.body?.data?.user?.email === smokeEmail,
+    `got ${smokeLogin.status} ${JSON.stringify(smokeLogin.body)}`,
+  );
+
+  // 11. messaging contacts are limited to the opposite role
+  const contacts = await req("/messages/contacts", {}, jar);
+  const counselor = contacts.body?.data?.contacts?.find((c) => c.role === "counselor");
+  check(
+    "messaging contacts include a counselor",
+    contacts.status === 200 && !!counselor,
+    `got ${contacts.status} ${JSON.stringify(contacts.body?.data)}`,
+  );
+
+  // 12. start a new private thread
+  const start = await req("/messages/conversations", {
+    method: "POST",
+    body: JSON.stringify({ participantId: counselor?.id }),
+    headers: { "x-csrf-token": csrfNow() },
+  }, jar);
+  const conversationId = start.body?.data?.conversation?.id;
+  check(
+    "start conversation 201",
+    start.status === 201 && Number.isInteger(conversationId),
+    `got ${start.status} ${JSON.stringify(start.body)}`,
+  );
+
+  // 13. starting the same thread again reuses it
+  const reopen = await req("/messages/conversations", {
+    method: "POST",
+    body: JSON.stringify({ participantId: counselor?.id }),
+    headers: { "x-csrf-token": csrfNow() },
+  }, jar);
+  check(
+    "reopen existing conversation 200",
+    reopen.status === 200 && reopen.body?.data?.conversation?.id === conversationId,
+    `got ${reopen.status} ${JSON.stringify(reopen.body?.data?.conversation)}`,
+  );
+
+  // 14. send a message and see it in the inbox
+  const messageBody = `Smoke test ${Date.now()}`;
+  const sent = await req(`/messages/conversations/${conversationId}/messages`, {
+    method: "POST",
+    body: JSON.stringify({ body: messageBody }),
+    headers: { "x-csrf-token": csrfNow() },
+  }, jar);
+  check(
+    "send message 201",
+    sent.status === 201 && sent.body?.data?.message?.body === messageBody,
+    `got ${sent.status} ${JSON.stringify(sent.body)}`,
+  );
+
+  const inbox = await req("/messages/conversations", {}, jar);
+  const thread = inbox.body?.data?.conversations?.find((c) => c.id === conversationId);
+  check(
+    "inbox includes sent message",
+    inbox.status === 200 && thread?.lastMessageBody === messageBody,
+    `got ${inbox.status} ${JSON.stringify(thread)}`,
+  );
+
+  // 15. read state
+  const read = await req(`/messages/conversations/${conversationId}/read`, {
+    method: "POST",
+    headers: { "x-csrf-token": csrfNow() },
+  }, jar);
+  check("mark conversation read 200", read.status === 200 && read.body?.data?.read === true);
+
+  // 16. empty/oversized messages are rejected
+  const empty = await req(`/messages/conversations/${conversationId}/messages`, {
+    method: "POST",
+    body: JSON.stringify({ body: "   " }),
+    headers: { "x-csrf-token": csrfNow() },
+  }, jar);
+  check("empty message 400", empty.status === 400, `got ${empty.status}`);
+
+  // 17. IDOR: a student cannot read a conversation they are not part of
+  const forbidden = await req("/messages/conversations/1", {}, jar);
+  check("conversation access is participant-only 404", forbidden.status === 404, `got ${forbidden.status}`);
 
   let failed = 0;
   for (const r of results) {

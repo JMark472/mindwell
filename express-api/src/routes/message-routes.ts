@@ -64,10 +64,10 @@ router.post(
   validate(createConversationSchema),
   asyncHandler(async (req, res) => {
     const actor = await currentUser(req);
-    const conversation = await createConversation(actor, Number(req.body.participantId));
+    const result = await createConversation(actor, Number(req.body.participantId));
     res
-      .status(conversation.lastMessageBody === null ? 201 : 200)
-      .json({ status: "success", data: { conversation } });
+      .status(result.created ? 201 : 200)
+      .json({ status: "success", data: { conversation: result.conversation } });
   }),
 );
 

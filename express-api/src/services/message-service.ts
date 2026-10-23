@@ -160,7 +160,15 @@ export async function listMessages(
   return rows.reverse();
 }
 
-export async function createConversation(actor: DbUser, participantId: number) {
+export type CreateConversationResult = {
+  conversation: ConversationSummary;
+  created: boolean;
+};
+
+export async function createConversation(
+  actor: DbUser,
+  participantId: number,
+): Promise<CreateConversationResult> {
   assertMessagingRole(actor.role);
   const other = await findUserById(participantId);
   assertCounterpart(actor, other);
@@ -173,15 +181,21 @@ export async function createConversation(actor: DbUser, participantId: number) {
     .where(eq(conversations.pairKey, pairKey))
     .limit(1);
 
-  if (existing) return getConversation(existing.id, actor.id);
+  if (existing) {
+    return {
+      conversation: await getConversation(existing.id, actor.id),
+      created: false,
+    };
+  }
 
+  let created = false;
   try {
     await db.transaction(async (tx) => {
-      const [created] = await tx
+      const [inserted] = await tx
         .insert(conversations)
         .values({ pairKey })
         .execute();
-      const conversationId = Number(created.insertId);
+      const conversationId = Number(inserted.insertId);
       await tx
         .insert(conversationParticipants)
         .values([
@@ -189,6 +203,7 @@ export async function createConversation(actor: DbUser, participantId: number) {
           { conversationId, userId: participantId },
         ])
         .execute();
+      created = true;
     });
   } catch (error) {
     // A concurrent request may have created the same pair. If so, use it.
@@ -196,14 +211,17 @@ export async function createConversation(actor: DbUser, participantId: number) {
     if (code !== "ER_DUP_ENTRY") throw error;
   }
 
-  const [created] = await db
+  const [row] = await db
     .select({ id: conversations.id })
     .from(conversations)
     .where(eq(conversations.pairKey, pairKey))
     .limit(1);
 
-  if (!created) throw new ApiError(500, "Could not start that conversation.");
-  return getConversation(created.id, actor.id);
+  if (!row) throw new ApiError(500, "Could not start that conversation.");
+  return {
+    conversation: await getConversation(row.id, actor.id),
+    created,
+  };
 }
 
 export async function sendMessage(
@@ -244,6 +262,7 @@ export async function sendMessage(
       conversationId,
       senderUserId: sender.id,
       body,
+      createdAt: new Date(),
     })
     .execute();
 

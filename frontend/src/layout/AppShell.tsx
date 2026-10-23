@@ -1,9 +1,8 @@
-import { useEffect, useState } from "react";
-import { NavLink, useLocation } from "react-router";
+import { NavLink } from "react-router";
 import { useAuth } from "@/context/AuthContext";
 import { cn } from "@/utils/cn";
 import PatternBackdrop from "@/components/ui/PatternBackdrop";
-import { getUnreadMessageCount } from "@/api/messages";
+import { useUnreadMessages } from "@/hooks/useUnreadMessages";
 import {
   BarChart3,
   Bell,
@@ -70,40 +69,10 @@ const adminLinks: SidebarLink[] = [
 
 export function AppSidebar() {
   const { user, logout } = useAuth();
-  const { pathname } = useLocation();
-  const [unread, setUnread] = useState(0);
+  const unread = useUnreadMessages();
 
   const links =
     user?.role === "admin" ? adminLinks : user?.role === "counselor" ? counselorLinks : studentLinks;
-
-  useEffect(() => {
-    if (user?.role !== "student" && user?.role !== "counselor") {
-      setUnread(0);
-      return;
-    }
-
-    let active = true;
-    const load = () => {
-      getUnreadMessageCount()
-        .then((count) => {
-          if (active) setUnread(count);
-        })
-        .catch(() => {
-          // A transient polling failure should never surface in the UI.
-        });
-    };
-
-    load();
-    const timer = window.setInterval(load, 30_000);
-    const onChange = () => load();
-    window.addEventListener("mindwell:messages-changed", onChange);
-
-    return () => {
-      active = false;
-      window.clearInterval(timer);
-      window.removeEventListener("mindwell:messages-changed", onChange);
-    };
-  }, [user?.role, pathname]);
 
   return (
     <aside className="mw-scrollbar relative isolate sticky top-0 z-20 flex h-screen w-[272px] flex-col overflow-hidden border-r border-line bg-gradient-to-b from-mint-soft/60 via-surface to-surface">
@@ -184,6 +153,11 @@ export function AppSidebar() {
 
 export function AppHeader({ title, subtitle }: { title: string; subtitle?: string }) {
   const { user } = useAuth();
+  const unread = useUnreadMessages();
+
+  const canMessage = user?.role === "student" || user?.role === "counselor";
+  const messagesHref =
+    user?.role === "counselor" ? "/counselor/messages" : "/student/messages";
 
   return (
     <header className="mb-6 flex items-start justify-between gap-4">
@@ -192,15 +166,44 @@ export function AppHeader({ title, subtitle }: { title: string; subtitle?: strin
         <h1 className="text-display font-semibold">{title}</h1>
         {subtitle ? <p className="text-sm text-ink-400">{subtitle}</p> : null}
       </div>
-      {user?.role === "student" ? (
-        <NavLink
-          to="/student/notifications"
-          aria-label="Notifications"
-          className="mt-1 flex h-10 w-10 items-center justify-center rounded-field border border-line bg-surface/90 text-ink-600 shadow-card backdrop-blur transition-colors hover:bg-navy-050 hover:text-ink"
-        >
-          <Bell aria-hidden="true" strokeWidth={1.8} className="h-[18px] w-[18px]" />
-        </NavLink>
-      ) : null}
+
+      <div className="mt-1 flex items-center gap-2">
+        {user?.role === "student" ? (
+          <NavLink
+            to="/student/notifications"
+            aria-label="Notifications"
+            className="flex h-10 w-10 items-center justify-center rounded-field border border-line bg-surface/90 text-ink-600 shadow-card backdrop-blur transition-colors hover:bg-navy-050 hover:text-ink"
+          >
+            <Bell aria-hidden="true" strokeWidth={1.8} className="h-[18px] w-[18px]" />
+          </NavLink>
+        ) : null}
+
+        {canMessage ? (
+          <NavLink
+            to={messagesHref}
+            aria-label={
+              unread > 0
+                ? `Messages, ${unread} unread message${unread === 1 ? "" : "s"}`
+                : "Messages"
+            }
+            className="relative flex h-10 w-10 items-center justify-center rounded-field border border-line bg-surface/90 text-ink-600 shadow-card backdrop-blur transition-colors hover:bg-navy-050 hover:text-ink"
+          >
+            <MessageSquare
+              aria-hidden="true"
+              strokeWidth={1.8}
+              className="h-[18px] w-[18px]"
+            />
+            {unread > 0 ? (
+              <span
+                aria-hidden="true"
+                className="absolute -right-1.5 -top-1.5 flex h-5 min-w-5 items-center justify-center rounded-pill bg-teal px-1 text-[10px] font-semibold leading-none text-white ring-2 ring-canvas"
+              >
+                {unread > 9 ? "9+" : unread}
+              </span>
+            ) : null}
+          </NavLink>
+        ) : null}
+      </div>
     </header>
   );
 }
