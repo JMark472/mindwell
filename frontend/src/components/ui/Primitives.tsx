@@ -1,5 +1,6 @@
 import React from "react";
 import { cn } from "@/utils/cn";
+import { Eye, EyeOff, type LucideIcon } from "lucide-react";
 
 export function Button({
   className,
@@ -70,6 +71,99 @@ export function Label({
 }: React.LabelHTMLAttributes<HTMLLabelElement>) {
   return (
     <label className={cn("text-xs font-medium text-ink-600", className)} {...props} />
+  );
+}
+
+/** Text input with a leading icon, used by the auth forms. */
+export function IconInput({
+  icon: Icon,
+  className,
+  ...props
+}: React.InputHTMLAttributes<HTMLInputElement> & { icon: LucideIcon }) {
+  return (
+    <div className="relative">
+      <Icon
+        aria-hidden="true"
+        strokeWidth={1.8}
+        className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-ink-300"
+      />
+      <Input className={cn("pl-9", className)} {...props} />
+    </div>
+  );
+}
+
+/** Password input with a keyboard-accessible show/hide toggle. */
+export function PasswordInput({
+  icon: Icon,
+  className,
+  ...props
+}: React.InputHTMLAttributes<HTMLInputElement> & { icon?: LucideIcon }) {
+  const [visible, setVisible] = React.useState(false);
+
+  return (
+    <div className="relative">
+      {Icon ? (
+        <Icon
+          aria-hidden="true"
+          strokeWidth={1.8}
+          className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-ink-300"
+        />
+      ) : null}
+      <input
+        {...props}
+        type={visible ? "text" : "password"}
+        className={cn(
+          "h-10 w-full rounded-field border border-line bg-surface pr-10 text-sm text-ink placeholder:text-ink-300 focus-visible:border-teal focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal/15",
+          Icon ? "pl-9" : "pl-3",
+          className,
+        )}
+      />
+      <button
+        type="button"
+        onClick={() => setVisible((value) => !value)}
+        aria-label={visible ? "Hide password" : "Show password"}
+        aria-pressed={visible}
+        className="absolute right-1 top-1/2 flex h-8 w-8 -translate-y-1/2 items-center justify-center rounded-field text-ink-300 transition-colors hover:bg-navy-050 hover:text-ink-600"
+      >
+        {visible ? (
+          <EyeOff aria-hidden="true" strokeWidth={1.8} className="h-4 w-4" />
+        ) : (
+          <Eye aria-hidden="true" strokeWidth={1.8} className="h-4 w-4" />
+        )}
+      </button>
+    </div>
+  );
+}
+
+/** Rounded, tinted tile that frames a single icon. */
+export function IconBadge({
+  icon: Icon,
+  tone = "teal",
+  className,
+}: {
+  icon: LucideIcon;
+  tone?: "teal" | "mint" | "navy" | "danger" | "sky";
+  className?: string;
+}) {
+  const tones = {
+    teal: "bg-mint-soft text-teal-600",
+    mint: "bg-[#eafaf3] text-[#17805f]",
+    navy: "bg-navy-050 text-navy",
+    danger: "bg-danger-soft text-danger",
+    sky: "bg-info-soft text-info",
+  } as const;
+
+  return (
+    <span
+      aria-hidden="true"
+      className={cn(
+        "inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-field",
+        tones[tone],
+        className,
+      )}
+    >
+      <Icon strokeWidth={1.8} className="h-5 w-5" />
+    </span>
   );
 }
 

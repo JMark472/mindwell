@@ -1,9 +1,10 @@
 import { useState } from "react";
 import { Link } from "react-router";
 import { forgotPassword } from "@/api/auth";
-import { Button, Input, Label } from "@/components/ui/Primitives";
+import { Button, IconInput, Label } from "@/components/ui/Primitives";
 import { Alert } from "@/components/ui/Feedback";
 import { errorMessage } from "@/api/client";
+import { ArrowLeft, Mail, MailCheck, Send } from "lucide-react";
 
 export default function ForgotPasswordPage() {
   const [email, setEmail] = useState("");
@@ -30,6 +31,9 @@ export default function ForgotPasswordPage() {
   if (sent) {
     return (
       <div>
+        <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-mint-soft text-teal-600">
+          <MailCheck aria-hidden="true" strokeWidth={1.8} className="h-6 w-6" />
+        </div>
         <h1 className="text-heading font-semibold">Check your email</h1>
         <p className="mt-1 text-sm text-ink-400">
           If that email is registered, we sent instructions to reset your password.
@@ -49,7 +53,10 @@ export default function ForgotPasswordPage() {
           </Alert>
         ) : null}
         <Button asChild className="mt-6 w-full">
-          <Link to="/signin">Back to sign in</Link>
+          <Link to="/signin">
+            <ArrowLeft aria-hidden="true" strokeWidth={1.8} className="h-4 w-4" />
+            Back to sign in
+          </Link>
         </Button>
       </div>
     );
@@ -66,16 +73,26 @@ export default function ForgotPasswordPage() {
       <form className="mt-6 flex flex-col gap-4" onSubmit={handleSubmit}>
         <div className="flex flex-col gap-1.5">
           <Label htmlFor="email">Email</Label>
-          <Input
+          <IconInput
             id="email"
+            icon={Mail}
             type="email"
+            autoComplete="email"
+            placeholder="you@school.edu"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             required
           />
         </div>
         <Button type="submit" disabled={submitting}>
-          {submitting ? "Sending…" : "Send reset link"}
+          {submitting ? (
+            "Sending…"
+          ) : (
+            <>
+              <Send aria-hidden="true" strokeWidth={1.8} className="h-4 w-4" />
+              Send reset link
+            </>
+          )}
         </Button>
       </form>
       <p className="mt-6 text-center text-sm text-ink-400">

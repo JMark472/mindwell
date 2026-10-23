@@ -128,3 +128,133 @@
     scrollbar-color: var(--color-surface-2) transparent;
   }
 }
+
+/* -------------------------------------------------------------------------
+ * Decorative backdrops
+ *
+ * Soft, slow-moving colour fields behind the UI. Everything here is purely
+ * decorative: layers are aria-hidden, never receive pointer events, and the
+ * global prefers-reduced-motion rule above freezes them for users who ask for
+ * less motion.
+ * ---------------------------------------------------------------------- */
+
+@keyframes mw-drift-a {
+  0% {
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+  50% {
+    transform: translate3d(42px, -34px, 0) scale(1.08);
+  }
+  100% {
+    transform: translate3d(-18px, 26px, 0) scale(0.96);
+  }
+}
+
+@keyframes mw-drift-b {
+  0% {
+    transform: translate3d(0, 0, 0) scale(1.02);
+  }
+  50% {
+    transform: translate3d(-38px, 30px, 0) scale(0.94);
+  }
+  100% {
+    transform: translate3d(22px, -22px, 0) scale(1.1);
+  }
+}
+
+@keyframes mw-breathe {
+  0%,
+  100% {
+    opacity: 0.45;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.75;
+    transform: scale(1.06);
+  }
+}
+
+@keyframes mw-rise {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes mw-spin-slow {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.mw-scene {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.mw-orb {
+  position: absolute;
+  border-radius: 9999px;
+  filter: blur(70px);
+  will-change: transform;
+}
+
+.mw-orb-mint {
+  background: radial-gradient(circle at 30% 30%, rgb(82 208 176 / 0.85), rgb(82 208 176 / 0) 70%);
+  animation: mw-drift-a 22s ease-in-out infinite alternate;
+}
+
+.mw-orb-teal {
+  background: radial-gradient(circle at 60% 40%, rgb(16 169 155 / 0.65), rgb(16 169 155 / 0) 70%);
+  animation: mw-drift-b 27s ease-in-out infinite alternate;
+}
+
+.mw-orb-sky {
+  background: radial-gradient(circle at 50% 50%, rgb(160 212 244 / 0.75), rgb(160 212 244 / 0) 70%);
+  animation: mw-drift-a 32s ease-in-out infinite alternate-reverse;
+}
+
+.mw-scene-grid {
+  background-image: radial-gradient(rgb(11 53 95 / 0.12) 1px, transparent 1px);
+  background-size: 26px 26px;
+  -webkit-mask-image: radial-gradient(ellipse at 50% 40%, #000 0%, transparent 72%);
+  mask-image: radial-gradient(ellipse at 50% 40%, #000 0%, transparent 72%);
+  opacity: 0.5;
+}
+
+.mw-scene-rings {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  height: 540px;
+  width: 540px;
+  translate: -50% -50%;
+  border-radius: 9999px;
+  border: 1px solid rgb(16 169 155 / 0.18);
+  box-shadow:
+    0 0 0 70px rgb(16 169 155 / 0.05),
+    0 0 0 140px rgb(16 169 155 / 0.035);
+  animation: mw-breathe 12s ease-in-out infinite;
+}
+
+/* Subtle content entrance used on route changes. */
+.mw-rise {
+  animation: mw-rise 0.35s ease-out both;
+}
+
+.mw-card-hover {
+  transition:
+    transform 0.25s ease,
+    box-shadow 0.25s ease;
+}
+
+.mw-card-hover:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-lift);
+}

@@ -1,8 +1,10 @@
 import { cn } from "@/utils/cn";
+import { CircleAlert, CircleCheck, Info, TriangleAlert } from "lucide-react";
 
 export function Alert({
   className,
   tone = "danger",
+  children,
   ...props
 }: React.HTMLAttributes<HTMLDivElement> & {
   tone?: "danger" | "warning" | "info" | "success";
@@ -14,6 +16,15 @@ export function Alert({
     success: "border-success/30 bg-success-soft text-success",
   } as const;
 
+  const icons = {
+    danger: CircleAlert,
+    warning: TriangleAlert,
+    info: Info,
+    success: CircleCheck,
+  } as const;
+
+  const Icon = icons[tone];
+
   return (
     <div
       role="alert"
@@ -23,7 +34,10 @@ export function Alert({
         className,
       )}
       {...props}
-    />
+    >
+      <Icon aria-hidden="true" strokeWidth={1.8} className="mt-0.5 h-4 w-4 shrink-0" />
+      <span className="flex-1">{children}</span>
+    </div>
   );
 }
 

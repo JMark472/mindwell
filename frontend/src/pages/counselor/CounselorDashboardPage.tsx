@@ -1,9 +1,10 @@
 import { useEffect, useState } from "react";
-import { Card, Button } from "@/components/ui/Primitives";
+import { Card, Button, IconBadge } from "@/components/ui/Primitives";
 import { listAppointments, type Appointment } from "@/api/appointments";
 import { getCaseload, type CaseloadEntry } from "@/api/counseling";
 import { formatDateTime } from "@/components/ui/Helpers";
 import { Link } from "react-router";
+import { CalendarClock, Inbox, Users } from "lucide-react";
 
 export default function CounselorDashboardPage() {
   const [appointments, setAppointments] = useState<Appointment[]>([]);
@@ -19,17 +20,26 @@ export default function CounselorDashboardPage() {
   return (
     <div className="flex flex-col gap-6">
       <div className="grid gap-4 md:grid-cols-3">
-        <Card className="p-6">
-          <p className="text-xs text-ink-400">Pending requests</p>
-          <p className="mt-1 text-2xl font-semibold">{pending.length}</p>
+        <Card className="mw-card-hover flex items-start justify-between p-6">
+          <div>
+            <p className="text-xs text-ink-400">Pending requests</p>
+            <p className="mt-1 text-2xl font-semibold">{pending.length}</p>
+          </div>
+          <IconBadge icon={Inbox} tone="danger" />
         </Card>
-        <Card className="p-6">
-          <p className="text-xs text-ink-400">Total appointments</p>
-          <p className="mt-1 text-2xl font-semibold">{appointments.length}</p>
+        <Card className="mw-card-hover flex items-start justify-between p-6">
+          <div>
+            <p className="text-xs text-ink-400">Total appointments</p>
+            <p className="mt-1 text-2xl font-semibold">{appointments.length}</p>
+          </div>
+          <IconBadge icon={CalendarClock} tone="sky" />
         </Card>
-        <Card className="p-6">
-          <p className="text-xs text-ink-400">Active caseload</p>
-          <p className="mt-1 text-2xl font-semibold">{caseload.length}</p>
+        <Card className="mw-card-hover flex items-start justify-between p-6">
+          <div>
+            <p className="text-xs text-ink-400">Active caseload</p>
+            <p className="mt-1 text-2xl font-semibold">{caseload.length}</p>
+          </div>
+          <IconBadge icon={Users} tone="teal" />
         </Card>
       </div>
 

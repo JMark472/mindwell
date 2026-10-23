@@ -1,10 +1,11 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router";
 import { register as apiRegister } from "@/api/auth";
-import { Button, Input, Label } from "@/components/ui/Primitives";
+import { Button, IconInput, Label, PasswordInput } from "@/components/ui/Primitives";
 import { Alert } from "@/components/ui/Feedback";
 import { errorMessage, fieldErrors } from "@/api/client";
 import { useAuth } from "@/context/AuthContext";
+import { GraduationCap, IdCard, LockKeyhole, Mail, MailCheck, User, UserPlus } from "lucide-react";
 
 export default function RegisterPage() {
   const [form, setForm] = useState({
@@ -66,8 +67,11 @@ export default function RegisterPage() {
       <form className="mt-6 flex flex-col gap-4" onSubmit={handleSubmit}>
         <div className="flex flex-col gap-1.5">
           <Label htmlFor="fullName">Full name</Label>
-          <Input
+          <IconInput
             id="fullName"
+            icon={User}
+            autoComplete="name"
+            placeholder="Juan Dela Cruz"
             value={form.fullName}
             onChange={(e) => update("fullName", e.target.value)}
             required
@@ -75,9 +79,12 @@ export default function RegisterPage() {
         </div>
         <div className="flex flex-col gap-1.5">
           <Label htmlFor="email">School email</Label>
-          <Input
+          <IconInput
             id="email"
+            icon={Mail}
             type="email"
+            autoComplete="email"
+            placeholder="you@school.edu"
             value={form.email}
             onChange={(e) => update("email", e.target.value)}
             required
@@ -86,16 +93,19 @@ export default function RegisterPage() {
         <div className="grid gap-4 sm:grid-cols-2">
           <div className="flex flex-col gap-1.5">
             <Label htmlFor="studentNumber">Student ID (optional)</Label>
-            <Input
+            <IconInput
               id="studentNumber"
+              icon={IdCard}
               value={form.studentNumber}
               onChange={(e) => update("studentNumber", e.target.value)}
             />
           </div>
           <div className="flex flex-col gap-1.5">
             <Label htmlFor="yearLevel">Year level (optional)</Label>
-            <Input
+            <IconInput
               id="yearLevel"
+              icon={GraduationCap}
+              placeholder="e.g. 2nd year"
               value={form.yearLevel}
               onChange={(e) => update("yearLevel", e.target.value)}
             />
@@ -103,9 +113,9 @@ export default function RegisterPage() {
         </div>
         <div className="flex flex-col gap-1.5">
           <Label htmlFor="password">Password</Label>
-          <Input
+          <PasswordInput
             id="password"
-            type="password"
+            icon={LockKeyhole}
             autoComplete="new-password"
             value={form.password}
             onChange={(e) => update("password", e.target.value)}
@@ -121,9 +131,9 @@ export default function RegisterPage() {
         </div>
         <div className="flex flex-col gap-1.5">
           <Label htmlFor="confirmPassword">Confirm password</Label>
-          <Input
+          <PasswordInput
             id="confirmPassword"
-            type="password"
+            icon={MailCheck}
             autoComplete="new-password"
             value={form.confirmPassword}
             onChange={(e) => update("confirmPassword", e.target.value)}
@@ -131,7 +141,14 @@ export default function RegisterPage() {
           />
         </div>
         <Button type="submit" disabled={submitting} className="mt-2">
-          {submitting ? "Creating account…" : "Create account"}
+          {submitting ? (
+            "Creating account…"
+          ) : (
+            <>
+              <UserPlus aria-hidden="true" strokeWidth={1.8} className="h-4 w-4" />
+              Create account
+            </>
+          )}
         </Button>
       </form>
       <p className="mt-6 text-center text-sm text-ink-400">

@@ -1,7 +1,8 @@
 import { useEffect, useState } from "react";
-import { Card } from "@/components/ui/Primitives";
+import { Card, IconBadge } from "@/components/ui/Primitives";
 import { getReportSummary, getRegistrationTrend } from "@/api/wellness";
 import { appointmentAnalytics } from "@/api/appointments";
+import { GraduationCap, ShieldCheck, UserCog, Users } from "lucide-react";
 
 export default function AdminDashboardPage() {
   const [summary, setSummary] = useState<any>(null);
@@ -17,21 +18,33 @@ export default function AdminDashboardPage() {
   return (
     <div className="flex flex-col gap-6">
       <div className="grid gap-4 md:grid-cols-4">
-        <Card className="p-6">
-          <p className="text-xs text-ink-400">Total users</p>
-          <p className="mt-1 text-2xl font-semibold">{summary?.users?.total ?? "—"}</p>
+        <Card className="mw-card-hover flex items-start justify-between p-6">
+          <div>
+            <p className="text-xs text-ink-400">Total users</p>
+            <p className="mt-1 text-2xl font-semibold">{summary?.users?.total ?? "—"}</p>
+          </div>
+          <IconBadge icon={Users} tone="navy" />
         </Card>
-        <Card className="p-6">
-          <p className="text-xs text-ink-400">Students</p>
-          <p className="mt-1 text-2xl font-semibold">{summary?.users?.students ?? "—"}</p>
+        <Card className="mw-card-hover flex items-start justify-between p-6">
+          <div>
+            <p className="text-xs text-ink-400">Students</p>
+            <p className="mt-1 text-2xl font-semibold">{summary?.users?.students ?? "—"}</p>
+          </div>
+          <IconBadge icon={GraduationCap} tone="teal" />
         </Card>
-        <Card className="p-6">
-          <p className="text-xs text-ink-400">Counselors</p>
-          <p className="mt-1 text-2xl font-semibold">{summary?.users?.counselors ?? "—"}</p>
+        <Card className="mw-card-hover flex items-start justify-between p-6">
+          <div>
+            <p className="text-xs text-ink-400">Counselors</p>
+            <p className="mt-1 text-2xl font-semibold">{summary?.users?.counselors ?? "—"}</p>
+          </div>
+          <IconBadge icon={UserCog} tone="mint" />
         </Card>
-        <Card className="p-6">
-          <p className="text-xs text-ink-400">Active</p>
-          <p className="mt-1 text-2xl font-semibold">{summary?.users?.active ?? "—"}</p>
+        <Card className="mw-card-hover flex items-start justify-between p-6">
+          <div>
+            <p className="text-xs text-ink-400">Active</p>
+            <p className="mt-1 text-2xl font-semibold">{summary?.users?.active ?? "—"}</p>
+          </div>
+          <IconBadge icon={ShieldCheck} tone="sky" />
         </Card>
       </div>
 

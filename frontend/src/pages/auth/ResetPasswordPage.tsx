@@ -1,9 +1,10 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router";
 import { resetPassword } from "@/api/auth";
-import { Button, Input, Label } from "@/components/ui/Primitives";
+import { Button, IconInput, Label, PasswordInput } from "@/components/ui/Primitives";
 import { Alert } from "@/components/ui/Feedback";
 import { errorMessage } from "@/api/client";
+import { ArrowLeft, CheckCircle2, KeyRound, LockKeyhole, ShieldCheck } from "lucide-react";
 
 export default function ResetPasswordPage() {
   const [token, setToken] = useState("");
@@ -38,12 +39,18 @@ export default function ResetPasswordPage() {
   if (done) {
     return (
       <div>
+        <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-success-soft text-success">
+          <CheckCircle2 aria-hidden="true" strokeWidth={1.8} className="h-6 w-6" />
+        </div>
         <h1 className="text-heading font-semibold">Password updated</h1>
         <p className="mt-1 text-sm text-ink-400">
           Your password has been reset. Redirecting to sign in…
         </p>
         <Button asChild className="mt-6 w-full">
-          <Link to="/signin">Sign in now</Link>
+          <Link to="/signin">
+            <ArrowLeft aria-hidden="true" strokeWidth={1.8} className="h-4 w-4" />
+            Sign in now
+          </Link>
         </Button>
       </div>
     );
@@ -60,8 +67,10 @@ export default function ResetPasswordPage() {
       <form className="mt-6 flex flex-col gap-4" onSubmit={handleSubmit}>
         <div className="flex flex-col gap-1.5">
           <Label htmlFor="token">Reset token</Label>
-          <Input
+          <IconInput
             id="token"
+            icon={KeyRound}
+            placeholder="Paste your reset token"
             value={token}
             onChange={(e) => setToken(e.target.value)}
             required
@@ -69,9 +78,9 @@ export default function ResetPasswordPage() {
         </div>
         <div className="flex flex-col gap-1.5">
           <Label htmlFor="newPassword">New password</Label>
-          <Input
+          <PasswordInput
             id="newPassword"
-            type="password"
+            icon={LockKeyhole}
             autoComplete="new-password"
             value={newPassword}
             onChange={(e) => setNewPassword(e.target.value)}
@@ -80,9 +89,9 @@ export default function ResetPasswordPage() {
         </div>
         <div className="flex flex-col gap-1.5">
           <Label htmlFor="confirmPassword">Confirm new password</Label>
-          <Input
+          <PasswordInput
             id="confirmPassword"
-            type="password"
+            icon={ShieldCheck}
             autoComplete="new-password"
             value={confirmPassword}
             onChange={(e) => setConfirmPassword(e.target.value)}
@@ -90,7 +99,14 @@ export default function ResetPasswordPage() {
           />
         </div>
         <Button type="submit" disabled={submitting}>
-          {submitting ? "Updating…" : "Update password"}
+          {submitting ? (
+            "Updating…"
+          ) : (
+            <>
+              <KeyRound aria-hidden="true" strokeWidth={1.8} className="h-4 w-4" />
+              Update password
+            </>
+          )}
         </Button>
       </form>
     </div>

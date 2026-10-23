@@ -69,6 +69,13 @@ The React frontend calls **both** services directly with `credentials: 'include'
 
 CSRF token is automatically attached to cookie-auth mutations.
 
+## Interface & visual system
+
+- **Icons**: [`lucide-react`](https://lucide.dev) supplies the icon set. Navigation, dashboard stats, quick actions, alerts, and auth fields use the same 1.8px stroke weight so they match the Figma design language. Icons that only decorate text are marked `aria-hidden`.
+- **Animated background**: `components/ui/AnimatedBackground.tsx` renders slow-drifting blurred colour orbs, a masked dot grid, and (on auth screens) breathing rings. Layers are decorative, `pointer-events-none`, and `aria-hidden`.
+- **Motion**: motion is CSS-only and animates `transform`/`opacity` for GPU efficiency. The global `prefers-reduced-motion` rule freezes all animation, so the interface remains fully usable for users who opt out.
+- **Cards**: `.mw-card-hover` adds a 2px lift on hover for interactive cards; layout and contrast are unchanged when motion is reduced.
+
 ## Timezone
 
 All times are stored in MySQL `DATETIME`. Frontend displays in local timezone (Philippines context per UX).
