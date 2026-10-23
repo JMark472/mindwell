@@ -22,13 +22,24 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [error, setError] = useState<string | null>(null);
 
   const loadSession = useCallback(async () => {
+    // Never let a slow or blocked session probe trap the UI on "Loading…".
+    // The hard cap is longer than the HTTP client timeout on purpose.
+    let timer: number | undefined;
+    const failSafe = new Promise<never>((_, reject) => {
+      timer = window.setTimeout(
+        () => reject(new Error("Session check timed out")),
+        8_000,
+      );
+    });
+
     try {
       setError(null);
-      const sessionUser = await fetchSession();
+      const sessionUser = await Promise.race([fetchSession(), failSafe]);
       setUser(sessionUser);
     } catch {
       setUser(null);
     } finally {
+      if (timer !== undefined) window.clearTimeout(timer);
       setLoading(false);
     }
   }, []);

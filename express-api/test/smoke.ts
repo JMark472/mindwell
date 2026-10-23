@@ -88,10 +88,11 @@ async function main() {
   }, jar);
   check("profile update 200", patch.status === 200, `got ${patch.status}`);
 
-  // 9. register new student
+  // 9. register new student (unique email so re-runs stay idempotent)
+  const smokeEmail = `smoke+${Date.now()}@mindwell.test`;
   const reg = await req("/auth/register", {
     method: "POST",
-    body: JSON.stringify({ email: "newstudent@mindwell.test", password: "Password123", fullName: "Test Student" }),
+    body: JSON.stringify({ email: smokeEmail, password: "Password123", fullName: "Test Student" }),
     headers: { "x-csrf-token": csrfNow() },
   }, jar);
   check("register 201", reg.status === 201, `got ${reg.status} ${JSON.stringify(reg.body)}`);
@@ -99,7 +100,7 @@ async function main() {
   // 10. duplicate register -> 409
   const dup = await req("/auth/register", {
     method: "POST",
-    body: JSON.stringify({ email: "newstudent@mindwell.test", password: "Password123", fullName: "Test Student" }),
+    body: JSON.stringify({ email: smokeEmail, password: "Password123", fullName: "Test Student" }),
     headers: { "x-csrf-token": csrfNow() },
   }, jar);
   check("duplicate register 409", dup.status === 409, `got ${dup.status}`);

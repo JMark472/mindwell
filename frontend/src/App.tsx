@@ -42,23 +42,15 @@ export default function App() {
     <Routes>
       <Route path="/" element={<Navigate to="/signin" replace />} />
 
-      <Route element={<PublicRoute><AuthLayout><div /></AuthLayout></PublicRoute>}>
-        <Route path="/signin" element={<AuthLayout><SignInPage /></AuthLayout>} />
-      </Route>
-      <Route element={<PublicRoute><AuthLayout><div /></AuthLayout></PublicRoute>}>
-        <Route path="/register" element={<AuthLayout><RegisterPage /></AuthLayout>} />
-      </Route>
-      <Route element={<PublicRoute><AuthLayout><div /></AuthLayout></PublicRoute>}>
-        <Route path="/forgot-password" element={<AuthLayout><ForgotPasswordPage /></AuthLayout>} />
-      </Route>
-      <Route element={<PublicRoute><AuthLayout><div /></AuthLayout></PublicRoute>}>
-        <Route path="/reset-password" element={<AuthLayout><ResetPasswordPage /></AuthLayout>} />
-      </Route>
-      <Route element={<PublicRoute><AuthLayout><div /></AuthLayout></PublicRoute>}>
-        <Route path="/verify-email" element={<AuthLayout><VerifyEmailPage /></AuthLayout>} />
-      </Route>
-      <Route element={<PublicRoute><AuthLayout><div /></AuthLayout></PublicRoute>}>
-        <Route path="/session-expired" element={<AuthLayout><SessionExpiredPage /></AuthLayout>} />
+      <Route element={<PublicRoute />}>
+        <Route element={<AuthLayout />}>
+          <Route path="/signin" element={<SignInPage />} />
+          <Route path="/register" element={<RegisterPage />} />
+          <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+          <Route path="/reset-password" element={<ResetPasswordPage />} />
+          <Route path="/verify-email" element={<VerifyEmailPage />} />
+          <Route path="/session-expired" element={<SessionExpiredPage />} />
+        </Route>
       </Route>
 
       <Route path="/help" element={<HelpCrisisPage />} />

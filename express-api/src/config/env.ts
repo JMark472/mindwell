@@ -7,6 +7,22 @@ const required = (name: string): string => {
   return value;
 };
 
+/**
+ * Comma-separated list of browser origins allowed to call this API.
+ * FRONTEND_URL is always included; extra hosts (e.g. a preview port or the
+ * deployed Vercel domain) can be added through FRONTEND_URLS.
+ */
+const parseOrigins = (): string[] => {
+  const raw = [process.env.FRONTEND_URL, process.env.FRONTEND_URLS]
+    .filter(Boolean)
+    .join(",");
+  const list = raw
+    .split(",")
+    .map((value) => value.trim().replace(/\/$/, ""))
+    .filter(Boolean);
+  return Array.from(new Set(list));
+};
+
 export const ENV = {
   APP_NAME: process.env.APP_NAME || "Mindwell Express API",
   PORT: parseInt(process.env.PORT || "3000", 10),
@@ -14,6 +30,7 @@ export const ENV = {
   BACKEND_URL: process.env.BACKEND_URL || "http://localhost:3000",
   LARAVEL_URL: process.env.LARAVEL_URL || "http://localhost:8000",
   FRONTEND_URL: process.env.FRONTEND_URL || "http://localhost:5173",
+  FRONTEND_ORIGINS: parseOrigins(),
   JWT_SECRET: required("JWT_SECRET"),
   CSRF_SECRET: required("CSRF_SECRET"),
   SERVICE_KEY: required("SERVICE_KEY"),

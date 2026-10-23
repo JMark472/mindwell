@@ -1,10 +1,10 @@
 import { useAuth } from "@/context/AuthContext";
 import type { ReactNode } from "react";
-import { Navigate, useLocation } from "react-router";
+import { Navigate, Outlet, useLocation } from "react-router";
 import type { Role } from "@/types";
 
 interface GuardProps {
-  children: ReactNode;
+  children?: ReactNode;
   roles?: Role[];
 }
 
@@ -28,10 +28,10 @@ export function ProtectedRoute({ children, roles }: GuardProps) {
     return <Navigate to={getHomeForRole(user.role)} replace />;
   }
 
-  return <>{children}</>;
+  return children ? <>{children}</> : <Outlet />;
 }
 
-export function PublicRoute({ children }: { children: ReactNode }) {
+export function PublicRoute({ children }: { children?: ReactNode }) {
   const { user, loading } = useAuth();
   const location = useLocation();
 
@@ -44,12 +44,12 @@ export function PublicRoute({ children }: { children: ReactNode }) {
   }
 
   if (user) {
-    const state = location.state as { from?: Location } | null;
+    const state = location.state as { from?: { pathname?: string } } | null;
     const from = state?.from?.pathname ?? getHomeForRole(user.role);
     return <Navigate to={from} replace />;
   }
 
-  return <>{children}</>;
+  return children ? <>{children}</> : <Outlet />;
 }
 
 function getHomeForRole(role: Role) {

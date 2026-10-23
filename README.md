@@ -81,13 +81,75 @@ After seeding:
 
 | Role | Email | Password | Notes |
 |------|-------|----------|-------|
-| Admin | admin@mindwell.edu | Password123! | System administration |
-| Counselor | counselor@mindwell.edu | Password123! | Counseling services |
-| Student | student@mindwell.edu | Password123! | Student access |
-| Student 2 | maria.santos@mindwell.edu | Password123! | Additional student |
-| Counselor 2 | dr.reyes@mindwell.edu | Password123! | Additional counselor |
+| Admin | admin@mindwell.test | Password123 | System administration |
+| Counselor | counselor@mindwell.test | Password123 | Counseling services |
+| Student | student@mindwell.test | Password123 | Student access |
+| Student 2 | student2@mindwell.test | Password123 | Maria Clara Gonzales |
+| Counselor 2 | counselor2@mindwell.test | Password123 | Dr. Joel Lim |
 
-*(Exact accounts may vary by seed data; see seeder files for current values.)*
+*(Exact accounts may vary by seed data; see `express-api/src/db/seed.ts` for current values.)*
+
+## Production preview (local)
+
+Build the SPA and serve it on port 8080:
+
+```bash
+cd frontend
+npm run build
+npx serve -s dist -l 8080
+```
+
+Both APIs allow `http://localhost:5173` and `http://localhost:8080` in
+development. Set `FRONTEND_URLS` (comma-separated) to add more origins, and in
+production set `FRONTEND_URL` to the deployed frontend domain.
+
+## Deploying to the cloud
+
+The repository ships with a Vercel + Render blueprint.
+
+### 1. Database (required)
+
+Both APIs share one **MySQL** database. Render does not provide managed MySQL,
+so create a free instance with a provider such as [Aiven](https://aiven.io)
+(or Railway / Clever Cloud) and note the host, port, database, user, password.
+
+### 2. Frontend — Vercel
+
+1. Import the GitHub repo at <https://vercel.com/new>.
+2. `vercel.json` already sets the build (`frontend/`) and output (`frontend/dist`).
+3. Add environment variables:
+   - `VITE_EXPRESS_API_URL` → `https://<express-service>.onrender.com`
+   - `VITE_LARAVEL_API_URL` → `https://<laravel-service>.onrender.com`
+4. Deploy, then copy the production URL (e.g. `https://mindwell.vercel.app`).
+
+### 3. APIs — Render
+
+1. Open <https://render.com/new/blueprint> and select the repo; Render reads
+   `render.yaml` and creates `mindwell-express` and `mindwell-laravel`.
+2. Fill the `sync: false` variables:
+   - `FRONTEND_URL` → the Vercel URL (this drives CORS + cookie rules)
+   - `JWT_SECRET` → same long random value on **both** services
+   - `SERVICE_KEY` → same long random value on **both** services
+   - `CSRF_SECRET` → a separate random value (Express only)
+   - `DATABASE_*` (Express) / `DB_*` (Laravel) → the MySQL credentials
+   - `APP_KEY` (Laravel) → `php artisan key:generate --show` output
+   - `BACKEND_URL` / `LARAVEL_URL` / `APP_URL` → the public Render URLs
+3. Deploy. Express runs `db:migrate` during the build; Laravel runs
+   `php artisan migrate --force` on container start.
+
+### 4. Seed demo data (optional)
+
+```bash
+# Express
+cd express-api && npm run db:seed
+# Laravel
+cd laravel-api && php artisan db:seed --force
+```
+
+In production, Express sets `SameSite=None; Secure` cookies so the cross-site
+Vercel → Render session works. Both services must use the **same**
+`JWT_SECRET`, and `FRONTEND_URL` must match the deployed frontend exactly.
+
 
 ## Testing
 

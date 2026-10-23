@@ -12,11 +12,31 @@ const app = express();
 app.set("trust proxy", 1);
 
 // --- Core Middleware ---
+// Cookies are sent with every request, so the API must echo back the exact
+// request origin instead of using a wildcard. Unknown origins are rejected.
+const allowedOrigins = new Set(ENV.FRONTEND_ORIGINS);
+if (!ENV.isProduction) {
+  allowedOrigins.add("http://localhost:5173");
+  allowedOrigins.add("http://localhost:8080");
+  allowedOrigins.add("http://127.0.0.1:5173");
+  allowedOrigins.add("http://127.0.0.1:8080");
+}
+
 app.use(helmet());
 app.use(
   cors({
-    origin: ENV.FRONTEND_URL,
+    origin(origin, callback) {
+      // Same-origin / server-to-server requests have no Origin header.
+      if (!origin) return callback(null, true);
+      if (allowedOrigins.has(origin.replace(/\/$/, ""))) {
+        return callback(null, true);
+      }
+      return callback(null, false);
+    },
     credentials: true,
+    methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+    allowedHeaders: ["Accept", "Authorization", "Content-Type", "x-csrf-token", "x-service-key"],
+    maxAge: 600,
   }),
 );
 app.use(express.json({ limit: "1mb" }));

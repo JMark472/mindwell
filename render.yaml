@@ -1,11 +1,26 @@
+# Render Blueprint for the two Mindwell APIs.
+#
+# The app uses MySQL (Drizzle + Laravel migrations). Render does not offer a
+# managed MySQL instance, so point both services at an external MySQL provider
+# (Aiven, Railway, Clever Cloud, ...) and set the DB_* / DATABASE_* variables.
+#
+# Required shared values:
+#   JWT_SECRET  - identical on both services (Express signs, Laravel verifies)
+#   SERVICE_KEY - identical on both services (internal service-to-service calls)
+#   FRONTEND_URL- the deployed frontend origin, e.g. https://mindwell.vercel.app
+#
+# After the first deploy run the migrations once:
+#   Express: npm run db:migrate  (runs automatically during build)
+#   Laravel: php artisan migrate (runs automatically on container start)
+# Optional demo data: Express `npm run db:seed`, Laravel `php artisan db:seed`.
+
 services:
-  # Express API
   - type: web
     name: mindwell-express
-    env: node
+    runtime: node
     region: oregon
     plan: free
-    buildCommand: cd express-api && npm install && npm run build
+    buildCommand: cd express-api && npm ci --include=dev && npm run build && npm run db:migrate
     startCommand: cd express-api && npm start
     healthCheckPath: /api/health
     envVars:
@@ -13,23 +28,42 @@ services:
         value: production
       - key: PORT
         value: 10000
-      - key: DATABASE_URL
+      - key: APP_NAME
+        value: Mindwell Express API
+      - key: BACKEND_URL
+        sync: false
+      - key: LARAVEL_URL
+        sync: false
+      - key: FRONTEND_URL
+        sync: false
+      - key: FRONTEND_URLS
         sync: false
       - key: JWT_SECRET
-        sync: false
-      - key: APP_ORIGIN
-        sync: false
-      - key: COOKIE_DOMAIN
         sync: false
       - key: CSRF_SECRET
         sync: false
       - key: SERVICE_KEY
         sync: false
+      - key: ACCESS_TOKEN_TTL
+        value: 15m
+      - key: REFRESH_TOKEN_TTL
+        value: 7d
+      - key: DATABASE_HOST
+        sync: false
+      - key: DATABASE_PORT
+        value: 3306
+      - key: DATABASE_USER
+        sync: false
+      - key: DATABASE_PASSWORD
+        sync: false
+      - key: DATABASE_NAME
+        sync: false
+      - key: APP_TIMEZONE
+        value: UTC
 
-  # Laravel API
   - type: web
     name: mindwell-laravel
-    env: docker
+    runtime: docker
     region: oregon
     plan: free
     dockerfilePath: ./laravel-api/Dockerfile
@@ -39,9 +73,13 @@ services:
       - key: APP_ENV
         value: production
       - key: APP_DEBUG
-        value: false
+        value: "false"
       - key: APP_KEY
         sync: false
+      - key: APP_URL
+        sync: false
+      - key: LOG_CHANNEL
+        value: stderr
       - key: DB_CONNECTION
         value: mysql
       - key: DB_HOST
@@ -54,16 +92,17 @@ services:
         sync: false
       - key: DB_PASSWORD
         sync: false
+      - key: SESSION_DRIVER
+        value: file
+      - key: CACHE_STORE
+        value: file
+      - key: QUEUE_CONNECTION
+        value: sync
       - key: JWT_SECRET
         sync: false
       - key: FRONTEND_URL
         sync: false
+      - key: FRONTEND_URLS
+        sync: false
       - key: SERVICE_KEY
         sync: false
-
-databases:
-  - name: mindwell-db
-    databaseName: mindwell
-    plan: free
-    region: oregon
-    ipAllowList: []
