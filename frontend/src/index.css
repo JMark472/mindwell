@@ -1,0 +1,130 @@
+@import "tailwindcss";
+
+/*
+ * Mindwell design tokens.
+ *
+ * Brand colours, type scale and spacing are taken from the Figma source of
+ * truth ("MindWell – Complete System UI" → MindWell — Design System frame).
+ * Status colours (success / warning / danger) are supporting system colours
+ * chosen for WCAG AA contrast against their tinted backgrounds; they are not
+ * part of the brand palette.
+ */
+@theme {
+  --font-sans: "Poppins", ui-sans-serif, system-ui, -apple-system, "Segoe UI",
+    Roboto, "Helvetica Neue", Arial, sans-serif;
+
+  /* Brand */
+  --color-navy: #0b355f;
+  --color-navy-700: #0a2d51;
+  --color-navy-050: #eaf1f7;
+  --color-teal: #10a99b;
+  --color-teal-600: #0d8d81;
+  --color-mint: #52d0b0;
+  --color-mint-soft: #e7f8f4;
+  --color-sky: #eaf5fc;
+
+  /* Surfaces */
+  --color-canvas: #f5f9fa;
+  --color-surface: #ffffff;
+  --color-surface-2: #e7ecec;
+  --color-line: #dce5e6;
+
+  /* Text */
+  --color-ink: #0b355f;
+  --color-ink-600: #3d5d78;
+  --color-ink-400: #6b8398;
+  --color-ink-300: #94a7b6;
+
+  /* Status */
+  --color-success: #17805f;
+  --color-success-soft: #e4f6ee;
+  --color-warning: #9a6a00;
+  --color-warning-soft: #fdf3dc;
+  --color-danger: #b42318;
+  --color-danger-soft: #fdeceb;
+  --color-info: #0b5e88;
+  --color-info-soft: #e6f3fa;
+
+  /* Type scale (Display/36, Heading/24, Body/16, Label/12) */
+  --text-display: 2.25rem;
+  --text-display--line-height: 2.75rem;
+  --text-display--letter-spacing: -0.02em;
+  --text-heading: 1.5rem;
+  --text-heading--line-height: 2rem;
+  --text-heading--letter-spacing: -0.01em;
+
+  /* Radius */
+  --radius-card: 16px;
+  --radius-field: 10px;
+  --radius-pill: 999px;
+
+  /* Elevation */
+  --shadow-card: 0 1px 2px rgb(11 53 95 / 0.04), 0 8px 24px rgb(11 53 95 / 0.06);
+  --shadow-lift: 0 2px 4px rgb(11 53 95 / 0.06), 0 16px 40px rgb(11 53 95 / 0.12);
+}
+
+@layer base {
+  html {
+    -webkit-text-size-adjust: 100%;
+  }
+
+  body {
+    @apply bg-canvas font-sans text-[15px] text-ink antialiased;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4 {
+    @apply text-ink;
+    text-wrap: balance;
+  }
+
+  /* Visible, consistent keyboard focus everywhere. */
+  :focus-visible {
+    outline: 2px solid var(--color-teal);
+    outline-offset: 2px;
+    border-radius: 6px;
+  }
+
+  ::selection {
+    background: var(--color-mint-soft);
+    color: var(--color-navy);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
+  }
+}
+
+@layer components {
+  /* A single card primitive used by every screen. */
+  .mw-card {
+    @apply rounded-card border border-line bg-surface shadow-card;
+  }
+
+  .mw-focus-ring {
+    @apply focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal;
+  }
+
+  /* Skip link — first tab stop on every page. */
+  .mw-skip-link {
+    @apply absolute left-4 top-4 z-[100] -translate-y-24 rounded-field bg-navy px-4 py-2
+      text-sm font-medium text-white transition-transform focus:translate-y-0;
+  }
+}
+
+/* Thin, unobtrusive scrollbars for the sidebar. */
+@layer utilities {
+  .mw-scrollbar {
+    scrollbar-width: thin;
+    scrollbar-color: var(--color-surface-2) transparent;
+  }
+}

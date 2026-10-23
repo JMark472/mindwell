@@ -1,0 +1,55 @@
+{
+  "name": "mindwell-express-api",
+  "version": "1.0.0",
+  "description": "Express.js + TypeScript primary API service for Mindwell (auth, users, notifications, admin, reports).",
+  "main": "dist/server.mjs",
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "build": "tsdown src/server.ts --format esm --clean --minify",
+    "dev": "tsx watch src/server.ts",
+    "start": "node dist/server.mjs",
+    "db:plan": "drizzle-kit generate",
+    "db:migrate": "drizzle-kit migrate",
+    "db:seed": "tsx src/db/seed.ts",
+    "db:studio": "drizzle-kit studio",
+    "test": "tsx --test test/**/*.test.ts",
+    "lint": "eslint ."
+  },
+  "license": "ISC",
+  "type": "commonjs",
+  "dependencies": {
+    "bcrypt": "^6.0.0",
+    "cookie-parser": "^1.4.7",
+    "cors": "^2.8.6",
+    "dotenv": "^18.0.0",
+    "drizzle-orm": "^0.45.4",
+    "express": "^5.2.1",
+    "express-rate-limit": "^8.2.1",
+    "helmet": "^8.3.0",
+    "hpp": "^0.2.3",
+    "jsonwebtoken": "^9.0.3",
+    "mysql2": "^3.14.4",
+    "zod": "^4.6.5"
+  },
+  "devDependencies": {
+    "@eslint/js": "^10.0.1",
+    "@types/bcrypt": "^6.0.0",
+    "@types/cookie-parser": "^1.4.10",
+    "@types/cors": "^2.8.19",
+    "@types/express": "^5.0.6",
+    "@types/hpp": "^0.2.7",
+    "@types/jsonwebtoken": "^9.0.10",
+    "@types/node": "^26.6.1",
+    "@typescript-eslint/eslint-plugin": "^8.70.0",
+    "@typescript-eslint/parser": "^8.70.0",
+    "drizzle-kit": "^0.31.11",
+    "eslint": "^10.10.0",
+    "jiti": "^2.7.0",
+    "tsdown": "^0.23.0",
+    "tsx": "^4.23.13",
+    "typescript": "^6.0.3",
+    "typescript-eslint": "^8.70.0"
+  }
+}

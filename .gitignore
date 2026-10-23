@@ -1,0 +1,43 @@
+# Dependencies
+node_modules/
+vendor/
+
+# Build output
+dist/
+build/
+
+# Environment
+.env
+.env.local
+.env.*.local
+laravel-api/.env
+laravel-api/.env.testing
+express-api/.env
+
+# Logs
+*.log
+logs/
+laravel-api/storage/logs/*.log
+
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Editor
+.idea/
+.vscode/
+*.swp
+
+# PHP
+laravel-api/storage/framework/cache/*
+laravel-api/storage/framework/sessions/*
+laravel-api/storage/framework/views/*
+laravel-api/bootstrap/cache/*.php
+.phpunit.result.cache
+
+# TS
+*.tsbuildinfo
+
+# Uploads/temp
+uploads/
