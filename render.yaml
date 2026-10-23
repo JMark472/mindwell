@@ -1,0 +1,69 @@
+services:
+  # Express API
+  - type: web
+    name: mindwell-express
+    env: node
+    region: oregon
+    plan: free
+    buildCommand: cd express-api && npm install && npm run build
+    startCommand: cd express-api && npm start
+    healthCheckPath: /api/health
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 10000
+      - key: DATABASE_URL
+        sync: false
+      - key: JWT_SECRET
+        sync: false
+      - key: APP_ORIGIN
+        sync: false
+      - key: COOKIE_DOMAIN
+        sync: false
+      - key: CSRF_SECRET
+        sync: false
+      - key: SERVICE_KEY
+        sync: false
+
+  # Laravel API
+  - type: web
+    name: mindwell-laravel
+    env: docker
+    region: oregon
+    plan: free
+    dockerfilePath: ./laravel-api/Dockerfile
+    dockerContext: ./laravel-api
+    healthCheckPath: /api/health
+    envVars:
+      - key: APP_ENV
+        value: production
+      - key: APP_DEBUG
+        value: false
+      - key: APP_KEY
+        sync: false
+      - key: DB_CONNECTION
+        value: mysql
+      - key: DB_HOST
+        sync: false
+      - key: DB_PORT
+        value: 3306
+      - key: DB_DATABASE
+        sync: false
+      - key: DB_USERNAME
+        sync: false
+      - key: DB_PASSWORD
+        sync: false
+      - key: JWT_SECRET
+        sync: false
+      - key: FRONTEND_URL
+        sync: false
+      - key: SERVICE_KEY
+        sync: false
+
+databases:
+  - name: mindwell-db
+    databaseName: mindwell
+    plan: free
+    region: oregon
+    ipAllowList: []
