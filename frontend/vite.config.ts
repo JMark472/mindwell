@@ -20,8 +20,25 @@ export default defineConfig({
     strictPort: true,
   },
   preview: {
-    port: 5173,
+    port: 8080,
     strictPort: true,
+    // Preview serves the production bundle and proxies both APIs so the app
+    // can be shared through a single tunnel/origin. Cookies and CSRF then work
+    // exactly as they do on localhost, without cross-site cookie rules.
+    host: true,
+    allowedHosts: [".trycloudflare.com"],
+    proxy: {
+      "/express": {
+        target: "http://127.0.0.1:3000",
+        changeOrigin: false,
+        rewrite: (path) => path.replace(/^\/express/, ""),
+      },
+      "/laravel": {
+        target: "http://127.0.0.1:8000",
+        changeOrigin: false,
+        rewrite: (path) => path.replace(/^\/laravel/, ""),
+      },
+    },
   },
   test: {
     environment: "jsdom",
