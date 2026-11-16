@@ -56,11 +56,33 @@ return Application::configure(basePath: dirname(__DIR__))
         });
 
         $exceptions->render(function (Symfony\Component\HttpKernel\Exception\HttpExceptionInterface $e, $request) {
-            if ($request->is('api/*') && $e->getStatusCode() === 404) {
+            if ($request->is('api/*')) {
+                $status = $e->getStatusCode();
+                $message = $e->getMessage();
+                if ($status === 404 && $message === '') {
+                    $message = 'Endpoint not found.';
+                }
+
                 return response()->json([
                     'status' => 'error',
-                    'message' => 'Endpoint not found.',
-                ], 404);
+                    'message' => $message !== '' ? $message : 'Request failed.',
+                ], $status);
+            }
+
+            return null;
+        });
+
+        $exceptions->render(function (\Throwable $e, $request) {
+            if ($request->is('api/*')) {
+                report($e);
+                $message = config('app.debug')
+                    ? ($e->getMessage() ?: 'Internal server error')
+                    : 'Internal server error';
+
+                return response()->json([
+                    'status' => 'error',
+                    'message' => $message,
+                ], 500);
             }
 
             return null;
