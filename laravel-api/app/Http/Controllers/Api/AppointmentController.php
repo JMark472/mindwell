@@ -43,35 +43,42 @@ class AppointmentController extends Controller
             $query->where('status', $request->query('status'));
         }
 
-        $rows = $query->limit(100)->get();
+        $rows = $query->limit(200)->get();
+
+        $profileIds = $rows->pluck('counselor_profile_id')->map(fn ($id) => (int) $id)->unique()->values()->all();
+        $profiles = CounselorProfile::query()->whereIn('id', $profileIds)->get()->keyBy('id');
+        $counselorUserIds = $profiles->map(fn ($p) => (int) $p->user_id)->values()->all();
 
         // Enrich with names resolved through the Express service (identity owner).
-        $names = ExpressClient::lookupUsers(array_merge(
-            $rows->pluck('student_user_id')->all(),
-            $rows->pluck('counselor_profile_id')->map(fn ($id) => (int) $id)->all()
-        ));
+        $names = ExpressClient::lookupUsers(array_values(array_unique(array_merge(
+            $rows->pluck('student_user_id')->map(fn ($id) => (int) $id)->all(),
+            $counselorUserIds
+        ))));
 
-        $data = $rows->map(function (Appointment $a) use ($names, $role) {
+        $data = $rows->map(function (Appointment $a) use ($names, $role, $profiles) {
+            $profile = $profiles->get($a->counselor_profile_id);
+            $counselorUserId = $profile ? (int) $profile->user_id : null;
+
             $payload = [
                 'id' => $a->id,
                 'student_user_id' => $a->student_user_id,
                 'counselor_profile_id' => $a->counselor_profile_id,
+                'counselor_user_id' => $counselorUserId,
                 'slot_start' => $a->slot_start?->toIso8601String(),
                 'slot_end' => $a->slot_end?->toIso8601String(),
                 'status' => $a->status,
                 'mode' => $a->mode,
                 'concern_category' => $a->concern_category,
                 'created_at' => $a->created_at?->toIso8601String(),
+                'student_name' => $names[$a->student_user_id]['full_name'] ?? null,
+                'counselor_name' => $counselorUserId ? ($names[$counselorUserId]['full_name'] ?? null) : null,
+                'student_avatar_url' => $names[$a->student_user_id]['avatar_url'] ?? null,
+                'counselor_avatar_url' => $counselorUserId ? ($names[$counselorUserId]['avatar_url'] ?? null) : null,
             ];
 
             if ($role === 'admin') {
                 return $payload;
             }
-
-            $payload['student_name'] = $names[$a->student_user_id]['full_name'] ?? null;
-            $payload['counselor_name'] = $names[$a->counselor_profile_id]['full_name'] ?? null;
-            $payload['student_avatar_url'] = $names[$a->student_user_id]['avatar_url'] ?? null;
-            $payload['counselor_avatar_url'] = $names[$a->counselor_profile_id]['avatar_url'] ?? null;
 
             if ($role === 'counselor') {
                 $payload['student_note'] = $a->student_note;
@@ -219,6 +226,63 @@ class AppointmentController extends Controller
         $updated = $this->appointments->cancel($appointment, $userId, $validated['reason'] ?? '');
 
         return response()->json(['status' => 'success', 'data' => ['appointment' => $updated]]);
+    }
+
+    /**
+     * PATCH /api/appointments/{id} — admin correction of assigned identities.
+     */
+    public function adminUpdate(Request $request, int $id): JsonResponse
+    {
+        $role = (string) $request->attributes->get('auth_role');
+        if ($role !== 'admin') {
+            throw new AuthorizationException('Only administrators can update appointment identities.');
+        }
+
+        $validated = $request->validate([
+            'student_user_id' => ['sometimes', 'integer', 'min:1'],
+            'counselor_profile_id' => ['sometimes', 'integer', 'exists:counselor_profiles,id'],
+        ]);
+
+        $appointment = Appointment::query()->findOrFail($id);
+
+        $updates = [];
+        if (array_key_exists('student_user_id', $validated)) {
+            $updates['student_user_id'] = (int) $validated['student_user_id'];
+        }
+        if (array_key_exists('counselor_profile_id', $validated)) {
+            $updates['counselor_profile_id'] = (int) $validated['counselor_profile_id'];
+        }
+
+        if (! empty($updates)) {
+            $appointment->update($updates);
+        }
+
+        $appointment = $appointment->fresh();
+        $profile = CounselorProfile::query()->find($appointment->counselor_profile_id);
+        $counselorUserId = $profile ? (int) $profile->user_id : null;
+        $names = ExpressClient::lookupUsers(array_values(array_filter([
+            (int) $appointment->student_user_id,
+            $counselorUserId,
+        ])));
+
+        return response()->json([
+            'status' => 'success',
+            'data' => [
+                'appointment' => [
+                    'id' => $appointment->id,
+                    'student_user_id' => $appointment->student_user_id,
+                    'counselor_profile_id' => $appointment->counselor_profile_id,
+                    'counselor_user_id' => $counselorUserId,
+                    'slot_start' => $appointment->slot_start?->toIso8601String(),
+                    'slot_end' => $appointment->slot_end?->toIso8601String(),
+                    'status' => $appointment->status,
+                    'mode' => $appointment->mode,
+                    'created_at' => $appointment->created_at?->toIso8601String(),
+                    'student_name' => $names[$appointment->student_user_id]['full_name'] ?? null,
+                    'counselor_name' => $counselorUserId ? ($names[$counselorUserId]['full_name'] ?? null) : null,
+                ],
+            ],
+        ]);
     }
 
     private function authorizeAccess(Request $request, Appointment $appointment, bool $allowCancel = false): void

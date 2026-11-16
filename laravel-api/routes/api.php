@@ -52,6 +52,8 @@ Route::middleware(['auth', 'csrf.api'])->group(function () {
     Route::get('/appointments/{counselorProfileId}/slots', [AppointmentController::class, 'slots']);
     Route::get('/appointments/{id}', [AppointmentController::class, 'show'])->whereNumber('id');
     Route::post('/appointments', [AppointmentController::class, 'store'])->middleware('role:student');
+    Route::patch('/appointments/{id}', [AppointmentController::class, 'adminUpdate'])
+        ->whereNumber('id')->middleware('role:admin');
     Route::patch('/appointments/{id}/status', [AppointmentController::class, 'updateStatus'])
         ->whereNumber('id')->middleware('role:counselor');
     Route::post('/appointments/{id}/cancel', [AppointmentController::class, 'cancel'])->whereNumber('id');

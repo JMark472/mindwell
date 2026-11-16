@@ -7,6 +7,7 @@ export interface Appointment {
   id: number;
   student_user_id: number;
   counselor_profile_id: number;
+  counselor_user_id?: number | null;
   slot_start: string;
   slot_end: string;
   status: AppointmentStatus;
@@ -103,6 +104,14 @@ export async function updateAppointmentStatus(
 
 export async function cancelAppointment(id: number, reason?: string) {
   const { data } = await laravel.post(`/appointments/${id}/cancel`, { reason });
+  return data.data.appointment as Appointment;
+}
+
+export async function adminUpdateAppointment(
+  id: number,
+  payload: { student_user_id?: number; counselor_profile_id?: number },
+) {
+  const { data } = await laravel.patch(`/appointments/${id}`, payload);
   return data.data.appointment as Appointment;
 }
 
