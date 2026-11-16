@@ -2,7 +2,7 @@ import { useRef, useState } from "react";
 import { Camera, Trash2, Upload, X } from "lucide-react";
 import { Button } from "@/components/ui/Primitives";
 import { useAuth } from "@/context/AuthContext";
-import { uploadAvatar } from "@/api/auth";
+import { updateMyProfile, uploadAvatar } from "@/api/auth";
 import { errorMessage } from "@/api/client";
 
 function getInitials(name?: string | null) {
@@ -101,7 +101,6 @@ export default function ProfilePhotoUpload({
     setUploading(true);
     setError(null);
     try {
-      const { updateMyProfile } = await import("@/api/auth");
       const result = await updateMyProfile({ avatarUrl: null });
       setUser(result.user);
       setPreview(null);

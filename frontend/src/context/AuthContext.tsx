@@ -2,7 +2,7 @@ import { createContext, useCallback, useContext, useEffect, useMemo, useState } 
 import type { ReactNode } from "react";
 import { fetchSession, login as apiLogin, logout as apiLogout } from "@/api/auth";
 import type { User } from "@/types";
-import { UNAUTHORIZED_EVENT } from "@/api/client";
+import { UNAUTHORIZED_EVENT, errorMessage } from "@/api/client";
 
 interface AuthContextValue {
   user: User | null;
@@ -63,7 +63,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setUser(loggedInUser);
       return loggedInUser;
     } catch (err) {
-      const { errorMessage } = await import("@/api/client");
       const message = errorMessage(err, "Sign in failed.");
       setError(message);
       throw err;
