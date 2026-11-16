@@ -19,7 +19,7 @@ async function main() {
     role: "student" | "counselor" | "admin";
     phone?: string;
   }[] = [
-    { email: "admin@mindwell.test", fullName: "Alex Reyes", role: "admin", phone: "+63 917 000 0001" },
+    { email: "admin@mindwell.test", fullName: "Admin", role: "admin", phone: "+63 917 000 0001" },
     { email: "counselor@mindwell.test", fullName: "Dr. Maria Santos", role: "counselor", phone: "+63 917 000 0002" },
     { email: "counselor2@mindwell.test", fullName: "Dr. Joel Lim", role: "counselor", phone: "+63 917 000 0003" },
     { email: "student@mindwell.test", fullName: "Juan Dela Cruz", role: "student", phone: "+63 917 000 0004" },
