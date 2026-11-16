@@ -15,9 +15,9 @@ export async function register(payload: {
   fullName: string;
   email: string;
   password: string;
-  studentNumber?: string;
+  studentNumber: string;
   program?: string;
-  yearLevel?: string;
+  yearLevel: string;
 }) {
   await ensureCsrf();
   const { data } = await express.post("/auth/register", payload);

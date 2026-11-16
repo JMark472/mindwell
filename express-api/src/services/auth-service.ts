@@ -75,9 +75,9 @@ export async function register(input: {
   email: string;
   password: string;
   fullName: string;
-  studentNumber?: string;
+  studentNumber: string;
   program?: string;
-  yearLevel?: string;
+  yearLevel: string;
   ip?: string;
   userAgent?: string;
 }) {
@@ -92,19 +92,17 @@ export async function register(input: {
   });
   if (!user) throw new ApiError(500, "Account creation failed.");
 
-  // Optional onboarding fields on the student profile.
-  if (input.studentNumber || input.program || input.yearLevel) {
-    const { studentProfiles } = await import("@/db/schema");
-    await db
-      .update(studentProfiles)
-      .set({
-        studentNumber: input.studentNumber ?? null,
-        program: input.program ?? null,
-        yearLevel: input.yearLevel ?? null,
-      })
-      .where(eq(studentProfiles.userId, user.id))
-      .execute();
-  }
+  // Student identification fields are required for easier record lookup.
+  const { studentProfiles } = await import("@/db/schema");
+  await db
+    .update(studentProfiles)
+    .set({
+      studentNumber: input.studentNumber,
+      program: input.program?.trim() || null,
+      yearLevel: input.yearLevel,
+    })
+    .where(eq(studentProfiles.userId, user.id))
+    .execute();
 
   await writeAudit({
     actorUserId: user.id,

@@ -56,8 +56,23 @@ export default function ProfileSettingsPage() {
     setSaving(true);
     setMessage(null);
     setError(null);
+    const studentNumber = form.studentNumber.trim();
+    const yearLevel = form.yearLevel.trim();
+    if (!studentNumber || !yearLevel) {
+      setSaving(false);
+      setError("Student ID and Year level are required.");
+      return;
+    }
     try {
-      const result = await updateMyProfile(form);
+      const result = await updateMyProfile({
+        ...form,
+        fullName: form.fullName.trim(),
+        phone: form.phone.trim(),
+        avatarUrl: form.avatarUrl.trim(),
+        studentNumber,
+        program: form.program.trim(),
+        yearLevel,
+      });
       setUser(result.user);
       setMessage("Profile updated.");
     } catch (err) {
@@ -157,6 +172,8 @@ export default function ProfileSettingsPage() {
               id="studentNumber"
               value={form.studentNumber}
               onChange={(e) => setForm((prev) => ({ ...prev, studentNumber: e.target.value }))}
+              placeholder="e.g. 2026-00001"
+              required
             />
           </div>
           <div className="flex flex-col gap-1.5">
@@ -173,6 +190,8 @@ export default function ProfileSettingsPage() {
               id="yearLevel"
               value={form.yearLevel}
               onChange={(e) => setForm((prev) => ({ ...prev, yearLevel: e.target.value }))}
+              placeholder="e.g. 2nd year"
+              required
             />
           </div>
         </div>

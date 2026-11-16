@@ -75,6 +75,17 @@ router.patch(
     const userId = Number(user!.sub);
     const body = req.body as Record<string, unknown>;
 
+    if (user!.role === "student") {
+      const studentNumber = typeof body.studentNumber === "string" ? body.studentNumber.trim() : "";
+      const yearLevel = typeof body.yearLevel === "string" ? body.yearLevel.trim() : "";
+      if (!studentNumber || !yearLevel) {
+        throw new ApiError(400, "Student ID and Year level are required.");
+      }
+      body.studentNumber = studentNumber;
+      body.yearLevel = yearLevel;
+      if (typeof body.program === "string") body.program = body.program.trim();
+    }
+
     const userFields: Record<string, unknown> = {};
     if (body.fullName !== undefined) userFields.fullName = body.fullName;
     if (body.phone !== undefined) userFields.phone = body.phone;

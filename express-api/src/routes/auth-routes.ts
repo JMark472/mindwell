@@ -43,9 +43,9 @@ const registerSchema = z.object({
       .regex(/[a-zA-Z]/, "Password must contain a letter.")
       .regex(/[0-9]/, "Password must contain a number."),
     fullName: z.string().min(2).max(120),
-    studentNumber: z.string().max(40).optional(),
-    program: z.string().max(120).optional(),
-    yearLevel: z.string().max(40).optional(),
+    studentNumber: z.string().trim().min(1, "Student ID is required.").max(40),
+    program: z.string().trim().max(120).optional(),
+    yearLevel: z.string().trim().min(1, "Year level is required.").max(40),
   }),
 });
 

@@ -39,13 +39,18 @@ export default function RegisterPage() {
 
     setSubmitting(true);
     try {
+      if (!form.studentNumber.trim() || !form.yearLevel.trim()) {
+        setError("Student ID and Year level are required.");
+        return;
+      }
+
       const result = await apiRegister({
-        fullName: form.fullName,
-        email: form.email,
+        fullName: form.fullName.trim(),
+        email: form.email.trim(),
         password: form.password,
-        studentNumber: form.studentNumber || undefined,
-        program: form.program || undefined,
-        yearLevel: form.yearLevel || undefined,
+        studentNumber: form.studentNumber.trim(),
+        program: form.program.trim() || undefined,
+        yearLevel: form.yearLevel.trim(),
       });
       setUser(result.user);
       navigate("/student/dashboard", { replace: true });
@@ -92,22 +97,25 @@ export default function RegisterPage() {
         </div>
         <div className="grid gap-4 sm:grid-cols-2">
           <div className="flex flex-col gap-1.5">
-            <Label htmlFor="studentNumber">Student ID (optional)</Label>
+            <Label htmlFor="studentNumber">Student ID</Label>
             <IconInput
               id="studentNumber"
               icon={IdCard}
+              placeholder="e.g. 2026-00001"
               value={form.studentNumber}
               onChange={(e) => update("studentNumber", e.target.value)}
+              required
             />
           </div>
           <div className="flex flex-col gap-1.5">
-            <Label htmlFor="yearLevel">Year level (optional)</Label>
+            <Label htmlFor="yearLevel">Year level</Label>
             <IconInput
               id="yearLevel"
               icon={GraduationCap}
               placeholder="e.g. 2nd year"
               value={form.yearLevel}
               onChange={(e) => update("yearLevel", e.target.value)}
+              required
             />
           </div>
         </div>
