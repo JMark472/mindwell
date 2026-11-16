@@ -33,7 +33,7 @@ export default function CounselorStudentLayout({
         {caseload.length === 0 ? (
           <p className="px-2 py-3 text-xs text-ink-400">No students in your caseload yet.</p>
         ) : (
-          <ul className="mt-2">
+          <ul className="mt-2 max-h-[40vh] space-y-0.5 overflow-y-auto lg:max-h-none">
             {caseload.map((entry) => (
               <li key={entry.student_user_id}>
                 <button

@@ -112,17 +112,17 @@ export default function CallSessionsPage() {
           <Card className="overflow-hidden">
             <ul className="divide-y divide-line">
               {past.map((session) => (
-                <li key={session.id} className="flex items-center justify-between px-6 py-4">
-                  <div className="flex items-center gap-3">
-                    <div className="flex h-10 w-10 items-center justify-center rounded-full bg-surface-2 text-xs font-semibold text-ink-600">
+                <li key={session.id} className="flex flex-col gap-3 px-4 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-6">
+                  <div className="flex min-w-0 items-center gap-3">
+                    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-surface-2 text-xs font-semibold text-ink-600">
                       {session.counselor_name?.split(" ").map(n => n[0]).join("").slice(0, 2).toUpperCase() || "C"}
                     </div>
-                    <div>
+                    <div className="min-w-0">
                       <p className="font-medium">{session.counselor_name || "Counselor"}</p>
                       <p className="text-sm text-ink-400">{formatDateTime(session.slot_start)}</p>
                     </div>
                   </div>
-                  <div className="flex items-center gap-3">
+                  <div className="flex flex-wrap items-center gap-2 sm:gap-3">
                     <Badge tone={session.status === "completed" ? "success" : "neutral"}>{session.status}</Badge>
                     <Button asChild variant="ghost" size="sm">
                       <Link to={`/student/appointments/${session.id}`}>View Details</Link>

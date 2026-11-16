@@ -375,7 +375,7 @@ export default function MessagesPage() {
       {error ? <Alert>{error}</Alert> : null}
 
       <div className="overflow-hidden rounded-card border border-line bg-surface shadow-card">
-        <div className="grid h-[calc(100vh-13rem)] min-h-[560px] lg:grid-cols-[340px_minmax(0,1fr)]">
+        <div className="grid h-[calc(100dvh-10rem)] min-h-[460px] sm:h-[calc(100dvh-11rem)] sm:min-h-[560px] lg:h-[calc(100vh-13rem)] lg:grid-cols-[340px_minmax(0,1fr)]">
           {/* Left rail: conversation list + pattern design */}
           <section
             className={cn(

@@ -49,7 +49,7 @@ export default function CounselorCallSessionsPage() {
         </div>
       </Card>
 
-      <div className="grid gap-4 md:grid-cols-3">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
         <Card className="p-6">
           <div className="flex items-center justify-between">
             <div>

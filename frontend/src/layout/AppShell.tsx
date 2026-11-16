@@ -272,13 +272,13 @@ export function AppHeader({
             <Menu aria-hidden="true" strokeWidth={1.8} className="h-5 w-5" />
           </button>
         ) : null}
-        <div className="flex flex-col gap-1">
+        <div className="flex min-w-0 flex-col gap-1">
           <div className="flex flex-wrap items-center gap-2 text-[11px] uppercase tracking-[0.28em] text-ink-300">
             <span>Mindwell</span>
             <span className="hidden sm:inline-block h-1 w-1 rounded-full bg-ink-300" />
             <span className="hidden sm:inline">{dateLabel}</span>
           </div>
-          <h1 className="text-3xl font-semibold tracking-tight sm:text-display">{title}</h1>
+          <h1 className="text-2xl font-semibold tracking-tight sm:text-3xl lg:text-display">{title}</h1>
           {subtitle ? <p className="text-sm text-ink-400">{subtitle}</p> : null}
         </div>
       </div>

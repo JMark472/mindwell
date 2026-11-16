@@ -14,24 +14,26 @@ export default function AdminListPage({ role, title }: { role: string; title: st
       <div className="px-6 py-4">
         <h2 className="text-lg font-semibold">{title}</h2>
       </div>
-      <table className="w-full text-sm">
-        <thead className="bg-navy-050">
-          <tr>
-            <th className="px-6 py-2 text-left text-xs font-medium">Name</th>
-            <th className="px-6 py-2 text-left text-xs font-medium">Email</th>
-            <th className="px-6 py-2 text-left text-xs font-medium">Status</th>
-          </tr>
-        </thead>
-        <tbody className="divide-y divide-line">
-          {users.map((user) => (
-            <tr key={user.id}>
-              <td className="px-6 py-3">{user.fullName}</td>
-              <td className="px-6 py-3 text-ink-400">{user.email}</td>
-              <td className="px-6 py-3 capitalize">{user.status}</td>
+      <div className="overflow-x-auto">
+        <table className="w-full min-w-[480px] text-sm">
+          <thead className="bg-navy-050">
+            <tr>
+              <th className="px-4 py-2 text-left text-xs font-medium sm:px-6">Name</th>
+              <th className="px-4 py-2 text-left text-xs font-medium sm:px-6">Email</th>
+              <th className="px-4 py-2 text-left text-xs font-medium sm:px-6">Status</th>
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+          <tbody className="divide-y divide-line">
+            {users.map((user) => (
+              <tr key={user.id}>
+                <td className="px-4 py-3 sm:px-6">{user.fullName}</td>
+                <td className="px-4 py-3 text-ink-400 sm:px-6">{user.email}</td>
+                <td className="px-4 py-3 capitalize sm:px-6">{user.status}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
     </Card>
   );
 }

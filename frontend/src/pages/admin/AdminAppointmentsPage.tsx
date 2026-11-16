@@ -14,7 +14,7 @@ export default function AdminAppointmentsPage() {
   return (
     <div className="flex flex-col gap-6">
       {analytics ? (
-        <div className="grid gap-4 md:grid-cols-4">
+        <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
           <Card className="p-6">
             <p className="text-xs text-ink-400">Total</p>
             <p className="mt-1 text-xl font-semibold">{analytics.total}</p>
@@ -40,30 +40,32 @@ export default function AdminAppointmentsPage() {
         <div className="px-6 py-4">
           <h2 className="text-lg font-semibold">Appointments</h2>
         </div>
-        <table className="w-full text-sm">
-          <thead className="bg-navy-050">
-            <tr>
-              <th className="px-6 py-2 text-left text-xs font-medium">ID</th>
-              <th className="px-6 py-2 text-left text-xs font-medium">Student</th>
-              <th className="px-6 py-2 text-left text-xs font-medium">Counselor</th>
-              <th className="px-6 py-2 text-left text-xs font-medium">Time</th>
-              <th className="px-6 py-2 text-left text-xs font-medium">Status</th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-line">
-            {appointments.map((appointment) => (
-              <tr key={appointment.id}>
-                <td className="px-6 py-3">{appointment.id}</td>
-                <td className="px-6 py-3">{appointment.student_user_id}</td>
-                <td className="px-6 py-3">{appointment.counselor_profile_id}</td>
-                <td className="px-6 py-3 text-ink-400">
-                  {new Date(appointment.slot_start).toLocaleString("en-PH")}
-                </td>
-                <td className="px-6 py-3 capitalize">{appointment.status}</td>
+        <div className="overflow-x-auto">
+          <table className="w-full min-w-[640px] text-sm">
+            <thead className="bg-navy-050">
+              <tr>
+                <th className="px-4 py-2 text-left text-xs font-medium sm:px-6">ID</th>
+                <th className="px-4 py-2 text-left text-xs font-medium sm:px-6">Student</th>
+                <th className="px-4 py-2 text-left text-xs font-medium sm:px-6">Counselor</th>
+                <th className="px-4 py-2 text-left text-xs font-medium sm:px-6">Time</th>
+                <th className="px-4 py-2 text-left text-xs font-medium sm:px-6">Status</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody className="divide-y divide-line">
+              {appointments.map((appointment) => (
+                <tr key={appointment.id}>
+                  <td className="px-4 py-3 sm:px-6">{appointment.id}</td>
+                  <td className="px-4 py-3 sm:px-6">{appointment.student_user_id}</td>
+                  <td className="px-4 py-3 sm:px-6">{appointment.counselor_profile_id}</td>
+                  <td className="px-4 py-3 text-ink-400 sm:px-6">
+                    {new Date(appointment.slot_start).toLocaleString("en-PH")}
+                  </td>
+                  <td className="px-4 py-3 capitalize sm:px-6">{appointment.status}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       </Card>
     </div>
   );

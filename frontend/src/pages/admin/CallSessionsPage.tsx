@@ -36,7 +36,7 @@ export default function AdminCallSessionsPage() {
         </div>
       </Card>
 
-      <div className="grid gap-4 md:grid-cols-4">
+      <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
         <Card className="p-6">
           <div className="flex items-center justify-between">
             <div>
@@ -90,17 +90,17 @@ export default function AdminCallSessionsPage() {
         ) : (
           <ul className="divide-y divide-line/70">
             {sessions.slice(0, 20).map((session) => (
-              <li key={session.id} className="flex items-center justify-between px-6 py-4">
-                <div className="flex items-center gap-4">
-                  <div className="flex h-10 w-10 items-center justify-center rounded-full bg-gradient-to-br from-navy-050 to-white text-xs font-semibold text-navy">
+              <li key={session.id} className="flex flex-col gap-3 px-4 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-6">
+                <div className="flex min-w-0 items-center gap-4">
+                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-navy-050 to-white text-xs font-semibold text-navy">
                     {session.student_name?.split(" ").map(n => n[0]).join("").slice(0, 2).toUpperCase() || "S"}
                   </div>
-                  <div>
+                  <div className="min-w-0">
                     <p className="font-medium">{session.student_name || "Student"} ↔ {session.counselor_name || "Counselor"}</p>
                     <p className="text-sm text-ink-400">{formatDateTime(session.slot_start)} • {session.mode === "online" ? "Online" : "In-Person"} • 60 min</p>
                   </div>
                 </div>
-                <Badge tone={session.status === "completed" ? "success" : session.status === "confirmed" ? "teal" : "neutral"}>{session.status}</Badge>
+                <Badge className="w-fit" tone={session.status === "completed" ? "success" : session.status === "confirmed" ? "teal" : "neutral"}>{session.status}</Badge>
               </li>
             ))}
           </ul>

@@ -90,30 +90,32 @@ export default function AdminContentPage() {
         <div className="px-6 py-4">
           <h2 className="text-lg font-semibold">Resources</h2>
         </div>
-        <table className="w-full text-sm">
-          <thead className="bg-navy-050">
-            <tr>
-              <th className="px-6 py-2 text-left text-xs font-medium">Title</th>
-              <th className="px-6 py-2 text-left text-xs font-medium">Status</th>
-              <th className="px-6 py-2 text-right text-xs font-medium">Actions</th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-line">
-            {resources.map((resource) => (
-              <tr key={resource.id}>
-                <td className="px-6 py-3">{resource.title}</td>
-                <td className="px-6 py-3 capitalize">{resource.status}</td>
-                <td className="px-6 py-3 text-right">
-                  {resource.status !== "archived" ? (
-                    <button onClick={() => void archive(resource.id)} className="text-xs text-danger">
-                      Archive
-                    </button>
-                  ) : null}
-                </td>
+        <div className="overflow-x-auto">
+          <table className="w-full min-w-[520px] text-sm">
+            <thead className="bg-navy-050">
+              <tr>
+                <th className="px-4 py-2 text-left text-xs font-medium sm:px-6">Title</th>
+                <th className="px-4 py-2 text-left text-xs font-medium sm:px-6">Status</th>
+                <th className="px-4 py-2 text-right text-xs font-medium sm:px-6">Actions</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody className="divide-y divide-line">
+              {resources.map((resource) => (
+                <tr key={resource.id}>
+                  <td className="px-4 py-3 sm:px-6">{resource.title}</td>
+                  <td className="px-4 py-3 capitalize sm:px-6">{resource.status}</td>
+                  <td className="px-4 py-3 text-right sm:px-6">
+                    {resource.status !== "archived" ? (
+                      <button onClick={() => void archive(resource.id)} className="text-xs text-danger">
+                        Archive
+                      </button>
+                    ) : null}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       </Card>
     </div>
   );
