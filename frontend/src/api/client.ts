@@ -5,10 +5,46 @@ import axios, {
   type InternalAxiosRequestConfig,
 } from "axios";
 
-const EXPRESS_ORIGIN =
-  (import.meta as any).env?.VITE_EXPRESS_API_URL?.replace(/\/$/, "") ?? "http://localhost:3000";
-const LARAVEL_ORIGIN =
-  (import.meta as any).env?.VITE_LARAVEL_API_URL?.replace(/\/$/, "") ?? "http://localhost:8000";
+function resolveOrigin(
+  envUrl: string | undefined,
+  proxyPath: string,
+  localDefault: string,
+): string {
+  const fromEnv = envUrl?.replace(/\/$/, "");
+  if (fromEnv) {
+    const isLocalhostUrl =
+      /^https?:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/i.test(fromEnv);
+    const isBrowser = typeof window !== "undefined";
+    const hostIsLocal =
+      isBrowser && /^(localhost|127\.0\.0\.1)$/i.test(window.location.hostname);
+
+    // Builds baked with localhost API URLs cannot reach the user's machine when
+    // the app is opened from a remote/tunneled origin (e.g. Vite preview via
+    // Cloudflare tunnel). Fall back to same-origin proxy paths in that case.
+    if (isLocalhostUrl && isBrowser && !hostIsLocal) {
+      return proxyPath;
+    }
+    return fromEnv;
+  }
+
+  if (typeof window !== "undefined") {
+    const hostIsLocal = /^(localhost|127\.0\.0\.1)$/i.test(window.location.hostname);
+    if (!hostIsLocal) return proxyPath;
+  }
+
+  return localDefault;
+}
+
+const EXPRESS_ORIGIN = resolveOrigin(
+  (import.meta as any).env?.VITE_EXPRESS_API_URL,
+  "/express",
+  "http://localhost:3000",
+);
+const LARAVEL_ORIGIN = resolveOrigin(
+  (import.meta as any).env?.VITE_LARAVEL_API_URL,
+  "/laravel",
+  "http://localhost:8000",
+);
 
 export const API_ORIGINS = {
   express: EXPRESS_ORIGIN,
@@ -125,7 +161,12 @@ export function errorMessage(error: unknown, fallback = "Something went wrong.")
     const data = error.response?.data as { message?: string } | undefined;
     if (data?.message) return data.message;
     if (error.code === "ECONNABORTED") return "The request timed out. Please try again.";
-    if (!error.response) return "Cannot reach the server. Check your connection and try again.";
+    if (!error.response) {
+      if (typeof navigator !== "undefined" && navigator.onLine === false) {
+        return "You appear to be offline. Check your internet connection and try again.";
+      }
+      return "Cannot reach the server. Check your connection and try again.";
+    }
   }
   if (error instanceof Error && error.message) return error.message;
   return fallback;
