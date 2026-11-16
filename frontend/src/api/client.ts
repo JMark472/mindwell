@@ -159,6 +159,19 @@ export async function ensureCsrf(): Promise<void> {
   await express.get("/auth/csrf-token", { _mwSkipAuthRetry: true } as AxiosRequestConfig);
 }
 
+function requestTarget(error: AxiosError): string {
+  const base = error.config?.baseURL ?? "";
+  const url = error.config?.url ?? "";
+  try {
+    if (typeof window !== "undefined") {
+      return new URL(url || "", base || window.location.origin).toString();
+    }
+  } catch {
+    // ignore
+  }
+  return `${base}${url}`;
+}
+
 /** Extracts the human-readable message from an API error. */
 export function errorMessage(error: unknown, fallback = "Something went wrong."): string {
   if (axios.isAxiosError(error)) {
@@ -178,13 +191,14 @@ export function errorMessage(error: unknown, fallback = "Something went wrong.")
         /^https?:\/\/(localhost|127\.0\.0\.1)(:\d+)?/i.test(API_ORIGINS.express) ||
         /^https?:\/\/(localhost|127\.0\.0\.1)(:\d+)?/i.test(API_ORIGINS.laravel);
       if (!hostIsLocal && usingLocalApi) {
-        return "The app cannot reach its API servers. Set VITE_EXPRESS_API_URL and VITE_LARAVEL_API_URL to your deployed backend URLs and redeploy the frontend.";
+        return "The app cannot reach its API servers. Set VITE_EXPRESS_API_URL and VITE_LARAVEL_API_URL to your deployed backend URLs in Vercel, then redeploy the frontend.";
       }
       return "Cannot reach the server. Check your connection and try again.";
     }
 
     if (status === 405) {
-      return "The server rejected this request (405). Check that VITE_EXPRESS_API_URL and VITE_LARAVEL_API_URL point to the correct backend API URLs and redeploy the frontend.";
+      const target = requestTarget(error);
+      return `The server rejected this request (405) at ${target}. Make sure VITE_EXPRESS_API_URL and VITE_LARAVEL_API_URL point to your deployed Express/Laravel API URLs (not the Vercel frontend URL), then redeploy the frontend.`;
     }
   }
   if (error instanceof Error && error.message) return error.message;
