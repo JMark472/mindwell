@@ -44,14 +44,14 @@
     "@types/hpp": "^0.2.7",
     "@types/jsonwebtoken": "^9.0.10",
     "@types/node": "^26.6.1",
-    "@typescript-eslint/eslint-plugin": "^8.70.0",
-    "@typescript-eslint/parser": "^8.70.0",
+    "@typescript-eslint/eslint-plugin": "^6.15.0",
+    "@typescript-eslint/parser": "^6.15.0",
     "drizzle-kit": "^0.31.11",
     "eslint": "^10.10.0",
     "jiti": "^2.7.0",
     "tsdown": "^0.23.0",
     "tsx": "^4.23.13",
     "typescript": "^6.0.3",
-    "typescript-eslint": "^8.70.0"
+    "typescript-eslint": "^7.3.1"
   }
 }
