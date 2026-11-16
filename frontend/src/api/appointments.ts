@@ -37,6 +37,8 @@ export interface CounselorSummary {
   specialization: string | null;
   credentials: string | null;
   bio: string | null;
+  max_weekly_appointments?: number;
+  accepting_students?: boolean;
 }
 
 export interface AvailabilityWindow {

@@ -1,4 +1,4 @@
-export type AssistantRole = "student" | "counselor";
+export type AssistantRole = "student" | "counselor" | "admin";
 
 export interface AssistantReply {
   content: string;
@@ -39,6 +39,14 @@ export const assistantPrompts: Record<AssistantRole, string[]> = {
     "How do I respond to a student at risk?",
     "How do I prevent burnout?",
   ],
+  admin: [
+    "How do I manage student and counselor accounts?",
+    "How should I handle password resets securely?",
+    "What reports should I review regularly?",
+    "How do I review audit logs for issues?",
+    "How can I support platform safety and privacy?",
+    "What should I check before creating or changing user roles?",
+  ],
 };
 
 export function assistantGreeting(role: AssistantRole, fullName?: string | null) {
@@ -49,6 +57,9 @@ export function assistantGreeting(role: AssistantRole, fullName?: string | null)
 
   if (role === "counselor") {
     return `Hi${name} — I'm your Mindwell AI Counseling Assistant. I can help you prepare sessions, draft objective documentation, choose interventions, think through ethical dilemmas, and plan for student safety. I can give you a structured second perspective, but I can't replace clinical judgment, supervision, or your institution's protocols.\n\nWhat would you like to work through today?`;
+  }
+  if (role === "admin") {
+    return `Hi${name} — I'm the Mindwell AI Admin Assistant. I can help with user and account management, password reset best practices, role and access checks, reports and analytics review, audit-log triage, content oversight, and privacy/safety operations. I provide guidance only — verify actions against your institution's policies, keep credentials confidential, and never access private counseling records.\n\nWhat would you like help with?`;
   }
 
   return `Hi${name} — I'm the Mindwell AI Assistant. I can help you think through stress, anxiety, sleep, relationships, motivation, grief, and everyday wellbeing questions with practical steps and reflection prompts. I can't diagnose or provide emergency care, but I can help you organize what you're facing and decide what to do next.\n\nWhat's on your mind today?`;
@@ -807,10 +818,25 @@ export function getAssistantReply(role: AssistantRole, prompt: string): Assistan
   }
 
   if (CRISIS_PATTERN.test(text)) {
-    return {
-      topic: "safety",
-      content: role === "counselor" ? counselorCrisisReply() : studentCrisisReply(),
-    };
+    if (role === "counselor") {
+      return { topic: "safety", content: counselorCrisisReply() };
+    }
+    if (role === "admin") {
+      return {
+        topic: "safety & privacy",
+        content: `If this involves immediate danger to a student or anyone else, treat it as an urgent safety matter — do not handle it as a routine admin task.
+
+Immediate steps
+1. If there is imminent risk, follow your institution's emergency protocol and contact emergency services or the on-call counselor/clinical lead right away. Admins should facilitate escalation, not attempt clinical assessment.
+2. Preserve privacy: share only the minimum necessary information with authorized responders. Do not expose or distribute private counseling records, notes, or sensitive messages.
+3. Verify identity before taking account actions (password resets, role/status changes). Use out-of-band confirmation where policy requires.
+4. Document actions factually in appropriate systems/audit trails (who, what, when, why) without adding sensitive clinical details you are not authorized to record.
+5. After the situation is stabilized, review access, notifications, and audit logs for any related account or security concerns.
+
+I can help you think through a safe operational checklist, but I cannot respond to emergencies or make clinical decisions.`,
+      };
+    }
+    return { topic: "safety", content: studentCrisisReply() };
   }
 
   if (INFO_PATTERN.test(text)) {
@@ -823,7 +849,9 @@ export function getAssistantReply(role: AssistantRole, prompt: string): Assistan
       content:
         role === "counselor"
           ? "Hello. What would you like to work through — a session plan, a documentation question, a clinical dilemma, or something about your own workload?\n\nIf you give me the context, I can help you think it through step by step."
-          : "Hello. I'm here and ready to help. You can tell me what's been happening, ask a wellbeing question, or pick a topic such as stress, sleep, relationships, or motivation.\n\nWhat would feel most useful right now?",
+          : role === "admin"
+            ? "Hello. I can help with user accounts, password resets, roles, reports, audit logs, content, or privacy/safety operations.\n\nWhat would you like to work on?"
+            : "Hello. I'm here and ready to help. You can tell me what's been happening, ask a wellbeing question, or pick a topic such as stress, sleep, relationships, or motivation.\n\nWhat would feel most useful right now?",
     };
   }
 
@@ -833,7 +861,83 @@ export function getAssistantReply(role: AssistantRole, prompt: string): Assistan
       content:
         role === "counselor"
           ? "You're welcome. If you want, we can keep going — bring me the next piece of the situation and we can think it through together."
-          : "You're welcome. I'm glad it was useful. If you want to keep going, tell me what part still feels unresolved, or what you'd like to try next.",
+          : role === "admin"
+            ? "You're welcome. If you need, tell me the next admin task (accounts, passwords, roles, reports, audit, or privacy) and I can help you plan it safely."
+            : "You're welcome. I'm glad it was useful. If you want to keep going, tell me what part still feels unresolved, or what you'd like to try next.",
+    };
+  }
+
+  if (role === "admin") {
+    const t = text;
+    if (/(password|reset|credential|temporary)/.test(t)) {
+      return {
+        topic: "password management",
+        content: `Password reset/set guidance (admin)
+
+1. Verify the requester's identity before changing credentials (use your institution's approved process).
+2. Prefer generating a strong temporary password and require the user to change it after sign-in if your policy supports it.
+3. Share the temporary password once through a secure channel — never post it in chat logs, tickets, or email threads that others can access.
+4. Avoid reusing passwords or setting easily guessed values. Do not store or display existing passwords (they are hashed).
+5. After resetting, confirm the correct account (name/email/role) was updated and review recent audit/activity if the reset was security-related.
+6. If compromise is suspected, also review account status, sessions/devices per policy, and notify the user promptly.
+
+In Mindwell, use User Management to set or generate a password; copy it immediately and deliver it securely to the intended user.`,
+      };
+    }
+    if (/(user|account|student|counselor|role|status|create|deactivate|suspend|activate)/.test(t)) {
+      return {
+        topic: "account management",
+        content: `User and account management guidance
+
+1. Confirm the correct person and role before creating or changing accounts (student, counselor, admin). Apply least privilege — grant only the access needed.
+2. For students, keep identity details accurate (name, email, student ID, year level, program/phone as applicable) so records and support are correctly matched.
+3. For counselors, ensure their professional profile/details are complete and current; changes to roles/status can affect access to cases and scheduling.
+4. Use status changes (active/inactive/suspended) according to policy and document the reason when appropriate.
+5. After changes, verify the outcome: the user can sign in with the intended role and no unintended access was granted.
+6. Protect privacy: admins should not access private counseling notes/content beyond what policy allows.
+
+If you tell me the specific scenario (create, role change, deactivate, or info update), I can suggest a step-by-step checklist.`,
+      };
+    }
+    if (/(audit|log|security|suspicious|incident)/.test(t)) {
+      return {
+        topic: "audit & security",
+        content: `Audit log and security review tips
+
+1. Filter by time window, actor, action, and target to narrow relevant events (logins, password resets, role/status changes, settings updates).
+2. Look for anomalies: repeated failures, resets outside normal hours, unexpected role escalations, or actions on many accounts in a short period.
+3. Correlate with reports/tickets before taking action; confirm whether changes were authorized.
+4. Preserve evidence and follow incident-response policy if compromise is suspected (contain, notify, document).
+5. Record what you reviewed and what actions you took, keeping sensitive details minimal.
+
+I can help you interpret a pattern if you describe the events (without sharing secrets or private data).`,
+      };
+    }
+    if (/(report|analytics|appointment|usage|metric)/.test(t)) {
+      return {
+        topic: "reports & analytics",
+        content: `Reports and analytics guidance
+
+1. Define the question first (utilization, appointment trends, user growth, engagement) and the time period to compare.
+2. Validate data quality: check for missing/duplicate records, role/status filters, and date/timezone consistency.
+3. Focus on actionable insights and trends rather than individual private details; avoid exposing sensitive student information in summaries.
+4. Use findings to improve operations (capacity, outreach, content, support) and document follow-up actions.
+5. Re-review after changes to confirm impact.
+
+Tell me which report or metric you're looking at and what decision you're trying to make.`,
+      };
+    }
+    return {
+      topic: "general admin guidance",
+      content: `I can help with that admin task. Here's a safe general approach:
+
+- Clarify the goal and confirm you have authorization/policy backing for the action.
+- Identify the exact account(s) or setting(s) involved (double-check names, emails, IDs, and roles).
+- Apply least privilege and protect privacy — avoid accessing or sharing private counseling data.
+- Make the change, then verify it worked as intended.
+- Record or review relevant audit details if the action is sensitive (e.g. passwords, roles, status).
+
+Share a bit more detail about what you're trying to do (e.g. "${shorten(raw, 120)}") and I can give more specific steps.`,
     };
   }
 

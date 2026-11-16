@@ -103,6 +103,7 @@ export default function App() {
         <Route path="/admin/appointments" element={<AdminAppointmentsPage />} />
         <Route path="/admin/callsessions" element={<AdminCallSessionsPage />} />
         <Route path="/admin/call-sessions" element={<AdminCallSessionsPage />} />
+        <Route path="/admin/assistant" element={<AIAssistantPage />} />
         <Route path="/admin/content" element={<AdminContentPage />} />
         <Route path="/admin/reports" element={<AdminReportsPage />} />
         <Route path="/admin/settings" element={<AdminSettingsPage />} />

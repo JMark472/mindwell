@@ -103,13 +103,16 @@ class AppointmentController extends Controller
     }
 
     /**
-     * GET /api/appointments/counselors — directory for students.
+     * GET /api/appointments/counselors — directory for students (all for admins).
      */
-    public function counselors(): JsonResponse
+    public function counselors(Request $request): JsonResponse
     {
-        $profiles = CounselorProfile::query()
-            ->where('accepting_students', true)
-            ->get();
+        $role = (string) $request->attributes->get('auth_role');
+        $query = CounselorProfile::query();
+        if ($role !== 'admin') {
+            $query->where('accepting_students', true);
+        }
+        $profiles = $query->get();
 
         $users = ExpressClient::lookupUsers($profiles->pluck('user_id')->map(fn ($id) => (int) $id)->all());
 
@@ -118,9 +121,12 @@ class AppointmentController extends Controller
                 'id' => $p->id,
                 'user_id' => $p->user_id,
                 'name' => $users[$p->user_id]['full_name'] ?? 'Counselor',
+                'avatar_url' => $users[$p->user_id]['avatar_url'] ?? null,
                 'specialization' => $p->specialization,
                 'credentials' => $p->credentials,
                 'bio' => $p->bio,
+                'max_weekly_appointments' => $p->max_weekly_appointments,
+                'accepting_students' => $p->accepting_students,
             ];
         });
 

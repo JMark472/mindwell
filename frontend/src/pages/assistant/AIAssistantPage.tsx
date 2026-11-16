@@ -17,8 +17,10 @@ type Message = {
 
 export default function AIAssistantPage() {
   const { user } = useAuth();
-  const role: AssistantRole = user?.role === "counselor" ? "counselor" : "student";
+  const role: AssistantRole =
+    user?.role === "counselor" ? "counselor" : user?.role === "admin" ? "admin" : "student";
   const isCounselor = role === "counselor";
+  const isAdmin = role === "admin";
   const prompts = assistantPrompts[role];
 
   const [messages, setMessages] = useState<Message[]>(() => [
@@ -147,7 +149,9 @@ export default function AIAssistantPage() {
               <p className="text-sm text-ink-400">
                 {isCounselor
                   ? "Professional support tool for counseling guidance"
-                  : "Your supportive companion for wellbeing guidance"}
+                  : isAdmin
+                    ? "Administrative support for users, safety, privacy, and operations"
+                    : "Your supportive companion for wellbeing guidance"}
               </p>
             </div>
           </div>
@@ -263,7 +267,9 @@ export default function AIAssistantPage() {
               placeholder={
                 isCounselor
                   ? "Ask about a session, documentation, or clinical decision…"
-                  : "Ask a question or share what's on your mind…"
+                  : isAdmin
+                    ? "Ask about accounts, passwords, reports, audit, privacy, or operations…"
+                    : "Ask a question or share what's on your mind…"
               }
               className="max-h-[132px] min-h-[44px] flex-1 resize-none rounded-field border border-line/80 bg-white px-4 py-2.5 text-sm shadow-sm focus:border-teal focus:outline-none focus:ring-2 focus:ring-teal/15"
             />
@@ -282,7 +288,9 @@ export default function AIAssistantPage() {
             <span>
               {isCounselor
                 ? "AI responses are professional support suggestions only. Review every recommendation against your clinical judgment, supervision, and institutional policy."
-                : "This AI provides supportive guidance only, not professional medical, crisis, or emergency care. Responses can be imperfect."}
+                : isAdmin
+                  ? "AI responses are administrative guidance only. Verify actions against policy, privacy requirements, and audit/security best practices. Never share passwords except when securely delivering a newly set temporary password."
+                  : "This AI provides supportive guidance only, not professional medical, crisis, or emergency care. Responses can be imperfect."}
             </span>
           </p>
         </div>

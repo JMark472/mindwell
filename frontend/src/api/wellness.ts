@@ -174,6 +174,26 @@ export async function adminResetPassword(id: number) {
   return data.data as { temporaryPassword: string };
 }
 
+export async function adminSetPassword(id: number, payload: { password?: string; generate?: boolean }) {
+  const { data } = await express.post(`/admin/users/${id}/password`, payload);
+  return data.data as { temporaryPassword: string };
+}
+
+export async function adminListCounselorProfiles() {
+  const { data } = await laravel.get("/appointments/counselors");
+  return (data.data.counselors ?? []) as Array<{
+    id: number;
+    user_id: number;
+    name: string;
+    avatar_url?: string | null;
+    specialization: string | null;
+    credentials: string | null;
+    bio: string | null;
+    max_weekly_appointments?: number;
+    accepting_students?: boolean;
+  }>;
+}
+
 export async function adminListAuditLogs(page = 1, pageSize = 30) {
   const { data } = await express.get("/admin/audit-logs", { params: { page, pageSize } });
   return data.data;

@@ -164,7 +164,46 @@ router.patch(
   }),
 );
 
-// Password reset performed by an administrator (forced reset).
+// Set or generate a password for a user (admin). Returns the password once.
+const setPasswordSchema = z.object({
+  body: z.object({
+    password: z.string().min(8).max(128).optional(),
+    generate: z.boolean().optional(),
+  }).refine((v) => v.generate || !!v.password, { message: "Provide a password or set generate=true." }),
+});
+
+router.post(
+  "/users/:id/password",
+  validate(setPasswordSchema),
+  asyncHandler(async (req, res) => {
+    const { user: actor } = req as AuthenticatedRequest;
+    const targetId = Number(req.params.id);
+    const target = await findUserById(targetId);
+    if (!target) throw new ApiError(404, "User not found.");
+
+    const plain: string =
+      req.body.generate || !req.body.password
+        ? Math.random().toString(36).slice(2, 10) + "A1!"
+        : req.body.password;
+    const passwordHash = await bcrypt.hash(plain, 12);
+    await db
+      .update(users)
+      .set({ passwordHash, updatedAt: new Date() })
+      .where(eq(users.id, targetId))
+      .execute();
+    await writeAudit({
+      actorUserId: actor!.sub,
+      action: "admin.user_password_set",
+      entityType: "user",
+      entityId: targetId,
+      ip: req.ip,
+      metadata: { generated: req.body.generate || !req.body.password },
+    });
+    res.json({ status: "success", data: { temporaryPassword: plain } });
+  }),
+);
+
+// Backwards-compatible reset endpoint.
 router.post(
   "/users/:id/password-reset",
   asyncHandler(async (req, res) => {
@@ -172,7 +211,7 @@ router.post(
     const targetId = Number(req.params.id);
     const target = await findUserById(targetId);
     if (!target) throw new ApiError(404, "User not found.");
-    const tempPassword = Math.random().toString(36).slice(2, 10) + "A1";
+    const tempPassword = Math.random().toString(36).slice(2, 10) + "A1!";
     const passwordHash = await bcrypt.hash(tempPassword, 12);
     await db
       .update(users)

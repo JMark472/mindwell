@@ -1,114 +1,379 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Card, Button, Input } from "@/components/ui/Primitives";
-import { adminListUsers, adminCreateUser, adminSetUserStatus } from "@/api/wellness";
+import {
+  adminCreateUser,
+  adminListCounselorProfiles,
+  adminListUsers,
+  adminResetPassword,
+  adminSetPassword,
+  adminSetUserStatus,
+} from "@/api/wellness";
 import { errorMessage } from "@/api/client";
 import UserAvatar from "@/components/profile/UserAvatar";
+import { Copy, Eye, EyeOff, KeyRound, RefreshCw, Shield, UserPlus } from "lucide-react";
+
+type StudentProfile = {
+  studentNumber?: string | null;
+  program?: string | null;
+  yearLevel?: string | null;
+  dateOfBirth?: string | null;
+  gender?: string | null;
+  emergencyContactName?: string | null;
+  emergencyContactPhone?: string | null;
+};
+
+type AdminUser = {
+  id: number;
+  email: string;
+  fullName: string;
+  role: "student" | "counselor" | "admin";
+  status: "active" | "inactive" | "suspended";
+  phone: string | null;
+  avatarUrl?: string | null;
+  createdAt?: string;
+  updatedAt?: string;
+  studentProfile?: StudentProfile | null;
+};
+
+type CounselorProfile = {
+  id: number;
+  user_id: number;
+  name: string;
+  avatar_url?: string | null;
+  specialization: string | null;
+  credentials: string | null;
+  bio: string | null;
+  max_weekly_appointments?: number;
+  accepting_students?: boolean;
+};
+
+function fmtDate(value?: string | null) {
+  if (!value) return "—";
+  const d = new Date(value);
+  return Number.isNaN(d.getTime()) ? String(value) : d.toLocaleString();
+}
+
+function Field({ label, value }: { label: string; value?: string | number | boolean | null }) {
+  const display =
+    value === null || value === undefined || value === ""
+      ? "—"
+      : typeof value === "boolean"
+        ? value
+          ? "Yes"
+          : "No"
+        : String(value);
+  return (
+    <div className="min-w-0">
+      <p className="text-[11px] uppercase tracking-wide text-ink-400">{label}</p>
+      <p className="break-words text-sm text-ink">{display}</p>
+    </div>
+  );
+}
 
 export default function UserManagementPage() {
-  const [users, setUsers] = useState<any[]>([]);
-  const [form, setForm] = useState({ fullName: "", email: "", password: "", role: "admin" });
+  const [users, setUsers] = useState<AdminUser[]>([]);
+  const [counselorProfiles, setCounselorProfiles] = useState<CounselorProfile[]>([]);
+  const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [notice, setNotice] = useState<string | null>(null);
+  const [filter, setFilter] = useState<"all" | "student" | "counselor" | "admin">("all");
+  const [search, setSearch] = useState("");
+  const [expanded, setExpanded] = useState<number | null>(null);
+
+  const [form, setForm] = useState({ fullName: "", email: "", password: "", role: "student" });
+  const [createBusy, setCreateBusy] = useState(false);
+
+  const [pwOpen, setPwOpen] = useState<number | null>(null);
+  const [pwMode, setPwMode] = useState<"generate" | "set">("generate");
+  const [pwValue, setPwValue] = useState("");
+  const [pwBusy, setPwBusy] = useState(false);
+  const [revealed, setRevealed] = useState<Record<number, string>>({});
+  const [showPw, setShowPw] = useState(false);
 
   async function load() {
-    const result = await adminListUsers();
-    setUsers(result.users ?? []);
+    setLoading(true);
+    setError(null);
+    try {
+      const [usersRes, counselors] = await Promise.all([
+        adminListUsers(filter === "all" ? undefined : { role: filter }),
+        adminListCounselorProfiles().catch(() => [] as CounselorProfile[]),
+      ]);
+      setUsers((usersRes.users ?? []) as AdminUser[]);
+      setCounselorProfiles(counselors as CounselorProfile[]);
+    } catch (err) {
+      setError(errorMessage(err, "Could not load users."));
+    } finally {
+      setLoading(false);
+    }
   }
 
   useEffect(() => {
     void load();
-  }, []);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [filter]);
+
+  const counselorByUserId = useMemo(() => {
+    const map = new Map<number, CounselorProfile>();
+    for (const c of counselorProfiles) map.set(Number(c.user_id), c);
+    return map;
+  }, [counselorProfiles]);
+
+  const visibleUsers = useMemo(() => {
+    const q = search.trim().toLowerCase();
+    if (!q) return users;
+    return users.filter((u) => {
+      const cp = counselorByUserId.get(u.id);
+      const sp = u.studentProfile;
+      return [
+        u.fullName,
+        u.email,
+        u.phone ?? "",
+        u.role,
+        u.status,
+        sp?.studentNumber ?? "",
+        sp?.program ?? "",
+        sp?.yearLevel ?? "",
+        cp?.specialization ?? "",
+        cp?.credentials ?? "",
+      ]
+        .join(" ")
+        .toLowerCase()
+        .includes(q);
+    });
+  }, [users, search, counselorByUserId]);
 
   async function create() {
     setError(null);
+    setNotice(null);
+    if (!form.fullName || !form.email || !form.password) {
+      setError("Full name, email, and password are required.");
+      return;
+    }
+    setCreateBusy(true);
     try {
       await adminCreateUser(form);
-      setForm({ fullName: "", email: "", password: "", role: "admin" });
+      setForm({ fullName: "", email: "", password: "", role: "student" });
+      setNotice("User account created successfully.");
       await load();
     } catch (err) {
       setError(errorMessage(err, "Could not create user."));
+    } finally {
+      setCreateBusy(false);
     }
   }
 
   async function setStatus(id: number, status: string) {
-    await adminSetUserStatus(id, status);
-    await load();
+    setError(null);
+    try {
+      await adminSetUserStatus(id, status);
+      setUsers((prev) => prev.map((u) => (u.id === id ? { ...u, status: status as AdminUser["status"] } : u)));
+      setNotice("User status updated.");
+    } catch (err) {
+      setError(errorMessage(err, "Could not update status."));
+    }
   }
 
-  // Role changes restricted to Admin only as per requirements.
+  async function applyPassword(id: number) {
+    setError(null);
+    setNotice(null);
+    if (pwMode === "set" && pwValue.trim().length < 8) {
+      setError("Password must be at least 8 characters.");
+      return;
+    }
+    setPwBusy(true);
+    try {
+      const res =
+        pwMode === "generate"
+          ? await adminResetPassword(id)
+          : await adminSetPassword(id, { password: pwValue });
+      setRevealed((prev) => ({ ...prev, [id]: res.temporaryPassword }));
+      setPwValue("");
+      setPwOpen(null);
+      setNotice("Password updated. Copy it now — it is shown only once.");
+    } catch (err) {
+      setError(errorMessage(err, "Could not update password."));
+    } finally {
+      setPwBusy(false);
+    }
+  }
+
+  async function copy(text: string) {
+    try {
+      await navigator.clipboard.writeText(text);
+      setNotice("Password copied to clipboard.");
+    } catch {
+      setNotice("Copy failed. Please copy the password manually.");
+    }
+  }
 
   return (
     <div className="flex flex-col gap-6">
       <Card className="p-6">
-        <h2 className="text-lg font-semibold">Create user</h2>
+        <div className="flex items-start justify-between gap-3">
+          <div>
+            <div className="flex items-center gap-2">
+              <UserPlus className="h-5 w-5 text-teal" />
+              <h2 className="text-lg font-semibold">Create user account</h2>
+            </div>
+            <p className="mt-1 text-sm text-ink-400">
+              Create student, counselor, or admin accounts. Passwords are stored securely (hashed) and never shown after save; set/reset shows the new password once.
+            </p>
+          </div>
+        </div>
         <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
           <Input placeholder="Full name" value={form.fullName} onChange={(e) => setForm({ ...form, fullName: e.target.value })} />
-          <Input placeholder="Email" value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} />
-          <Input placeholder="Password" type="password" value={form.password} onChange={(e) => setForm({ ...form, password: e.target.value })} />
+          <Input placeholder="Email" type="email" value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} />
+          <Input placeholder="Password (min 8 chars)" type="password" value={form.password} onChange={(e) => setForm({ ...form, password: e.target.value })} />
           <select
             value={form.role}
             onChange={(e) => setForm({ ...form, role: e.target.value })}
-            className="h-11 w-full rounded-field border border-line px-3 text-sm"
-            disabled
+            className="h-11 w-full rounded-field border border-line/80 bg-white px-4 py-2.5 text-sm shadow-sm"
           >
+            <option value="student">Student</option>
+            <option value="counselor">Counselor</option>
             <option value="admin">Admin</option>
           </select>
         </div>
-        {error ? <p className="mt-2 text-sm text-danger">{error}</p> : null}
-        <Button className="mt-4 w-full sm:w-auto" onClick={() => void create()}>
-          Create user
-        </Button>
+        <div className="mt-4 flex flex-wrap items-center justify-between gap-3">
+          <div className="text-xs text-status-danger">{error}</div>
+          <Button onClick={() => void create()} disabled={createBusy}>{createBusy ? "Creating…" : "Create user"}</Button>
+        </div>
+        {notice ? <p className="mt-2 text-xs text-teal-700">{notice}</p> : null}
       </Card>
 
-      <Card className="overflow-hidden">
-        <div className="flex items-center justify-between px-6 py-4">
-          <h2 className="text-lg font-semibold">Users</h2>
+      <Card className="p-6">
+        <div className="flex flex-col gap-3 lg:flex-row lg:items-end lg:justify-between">
+          <div>
+            <div className="flex items-center gap-2">
+              <Shield className="h-5 w-5 text-navy" />
+              <h2 className="text-lg font-semibold">Students, counselors & account information</h2>
+            </div>
+            <p className="mt-1 text-sm text-ink-400">
+              View full account and profile information, manage status, and set/reset passwords (shown once). Private counseling records are not accessible to admins.
+            </p>
+          </div>
+          <div className="flex flex-wrap gap-2">
+            <Input className="w-64" placeholder="Search name, email, ID, program…" value={search} onChange={(e) => setSearch(e.target.value)} />
+            <select value={filter} onChange={(e) => setFilter(e.target.value as "all" | "student" | "counselor" | "admin")} className="h-11 rounded-field border border-line/80 bg-white px-3 text-sm shadow-sm">
+              <option value="all">All roles</option>
+              <option value="student">Students</option>
+              <option value="counselor">Counselors</option>
+              <option value="admin">Admins</option>
+            </select>
+            <Button variant="secondary" onClick={() => void load()}><RefreshCw className="h-4 w-4" /> Refresh</Button>
+          </div>
         </div>
-        <div className="overflow-x-auto">
-          <table className="w-full min-w-[720px] text-sm">
-            <thead className="bg-navy-050">
-              <tr>
-                <th className="px-4 py-2 text-left text-xs font-medium sm:px-6">Name</th>
-                <th className="px-4 py-2 text-left text-xs font-medium sm:px-6">Email</th>
-                <th className="px-4 py-2 text-left text-xs font-medium sm:px-6">Role</th>
-                <th className="px-4 py-2 text-left text-xs font-medium sm:px-6">Status</th>
-                <th className="px-4 py-2 text-right text-xs font-medium sm:px-6">Actions</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-line">
-              {users.map((user) => (
-                <tr key={user.id}>
-                  <td className="px-4 py-3 sm:px-6">
-                    <div className="flex min-w-[180px] items-center gap-3">
-                      <UserAvatar
-                        user={{
-                          fullName: user.fullName || user.email,
-                          avatarUrl: user.avatarUrl || user.avatar_url || null,
-                        }}
-                        size="md"
-                      />
-                      <span className="font-medium">{user.fullName}</span>
+
+        <div className="mt-5 space-y-3">
+          {loading ? <p className="text-sm text-ink-400">Loading users…</p> : null}
+          {!loading && visibleUsers.length === 0 ? <p className="text-sm text-ink-400">No users found.</p> : null}
+          {visibleUsers.map((u) => {
+            const cp = counselorByUserId.get(u.id);
+            const sp = u.studentProfile;
+            const isOpen = expanded === u.id;
+            const revealedPw = revealed[u.id];
+            return (
+              <div key={u.id} className="rounded-2xl border border-line/70 bg-white p-4 shadow-card">
+                <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+                  <button type="button" className="flex min-w-0 flex-1 items-center gap-3 text-left" onClick={() => setExpanded(isOpen ? null : u.id)}>
+                    <UserAvatar user={{ fullName: u.fullName, avatarUrl: u.avatarUrl || null }} size="md" />
+                    <div className="min-w-0">
+                      <div className="flex flex-wrap items-center gap-2">
+                        <p className="truncate font-medium text-ink">{u.fullName}</p>
+                        <span className="rounded-pill bg-navy-050 px-2 py-0.5 text-[11px] font-medium capitalize text-navy">{u.role}</span>
+                        <span className="rounded-pill bg-surface px-2 py-0.5 text-[11px] capitalize text-ink-600">{u.status}</span>
+                      </div>
+                      <p className="truncate text-sm text-ink-400">{u.email}{u.phone ? ` · ${u.phone}` : ""}</p>
+                      {u.role === "student" ? (
+                        <p className="mt-0.5 text-xs text-ink-400">Student ID: {sp?.studentNumber || "—"} · Year: {sp?.yearLevel || "—"} · {sp?.program || "—"}</p>
+                      ) : null}
+                      {u.role === "counselor" ? (
+                        <p className="mt-0.5 text-xs text-ink-400">{cp?.specialization || "Counselor"}{cp?.credentials ? ` · ${cp.credentials}` : ""}{cp ? ` · ${cp.accepting_students ? "Accepting students" : "Not accepting"}` : ""}</p>
+                      ) : null}
                     </div>
-                  </td>
-                  <td className="px-4 py-3 text-ink-400 sm:px-6">{user.email}</td>
-                  <td className="px-4 py-3 sm:px-6">
-                    <span className="rounded-pill bg-navy-050 px-2 py-0.5 text-xs">{user.role}</span>
-                  </td>
-                  <td className="px-4 py-3 sm:px-6">
-                    <select
-                      value={user.status}
-                      onChange={(e) => void setStatus(user.id, e.target.value)}
-                      className="rounded-field border border-line px-2 py-1 text-xs"
-                    >
-                      <option value="active">active</option>
-                      <option value="inactive">inactive</option>
-                      <option value="suspended">suspended</option>
-                    </select>
-                  </td>
-                  <td className="px-4 py-3 text-right text-ink-400 sm:px-6">Manage</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+                  </button>
+                  <div className="flex flex-wrap gap-2">
+                    <Button size="sm" variant="secondary" onClick={() => void setStatus(u.id, "active")}>Activate</Button>
+                    <Button size="sm" variant="ghost" onClick={() => void setStatus(u.id, "inactive")}>Disable</Button>
+                    <Button size="sm" variant="secondary" onClick={() => setPwOpen(pwOpen === u.id ? null : u.id)}><KeyRound className="h-3.5 w-3.5" /> Password</Button>
+                  </div>
+                </div>
+
+                {pwOpen === u.id ? (
+                  <div className="mt-4 rounded-xl border border-line/70 bg-surface/60 p-4">
+                    <p className="text-sm font-medium">Set or reset password</p>
+                    <p className="mt-1 text-xs text-ink-400">The new password will be shown once. Share it securely with the user. Existing passwords cannot be displayed.</p>
+                    <div className="mt-3 flex flex-wrap items-end gap-2">
+                      <select value={pwMode} onChange={(e) => setPwMode(e.target.value as "generate" | "set")} className="h-10 rounded-field border border-line/80 bg-white px-3 text-sm">
+                        <option value="generate">Generate temporary password</option>
+                        <option value="set">Set specific password</option>
+                      </select>
+                      {pwMode === "set" ? (
+                        <Input className="w-64" type={showPw ? "text" : "password"} placeholder="New password (min 8)" value={pwValue} onChange={(e) => setPwValue(e.target.value)} />
+                      ) : null}
+                      {pwMode === "set" ? (
+                        <Button variant="ghost" size="sm" onClick={() => setShowPw((v) => !v)} aria-label={showPw ? "Hide password" : "Show password"}>{showPw ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}</Button>
+                      ) : null}
+                      <Button size="sm" onClick={() => void applyPassword(u.id)} disabled={pwBusy}>{pwBusy ? "Saving…" : "Apply"}</Button>
+                    </div>
+                  </div>
+                ) : null}
+
+                {revealedPw ? (
+                  <div className="mt-3 flex flex-wrap items-center gap-2 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm">
+                    <span className="font-medium text-amber-900">New password (shown once):</span>
+                    <code className="rounded bg-white px-2 py-0.5 font-mono text-amber-900">{revealedPw}</code>
+                    <Button size="sm" variant="secondary" onClick={() => void copy(revealedPw)}><Copy className="h-3.5 w-3.5" /> Copy</Button>
+                    <Button size="sm" variant="ghost" onClick={() => setRevealed((p) => { const n = { ...p }; delete n[u.id]; return n; })}>Hide</Button>
+                  </div>
+                ) : null}
+
+                {isOpen ? (
+                  <div className="mt-4 grid gap-4 border-t border-line/70 pt-4 sm:grid-cols-2 lg:grid-cols-3">
+                    <Field label="User ID" value={u.id} />
+                    <Field label="Email" value={u.email} />
+                    <Field label="Phone" value={u.phone} />
+                    <Field label="Role" value={u.role} />
+                    <Field label="Status" value={u.status} />
+                    <Field label="Created" value={fmtDate(u.createdAt)} />
+                    <Field label="Updated" value={fmtDate(u.updatedAt)} />
+                    <Field label="Avatar" value={u.avatarUrl ? "Uploaded" : "None"} />
+
+                    {u.role === "student" ? (
+                      <>
+                        <div className="mt-1 text-xs font-semibold uppercase tracking-wide text-ink-400 sm:col-span-2 lg:col-span-3">Student profile information</div>
+                        <Field label="Student number" value={sp?.studentNumber} />
+                        <Field label="Year level" value={sp?.yearLevel} />
+                        <Field label="Program" value={sp?.program} />
+                        <Field label="Date of birth" value={sp?.dateOfBirth ? String(sp.dateOfBirth).slice(0, 10) : null} />
+                        <Field label="Gender" value={sp?.gender} />
+                        <Field label="Emergency contact" value={sp?.emergencyContactName} />
+                        <Field label="Emergency phone" value={sp?.emergencyContactPhone} />
+                        {!sp ? <p className="text-xs text-ink-400 sm:col-span-2 lg:col-span-3">No student profile record found.</p> : null}
+                      </>
+                    ) : null}
+
+                    {u.role === "counselor" ? (
+                      <>
+                        <div className="mt-1 text-xs font-semibold uppercase tracking-wide text-ink-400 sm:col-span-2 lg:col-span-3">Counselor account & professional information</div>
+                        <Field label="Counselor profile ID" value={cp?.id} />
+                        <Field label="Specialization" value={cp?.specialization} />
+                        <Field label="Credentials" value={cp?.credentials} />
+                        <Field label="Accepting students" value={cp?.accepting_students} />
+                        <Field label="Max weekly appointments" value={cp?.max_weekly_appointments} />
+                        <div className="sm:col-span-2 lg:col-span-3"><Field label="Bio" value={cp?.bio} /></div>
+                        {!cp ? <p className="text-xs text-ink-400 sm:col-span-2 lg:col-span-3">No counselor profile record found yet (will be created when the counselor sets up their profile).</p> : null}
+                      </>
+                    ) : null}
+
+                    {u.role === "admin" ? (
+                      <p className="text-xs text-ink-400 sm:col-span-2 lg:col-span-3">Admin account: full administrative access per system permissions. Passwords are securely hashed and cannot be displayed; use the Password action to set or generate a new one (shown once).</p>
+                    ) : null}
+                  </div>
+                ) : null}
+              </div>
+            );
+          })}
         </div>
       </Card>
     </div>
