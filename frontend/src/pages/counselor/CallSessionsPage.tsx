@@ -118,7 +118,13 @@ export default function CounselorCallSessionsPage() {
                   </div>
                 </div>
                 <div className="mt-4 flex gap-2">
-                  <Button className="flex-1">
+                  <Button
+                    className="flex-1"
+                    onClick={() => {
+                      const room = `Mindwell-Appointment-${session.id}`;
+                      window.open(`https://meet.jit.si/${encodeURIComponent(room)}#config.prejoinConfig.enabled=true`, "_blank", "noopener,noreferrer");
+                    }}
+                  >
                     <Video className="h-4 w-4" />
                     Start Session
                   </Button>

@@ -23,10 +23,12 @@ import {
   Loader2,
   Lock,
   MessageSquare,
+  Phone,
   Plus,
   Search,
   SendHorizontal,
   ShieldCheck,
+  Video,
   X,
 } from "lucide-react";
 
@@ -625,11 +627,37 @@ export default function MessagesPage() {
                       <span>Mindwell</span>
                     </p>
                   </div>
-                  <Lock
-                    aria-hidden="true"
-                    strokeWidth={1.8}
-                    className="ml-auto h-4 w-4 text-ink-300"
-                  />
+                  <div className="ml-auto flex items-center gap-1">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const room = `Mindwell-${activeConversation.id}-${activeConversation.otherUserId}`;
+                        window.open(`https://meet.jit.si/${encodeURIComponent(room)}#config.prejoinConfig.enabled=true&config.startWithVideoMuted=true`, "_blank", "noopener,noreferrer");
+                      }}
+                      aria-label={`Start audio call with ${activeConversation.otherName}`}
+                      title="Audio call"
+                      className="flex h-9 w-9 items-center justify-center rounded-field text-ink-600 transition-colors hover:bg-navy-050 hover:text-teal"
+                    >
+                      <Phone aria-hidden="true" strokeWidth={1.8} className="h-4 w-4" />
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const room = `Mindwell-${activeConversation.id}-${activeConversation.otherUserId}`;
+                        window.open(`https://meet.jit.si/${encodeURIComponent(room)}#config.prejoinConfig.enabled=true`, "_blank", "noopener,noreferrer");
+                      }}
+                      aria-label={`Start video call with ${activeConversation.otherName}`}
+                      title="Video call"
+                      className="flex h-9 w-9 items-center justify-center rounded-field text-ink-600 transition-colors hover:bg-navy-050 hover:text-teal"
+                    >
+                      <Video aria-hidden="true" strokeWidth={1.8} className="h-4 w-4" />
+                    </button>
+                    <Lock
+                      aria-hidden="true"
+                      strokeWidth={1.8}
+                      className="ml-1 h-4 w-4 text-ink-300"
+                    />
+                  </div>
                 </header>
 
                 <div

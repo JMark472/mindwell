@@ -88,7 +88,13 @@ export default function CallSessionsPage() {
                     Duration: 60 min
                   </div>
                 </div>
-                <Button className="mt-4 w-full">
+                <Button
+                  className="mt-4 w-full"
+                  onClick={() => {
+                    const room = `Mindwell-Appointment-${session.id}`;
+                    window.open(`https://meet.jit.si/${encodeURIComponent(room)}#config.prejoinConfig.enabled=true`, "_blank", "noopener,noreferrer");
+                  }}
+                >
                   <Video className="h-4 w-4" />
                   Join Session
                 </Button>
