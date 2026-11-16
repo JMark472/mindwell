@@ -5,6 +5,7 @@ export interface ChatContact {
   fullName: string;
   role: "student" | "counselor" | "admin";
   status: "active" | "inactive" | "suspended";
+  avatarUrl?: string | null;
 }
 
 export interface ChatConversation {
@@ -14,6 +15,7 @@ export interface ChatConversation {
   otherUserId: number;
   otherName: string;
   otherRole: "student" | "counselor" | "admin";
+  otherAvatarUrl?: string | null;
   lastMessageBody: string | null;
   lastMessageSenderId: number | null;
   unreadCount: number;
@@ -25,6 +27,7 @@ export interface ChatMessage {
   senderUserId: number;
   senderName: string;
   senderRole: "student" | "counselor" | "admin";
+  senderAvatarUrl?: string | null;
   body: string;
   createdAt: string;
 }

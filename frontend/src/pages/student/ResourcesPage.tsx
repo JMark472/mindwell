@@ -70,17 +70,32 @@ export default function ResourcesPage() {
       ) : (
         <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
           {resources.map((resource) => (
-            <Card key={resource.id} className="flex flex-col p-6">
-              <p className="text-[11px] uppercase tracking-[0.18em] text-ink-300">
-                {resource.category?.name}
-              </p>
-              <h3 className="mt-2 text-base font-semibold">{resource.title}</h3>
-              <p className="mt-2 flex-1 text-sm text-ink-400">{resource.excerpt}</p>
-              <div className="mt-4 flex items-center justify-between text-xs text-ink-400">
-                <span>{resource.reading_minutes} min read</span>
-                <Button asChild variant="ghost" className="px-0">
-                  <Link to={`/student/resources/${resource.slug}`}>Open →</Link>
-                </Button>
+            <Card key={resource.id} className="flex flex-col overflow-hidden">
+              {resource.cover_image ? (
+                <img
+                  src={resource.cover_image.startsWith("http") ? resource.cover_image : resource.cover_image}
+                  alt={resource.title}
+                  className="h-44 w-full object-cover transition-transform duration-300 hover:scale-105"
+                />
+              ) : (
+                <div className="relative h-44 w-full overflow-hidden bg-gradient-to-br from-teal/20 via-mint/10 to-navy-050">
+                  <div className="absolute -right-8 -top-8 h-32 w-32 rounded-full bg-mint/30 blur-2xl" />
+                  <div className="absolute -bottom-10 left-6 h-28 w-28 rounded-full bg-teal/20 blur-2xl" />
+                  <img src="/logo.png" alt="Mindwell" className="absolute left-1/2 top-1/2 h-16 w-16 -translate-x-1/2 -translate-y-1/2 rounded-2xl object-cover shadow-card" />
+                </div>
+              )}
+              <div className="flex flex-1 flex-col p-6">
+                <p className="text-[11px] uppercase tracking-[0.18em] text-ink-300">
+                  {resource.category?.name}
+                </p>
+                <h3 className="mt-2 text-base font-semibold">{resource.title}</h3>
+                <p className="mt-2 flex-1 text-sm text-ink-400">{resource.excerpt}</p>
+                <div className="mt-4 flex items-center justify-between text-xs text-ink-400">
+                  <span>{resource.reading_minutes} min read</span>
+                  <Button asChild variant="ghost" className="px-0">
+                    <Link to={`/student/resources/${resource.slug}`}>Open →</Link>
+                  </Button>
+                </div>
               </div>
             </Card>
           ))}

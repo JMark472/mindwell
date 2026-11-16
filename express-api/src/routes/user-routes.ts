@@ -10,6 +10,7 @@ import { changePassword } from "@/services/auth-service";
 import { findUserById, toSafeUser } from "@/services/user-service";
 import { writeAudit } from "@/lib/audit";
 import { ApiError } from "@/services/auth-service";
+import { uploadAvatar } from "@/lib/upload";
 
 const router = Router();
 
@@ -24,6 +25,7 @@ const profileUpdateSchema = z.object({
   body: z.object({
     fullName: z.string().min(2).max(120).optional(),
     phone: z.string().max(40).nullable().optional(),
+    avatarUrl: z.string().max(512).nullable().optional(),
     studentNumber: z.string().max(40).nullable().optional(),
     program: z.string().max(120).nullable().optional(),
     yearLevel: z.string().max(40).nullable().optional(),
@@ -76,6 +78,7 @@ router.patch(
     const userFields: Record<string, unknown> = {};
     if (body.fullName !== undefined) userFields.fullName = body.fullName;
     if (body.phone !== undefined) userFields.phone = body.phone;
+    if (body.avatarUrl !== undefined) userFields.avatarUrl = body.avatarUrl;
 
     if (Object.keys(userFields).length > 0) {
       await db
@@ -110,6 +113,38 @@ router.patch(
     await writeAudit({ actorUserId: userId, action: "user.profile_updated" });
     const row = await findUserById(userId);
     res.json({ status: "success", data: { user: row ? toSafeUser(row) : null } });
+  }),
+);
+
+router.post(
+  "/me/avatar",
+  (req, res, next) => {
+    uploadAvatar.single("avatar")(req, res, (err: any) => {
+      if (err) {
+        return next(new ApiError(400, err.message || "File upload failed."));
+      }
+      next();
+    });
+  },
+  asyncHandler(async (req, res) => {
+    const { user } = req as AuthenticatedRequest;
+    const userId = Number(user!.sub);
+    const file = req.file;
+
+    if (!file) {
+      throw new ApiError(400, "No file uploaded.");
+    }
+
+    const avatarUrl = `/uploads/${file.filename}`;
+    await db
+      .update(users)
+      .set({ avatarUrl, updatedAt: new Date() })
+      .where(eq(users.id, userId))
+      .execute();
+
+    await writeAudit({ actorUserId: userId, action: "user.avatar_updated" });
+    const row = await findUserById(userId);
+    res.json({ status: "success", data: { user: row ? toSafeUser(row) : null, avatarUrl } });
   }),
 );
 

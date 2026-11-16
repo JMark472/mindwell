@@ -3,6 +3,7 @@ import cors from "cors";
 import cookieParser from "cookie-parser";
 import helmet from "helmet";
 import hpp from "hpp";
+import path from "path";
 import { ENV } from "@/config/env";
 import routes from "@/routes";
 import { errorHandler } from "@/middlewares/validation-middleware";
@@ -43,6 +44,7 @@ app.use(express.json({ limit: "1mb" }));
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 app.use(hpp());
+app.use("/uploads", express.static(path.resolve(process.cwd(), "uploads")));
 
 // --- Health checks ---
 app.get("/", (_req: Request, res: Response) => {

@@ -35,6 +35,7 @@ router.post(
         fullName: users.fullName,
         role: users.role,
         status: users.status,
+        avatarUrl: users.avatarUrl,
       })
       .from(users)
       .where(inArray(users.id, req.body.ids));

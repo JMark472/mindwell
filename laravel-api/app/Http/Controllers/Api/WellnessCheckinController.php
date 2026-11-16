@@ -3,12 +3,15 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Models\Appointment;
 use App\Models\ConsentRecord;
 use App\Models\CounselorProfile;
 use App\Models\WellnessCheckin;
+use App\Support\ExpressClient;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Collection;
 
 /**
  * Voluntary wellness check-ins.
@@ -139,7 +142,7 @@ class WellnessCheckinController extends Controller
             $query->where('student_user_id', (int) $request->query('student'));
         }
 
-        $rows = $query->limit(90)->get();
+        $rows = $this->attachCounselorNames($query->limit(90)->get());
 
         return response()->json(['status' => 'success', 'data' => ['checkins' => $rows]]);
     }
@@ -205,6 +208,103 @@ class WellnessCheckinController extends Controller
             }
         }
 
-        return response()->json(['status' => 'success', 'data' => ['checkin' => $checkin]]);
+        return response()->json([
+            'status' => 'success',
+            'data' => ['checkin' => $this->attachCounselorNames(collect([$checkin]))->first()],
+        ]);
+    }
+
+    /**
+     * POST /api/wellness-checkins/{id}/advice — counselor sends advice on a
+     * check-in the student explicitly shared.
+     */
+    public function advise(Request $request, int $id): JsonResponse
+    {
+        $userId = (int) $request->attributes->get('auth_user_id');
+        $role = (string) $request->attributes->get('auth_role');
+
+        if ($role !== 'counselor') {
+            throw new AuthorizationException('Only counselors can send advice.');
+        }
+
+        $checkin = WellnessCheckin::query()->findOrFail($id);
+
+        if (! $checkin->is_shared_with_counselor) {
+            throw new AuthorizationException('This check-in was not shared with counselors.');
+        }
+
+        $consented = ConsentRecord::query()
+            ->where('student_user_id', $checkin->student_user_id)
+            ->where('consent_type', ConsentRecord::TYPE_CHECKIN_SHARING)
+            ->where('is_granted', true)
+            ->exists();
+
+        if (! $consented) {
+            throw new AuthorizationException('The student has not consented to check-in sharing.');
+        }
+
+        $profile = CounselorProfile::query()->where('user_id', $userId)->first();
+
+        if (! $profile) {
+            throw new AuthorizationException('Complete your counselor profile before sending advice.');
+        }
+
+        // Only a counselor with a care relationship (confirmed or completed
+        // appointment) may advise the student.
+        $assigned = Appointment::query()
+            ->where('counselor_profile_id', $profile->id)
+            ->where('student_user_id', $checkin->student_user_id)
+            ->whereIn('status', [Appointment::STATUS_CONFIRMED, Appointment::STATUS_COMPLETED])
+            ->exists();
+
+        if (! $assigned) {
+            throw new AuthorizationException('You can only advise students in your caseload.');
+        }
+
+        $validated = $request->validate([
+            'advice' => ['required', 'string', 'max:2000'],
+        ]);
+
+        $checkin->update([
+            'counselor_user_id' => $userId,
+            'counselor_advice' => $validated['advice'],
+            'advised_at' => now(),
+        ]);
+
+        ExpressClient::notify([[
+            'user_id' => $checkin->student_user_id,
+            'type' => 'wellness_advice',
+            'title' => 'New advice from your counselor',
+            'body' => 'Your counselor replied to a mood check-in you shared.',
+            'link' => '/student/mood-history',
+        ]]);
+
+        return response()->json([
+            'status' => 'success',
+            'data' => ['checkin' => $this->attachCounselorNames(collect([$checkin->fresh()]))->first()],
+        ]);
+    }
+
+    /**
+     * Add each check-in's counselor display name for the student-facing view.
+     */
+    private function attachCounselorNames(Collection $rows): Collection
+    {
+        $ids = $rows->pluck('counselor_user_id')->filter()->unique()->values()->all();
+
+        if ($ids === []) {
+            return $rows;
+        }
+
+        $users = ExpressClient::lookupUsers($ids);
+
+        foreach ($rows as $row) {
+            $row->setAttribute(
+                'counselor_name',
+                $row->counselor_user_id ? ($users[$row->counselor_user_id]['full_name'] ?? null) : null,
+            );
+        }
+
+        return $rows;
     }
 }

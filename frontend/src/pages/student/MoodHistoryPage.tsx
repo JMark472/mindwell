@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { listCheckins, getCheckinTrend, type CheckinTrendPoint } from "@/api/wellness";
 import { Card } from "@/components/ui/Primitives";
+import CheckinAdvice from "@/components/wellness/CheckinAdvice";
 
 export default function MoodHistoryPage() {
   const [history, setHistory] = useState<Awaited<ReturnType<typeof listCheckins>>["checkins"]>([]);
@@ -45,6 +46,13 @@ export default function MoodHistoryPage() {
               <p className="mt-1 text-xs text-ink-300">
                 {checkin.is_shared_with_counselor ? "Shared with counselor" : "Private"}
               </p>
+              {checkin.counselor_advice ? (
+                <CheckinAdvice
+                  advice={checkin.counselor_advice}
+                  counselorName={checkin.counselor_name}
+                  advisedAt={checkin.advised_at}
+                />
+              ) : null}
             </li>
           ))}
         </ul>

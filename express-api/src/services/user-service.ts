@@ -10,6 +10,7 @@ export type SafeUser = {
   role: "student" | "counselor" | "admin";
   status: "active" | "inactive" | "suspended";
   phone: string | null;
+  avatarUrl?: string | null;
 };
 
 export function toSafeUser(row: typeof users.$inferSelect): SafeUser {
@@ -20,6 +21,7 @@ export function toSafeUser(row: typeof users.$inferSelect): SafeUser {
     role: row.role,
     status: row.status,
     phone: row.phone,
+    avatarUrl: (row as any).avatarUrl ?? null,
   };
 }
 

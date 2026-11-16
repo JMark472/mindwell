@@ -68,6 +68,7 @@ class CounselingRecordController extends Controller
             $caseload[] = [
                 'student_user_id' => (int) $studentId,
                 'name' => $names[(int) $studentId]['full_name'] ?? 'Student',
+                'avatar_url' => $names[(int) $studentId]['avatar_url'] ?? null,
                 'total_sessions' => $appointments->count(),
                 'last_session' => $latest?->slot_start?->toIso8601String(),
                 'next_session' => $appointments

@@ -61,3 +61,13 @@ export async function changePassword(currentPassword: string, newPassword: strin
   const { data } = await express.post("/users/me/password", { currentPassword, newPassword });
   return data.data as { changed: boolean };
 }
+
+export async function uploadAvatar(file: File) {
+  await ensureCsrf();
+  const formData = new FormData();
+  formData.append("avatar", file);
+  const { data } = await express.post("/users/me/avatar", formData, {
+    headers: { "Content-Type": "multipart/form-data" },
+  });
+  return data.data as { user: User; avatarUrl: string };
+}

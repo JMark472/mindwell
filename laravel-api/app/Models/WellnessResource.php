@@ -18,6 +18,7 @@ class WellnessResource extends Model
         'excerpt',
         'body',
         'tags',
+        'cover_image',
         'reading_minutes',
         'status',
         'is_featured',

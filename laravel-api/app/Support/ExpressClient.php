@@ -25,7 +25,7 @@ class ExpressClient
      * Fetches minimal user projections (id, name, role, status).
      *
      * @param  array<int,int>  $ids
-     * @return array<int, array{id:int,full_name:string,role:string,status:string}>
+     * @return array<int, array{id:int,full_name:string,role:string,status:string,avatar_url:?string}>
      */
     public static function lookupUsers(array $ids): array
     {
@@ -59,6 +59,7 @@ class ExpressClient
                 'full_name' => (string) $row['fullName'],
                 'role' => (string) $row['role'],
                 'status' => (string) $row['status'],
+                'avatar_url' => isset($row['avatarUrl']) ? (string) $row['avatarUrl'] : null,
             ];
         }
 

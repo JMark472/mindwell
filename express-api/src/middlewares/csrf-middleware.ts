@@ -15,6 +15,9 @@ export function csrfMiddleware(
 ) {
   if (SAFE_METHODS.has(req.method)) return next();
   if (req.headers.authorization) return next();
+  // Server-to-server internal calls authenticate with the shared service key
+  // (verified by serviceKeyMiddleware) and are not browser-driven.
+  if (req.originalUrl.startsWith("/api/internal/")) return next();
   if (!verifyCsrf(req)) {
     return res
       .status(403)

@@ -45,15 +45,38 @@ function roleLabel(role: ChatConversation["otherRole"]) {
   return "Administrator";
 }
 
+function resolveAvatarUrl(avatarUrl?: string | null) {
+  if (!avatarUrl) return null;
+  if (avatarUrl.startsWith("http")) return avatarUrl;
+  const base = (import.meta as any).env?.VITE_EXPRESS_API_URL || "http://localhost:3000";
+  return `${base}${avatarUrl.startsWith("/") ? avatarUrl : `/${avatarUrl}`}`;
+}
+
 function Avatar({
   name,
   role,
   size = "md",
+  avatarUrl,
 }: {
   name: string;
   role: ChatConversation["otherRole"];
   size?: "md" | "lg";
+  avatarUrl?: string | null;
 }) {
+  const resolved = resolveAvatarUrl(avatarUrl);
+  if (resolved) {
+    return (
+      <img
+        src={resolved}
+        alt={name}
+        aria-hidden="true"
+        className={cn(
+          "shrink-0 rounded-full object-cover ring-1 ring-line",
+          size === "lg" ? "h-11 w-11" : "h-10 w-10",
+        )}
+      />
+    );
+  }
   return (
     <span
       aria-hidden="true"
@@ -446,7 +469,7 @@ export default function MessagesPage() {
                           disabled={startingId !== null}
                           className="flex w-full items-center gap-3 px-4 py-3 text-left transition-colors hover:bg-navy-050/70 disabled:opacity-60"
                         >
-                          <Avatar name={contact.fullName} role={contact.role} />
+                          <Avatar name={contact.fullName} role={contact.role} avatarUrl={contact.avatarUrl} />
                           <div className="min-w-0 flex-1">
                             <p className="truncate text-sm font-medium">{contact.fullName}</p>
                             <RoleTag role={contact.role} />
@@ -525,6 +548,7 @@ export default function MessagesPage() {
                           <Avatar
                             name={conversation.otherName}
                             role={conversation.otherRole}
+                            avatarUrl={conversation.otherAvatarUrl}
                           />
                           <div className="min-w-0 flex-1">
                             <div className="flex items-baseline justify-between gap-2">
@@ -590,6 +614,7 @@ export default function MessagesPage() {
                     name={activeConversation.otherName}
                     role={activeConversation.otherRole}
                     size="lg"
+                    avatarUrl={activeConversation.otherAvatarUrl}
                   />
                   <div className="min-w-0">
                     <p className="truncate text-sm font-semibold">
@@ -664,20 +689,47 @@ export default function MessagesPage() {
                               )}
                             >
                               {!mine ? (
-                                <span className="px-1 text-[11px] font-medium text-ink-400">
-                                  {message.senderName}
-                                </span>
-                              ) : null}
-                              <div
-                                className={cn(
-                                  "whitespace-pre-wrap break-words rounded-2xl px-4 py-2.5 text-sm shadow-card",
-                                  mine
-                                    ? "rounded-br-md bg-teal text-white"
-                                    : "rounded-bl-md border border-line bg-surface text-ink",
-                                )}
-                              >
-                                {message.body}
-                              </div>
+                                <div className="flex items-end gap-2">
+                                  {message.senderAvatarUrl ? (
+                                    <img
+                                      src={
+                                        message.senderAvatarUrl.startsWith("http")
+                                          ? message.senderAvatarUrl
+                                          : `${(import.meta as any).env?.VITE_EXPRESS_API_URL || "http://localhost:3000"}${message.senderAvatarUrl.startsWith("/") ? message.senderAvatarUrl : `/${message.senderAvatarUrl}`}`
+                                      }
+                                      alt={message.senderName}
+                                      className="h-8 w-8 shrink-0 rounded-full object-cover ring-1 ring-line"
+                                    />
+                                  ) : (
+                                    <Avatar
+                                      name={message.senderName}
+                                      role={message.senderRole}
+                                      avatarUrl={null}
+                                      size="md"
+                                    />
+                                  )}
+                                  <div className="flex flex-col gap-1">
+                                    <span className="px-1 text-[11px] font-medium text-ink-400">
+                                      {message.senderName}
+                                    </span>
+                                    <div
+                                      className={cn(
+                                        "whitespace-pre-wrap break-words rounded-2xl px-4 py-2.5 text-sm shadow-card rounded-bl-md border border-line bg-surface text-ink",
+                                      )}
+                                    >
+                                      {message.body}
+                                    </div>
+                                  </div>
+                                </div>
+                              ) : (
+                                <div
+                                  className={cn(
+                                    "whitespace-pre-wrap break-words rounded-2xl px-4 py-2.5 text-sm shadow-card rounded-br-md bg-teal text-white",
+                                  )}
+                                >
+                                  {message.body}
+                                </div>
+                              )}
                               <span className="px-1 text-[10px] text-ink-300">
                                 {formatMessageTime(message.createdAt)}
                               </span>

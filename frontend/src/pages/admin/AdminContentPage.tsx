@@ -11,6 +11,8 @@ export default function AdminContentPage() {
     body: "",
     wellness_category_id: 1,
     status: "published",
+    cover_image: "",
+    is_featured: false,
   });
   const [error, setError] = useState<string | null>(null);
 
@@ -27,7 +29,7 @@ export default function AdminContentPage() {
     setError(null);
     try {
       await createResource(form);
-      setForm({ title: "", excerpt: "", body: "", wellness_category_id: 1, status: "published" });
+      setForm({ title: "", excerpt: "", body: "", wellness_category_id: 1, status: "published", cover_image: "", is_featured: false });
       await load();
     } catch (err) {
       setError(errorMessage(err, "Could not create resource."));
@@ -56,6 +58,12 @@ export default function AdminContentPage() {
             onChange={(e) => setForm({ ...form, excerpt: e.target.value })}
             className="h-10 rounded-field border border-line px-3 text-sm"
           />
+          <input
+            placeholder="Cover image URL (optional)"
+            value={form.cover_image}
+            onChange={(e) => setForm({ ...form, cover_image: e.target.value })}
+            className="h-10 rounded-field border border-line px-3 text-sm"
+          />
           <textarea
             placeholder="Body"
             value={form.body}
@@ -63,6 +71,14 @@ export default function AdminContentPage() {
             rows={4}
             className="rounded-field border border-line px-3 py-2 text-sm"
           />
+          <label className="flex items-center gap-2 text-sm">
+            <input
+              type="checkbox"
+              checked={form.is_featured}
+              onChange={(e) => setForm({ ...form, is_featured: e.target.checked })}
+            />
+            Feature this resource
+          </label>
         </div>
         {error ? <p className="mt-2 text-sm text-danger">{error}</p> : null}
         <Button className="mt-3" onClick={() => void create()}>

@@ -76,6 +76,8 @@ Route::middleware(['auth', 'csrf.api'])->group(function () {
     Route::get('/wellness-checkins/trend', [WellnessCheckinController::class, 'trend'])->middleware('role:student');
     Route::get('/wellness-checkins/{id}', [WellnessCheckinController::class, 'show'])->whereNumber('id');
     Route::post('/wellness-checkins', [WellnessCheckinController::class, 'store'])->middleware('role:student');
+    Route::post('/wellness-checkins/{id}/advice', [WellnessCheckinController::class, 'advise'])
+        ->whereNumber('id')->middleware('role:counselor');
 
     // --- Consent ----------------------------------------------------------
     Route::get('/consents', [ConsentController::class, 'index'])->middleware('role:student');

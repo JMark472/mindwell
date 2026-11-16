@@ -15,6 +15,13 @@
       "when": 1792740803023,
       "tag": "0001_skinny_titania",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "5",
+      "when": 1793420328150,
+      "tag": "0002_supreme_bucky",
+      "breakpoints": true
     }
   ]
 }

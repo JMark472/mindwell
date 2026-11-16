@@ -18,6 +18,7 @@ export interface CounselingRecord {
 export interface CaseloadEntry {
   student_user_id: number;
   name: string;
+  avatar_url?: string | null;
   total_sessions: number;
   last_session: string | null;
   next_session: string | null;

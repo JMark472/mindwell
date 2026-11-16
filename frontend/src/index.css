@@ -6,8 +6,7 @@
  * Brand colours, type scale and spacing are taken from the Figma source of
  * truth ("MindWell – Complete System UI" → MindWell — Design System frame).
  * Status colours (success / warning / danger) are supporting system colours
- * chosen for WCAG AA contrast against their tinted backgrounds; they are not
- * part of the brand palette.
+ * chosen for WCAG AA contrast against their tinted backgrounds.
  */
 @theme {
   --font-sans: "Poppins", ui-sans-serif, system-ui, -apple-system, "Segoe UI",
@@ -15,16 +14,18 @@
 
   /* Brand */
   --color-navy: #0b355f;
+  --color-navy-800: #071f3a;
   --color-navy-700: #0a2d51;
   --color-navy-050: #eaf1f7;
   --color-teal: #10a99b;
   --color-teal-600: #0d8d81;
+  --color-teal-700: #0a766d;
   --color-mint: #52d0b0;
   --color-mint-soft: #e7f8f4;
   --color-sky: #eaf5fc;
 
   /* Surfaces */
-  --color-canvas: #f5f9fa;
+  --color-canvas: #f6f9fb;
   --color-surface: #ffffff;
   --color-surface-2: #e7ecec;
   --color-line: #dce5e6;
@@ -45,22 +46,23 @@
   --color-info: #0b5e88;
   --color-info-soft: #e6f3fa;
 
-  /* Type scale (Display/36, Heading/24, Body/16, Label/12) */
-  --text-display: 2.25rem;
-  --text-display--line-height: 2.75rem;
+  /* Type scale */
+  --text-display: 2.5rem;
+  --text-display--line-height: 3rem;
   --text-display--letter-spacing: -0.02em;
   --text-heading: 1.5rem;
   --text-heading--line-height: 2rem;
   --text-heading--letter-spacing: -0.01em;
 
   /* Radius */
-  --radius-card: 16px;
-  --radius-field: 10px;
+  --radius-card: 20px;
+  --radius-field: 12px;
   --radius-pill: 999px;
 
   /* Elevation */
-  --shadow-card: 0 1px 2px rgb(11 53 95 / 0.04), 0 8px 24px rgb(11 53 95 / 0.06);
-  --shadow-lift: 0 2px 4px rgb(11 53 95 / 0.06), 0 16px 40px rgb(11 53 95 / 0.12);
+  --shadow-card: 0 1px 1px rgb(11 53 95 / 0.02), 0 10px 40px -20px rgb(11 53 95 / 0.5);
+  --shadow-lift: 0 10px 60px -30px rgb(11 53 95 / 0.9), 0 2px 8px rgb(11 53 95 / 0.06);
+  --shadow-glow: 0 30px 80px -40px rgb(16 169 155 / 0.9);
 }
 
 @layer base {
@@ -69,7 +71,12 @@
   }
 
   body {
-    @apply bg-canvas font-sans text-[15px] text-ink antialiased;
+    @apply font-sans text-[15px] text-ink antialiased;
+    background:
+      radial-gradient(1200px 800px at 80% -10%, rgb(82 208 176 / 0.14), transparent 70%),
+      radial-gradient(900px 700px at -10% 10%, rgb(160 212 244 / 0.16), transparent 65%),
+      var(--color-canvas);
+    background-attachment: fixed;
   }
 
   h1,
@@ -107,7 +114,15 @@
 @layer components {
   /* A single card primitive used by every screen. */
   .mw-card {
-    @apply rounded-card border border-line bg-surface shadow-card;
+    @apply relative overflow-hidden rounded-[20px] border border-white/60 bg-surface/95 shadow-card backdrop-blur-sm;
+  }
+
+  .mw-card-glass {
+    @apply relative overflow-hidden rounded-[20px] border border-white/70 bg-white/80 shadow-card backdrop-blur-xl;
+  }
+
+  .mw-panel {
+    @apply relative overflow-hidden rounded-[24px] border border-line/80 bg-surface/95 shadow-lift backdrop-blur-sm;
   }
 
   .mw-focus-ring {
@@ -119,6 +134,10 @@
     @apply absolute left-4 top-4 z-[100] -translate-y-24 rounded-field bg-navy px-4 py-2
       text-sm font-medium text-white transition-transform focus:translate-y-0;
   }
+
+  .mw-gradient-text {
+    @apply bg-gradient-to-r from-navy via-teal to-mint bg-clip-text text-transparent;
+  }
 }
 
 /* Thin, unobtrusive scrollbars for the sidebar. */
@@ -126,6 +145,62 @@
   .mw-scrollbar {
     scrollbar-width: thin;
     scrollbar-color: var(--color-surface-2) transparent;
+  }
+
+  .mw-scrollbar::-webkit-scrollbar {
+    width: 8px;
+  }
+
+  .mw-scrollbar::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  .mw-scrollbar::-webkit-scrollbar-thumb {
+    background: linear-gradient(180deg, rgb(16 169 155 / 0.4), rgb(11 53 95 / 0.18));
+    border-radius: 999px;
+  }
+
+  .mw-fade-in {
+    animation: mw-fade-in 0.4s ease-out both;
+  }
+
+  .mw-slide-up {
+    animation: mw-slide-up 0.4s ease-out both;
+  }
+
+  .mw-shimmer {
+    position: relative;
+    overflow: hidden;
+  }
+
+  .mw-shimmer::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    transform: translateX(-100%);
+    background: linear-gradient(90deg, transparent, rgb(255 255 255 / 0.25), transparent);
+    animation: mw-shimmer 1.6s infinite;
+  }
+
+  .mw-grid-lines {
+    background-image:
+      radial-gradient(circle at 1px 1px, rgb(11 53 95 / 0.08) 1px, transparent 0);
+    background-size: 28px 28px;
+    mask-image: radial-gradient(ellipse at top, black, transparent 70%);
+  }
+
+  .mw-noise {
+    position: relative;
+  }
+
+  .mw-noise::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    opacity: 0.08;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140' viewBox='0 0 140 140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23n)' opacity='0.4'/%3E%3C/svg%3E");
+    mix-blend-mode: soft-light;
   }
 }
 
@@ -177,11 +252,50 @@
 @keyframes mw-rise {
   from {
     opacity: 0;
-    transform: translateY(10px);
+    transform: translateY(12px);
   }
   to {
     opacity: 1;
     transform: translateY(0);
+  }
+}
+
+@keyframes mw-fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes mw-slide-up {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes mw-shimmer {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+@keyframes mw-float {
+  0%,
+  100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-6px);
   }
 }
 
@@ -228,6 +342,11 @@
   opacity: 0.5;
 }
 
+/* Soft tiled wave pattern behind the portal content area. */
+.mw-wave-field {
+  opacity: 0.8;
+}
+
 .mw-scene-rings {
   position: absolute;
   left: 50%;
@@ -245,16 +364,42 @@
 
 /* Subtle content entrance used on route changes. */
 .mw-rise {
-  animation: mw-rise 0.35s ease-out both;
+  animation: mw-rise 0.4s ease-out both;
 }
 
 .mw-card-hover {
   transition:
     transform 0.25s ease,
-    box-shadow 0.25s ease;
+    box-shadow 0.25s ease,
+    border-color 0.25s ease;
 }
 
 .mw-card-hover:hover {
-  transform: translateY(-2px);
+  transform: translateY(-4px);
   box-shadow: var(--shadow-lift);
+  border-color: rgb(16 169 155 / 0.4);
+}
+
+.mw-card-interactive {
+  transition:
+    transform 0.25s ease,
+    box-shadow 0.25s ease,
+    background 0.25s ease;
+}
+
+.mw-card-interactive:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-glow);
+}
+
+.mw-lift {
+  transition: transform 0.25s ease;
+}
+
+.mw-lift:hover {
+  transform: translateY(-2px);
+}
+
+.mw-float {
+  animation: mw-float 6s ease-in-out infinite;
 }

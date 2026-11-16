@@ -23,6 +23,9 @@ class WellnessCheckin extends Model
         'influences',
         'note',
         'is_shared_with_counselor',
+        'counselor_user_id',
+        'counselor_advice',
+        'advised_at',
     ];
 
     protected $casts = [
@@ -32,6 +35,7 @@ class WellnessCheckin extends Model
         'energy_score' => 'integer',
         'stress_score' => 'integer',
         'sleep_hours' => 'float',
+        'advised_at' => 'datetime',
     ];
 
     public function answers(): HasMany

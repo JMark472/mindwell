@@ -30,6 +30,7 @@ return new class extends Migration
             $table->text('excerpt');
             $table->longText('body');
             $table->json('tags')->nullable();
+            $table->string('cover_image', 512)->nullable();
             $table->unsignedSmallInteger('reading_minutes')->default(5);
             $table->string('status', 20)->default('draft'); // draft|published|archived
             $table->boolean('is_featured')->default(false);

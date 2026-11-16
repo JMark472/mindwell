@@ -70,6 +70,8 @@ class AppointmentController extends Controller
 
             $payload['student_name'] = $names[$a->student_user_id]['full_name'] ?? null;
             $payload['counselor_name'] = $names[$a->counselor_profile_id]['full_name'] ?? null;
+            $payload['student_avatar_url'] = $names[$a->student_user_id]['avatar_url'] ?? null;
+            $payload['counselor_avatar_url'] = $names[$a->counselor_profile_id]['avatar_url'] ?? null;
 
             if ($role === 'counselor') {
                 $payload['student_note'] = $a->student_note;

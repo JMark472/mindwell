@@ -17,6 +17,7 @@ export interface WellnessResource {
   excerpt: string;
   body: string;
   tags: string[] | null;
+  cover_image?: string | null;
   reading_minutes: number;
   status: "draft" | "published" | "archived";
   is_featured: boolean;
@@ -34,6 +35,10 @@ export interface Checkin {
   influences: string[] | null;
   note: string | null;
   is_shared_with_counselor: boolean;
+  counselor_user_id: number | null;
+  counselor_advice: string | null;
+  counselor_name?: string | null;
+  advised_at: string | null;
   created_at: string;
 }
 
@@ -114,6 +119,11 @@ export async function createCheckin(payload: Record<string, unknown>) {
   return data.data.checkin as Checkin;
 }
 
+export async function sendCheckinAdvice(id: number, advice: string) {
+  const { data } = await laravel.post(`/wellness-checkins/${id}/advice`, { advice });
+  return data.data.checkin as Checkin;
+}
+
 export async function getConsents() {
   const { data } = await laravel.get("/consents");
   return data.data as ConsentsState;
@@ -186,6 +196,11 @@ export async function getReportSummary() {
 
 export async function getRegistrationTrend(months = 6) {
   const { data } = await express.get("/reports/registration-trend", { params: { months } });
+  return data.data;
+}
+
+export async function getAppointmentReports() {
+  const { data } = await express.get("/reports/appointments");
   return data.data;
 }
 

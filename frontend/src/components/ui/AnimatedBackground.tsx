@@ -1,4 +1,5 @@
 import { cn } from "@/utils/cn";
+import WaveBackground from "@/components/ui/WaveBackground";
 
 /**
  * Decorative, purely presentational backdrop.
@@ -16,14 +17,17 @@ export default function AnimatedBackground({
 }) {
   if (variant === "portal") {
     return (
-      <div
-        aria-hidden="true"
-        className={cn("mw-scene opacity-60", className)}
-      >
-        <div className="mw-orb mw-orb-mint -right-20 -top-24 h-[340px] w-[340px]" />
-        <div className="mw-orb mw-orb-sky -left-24 top-24 h-[300px] w-[300px]" />
-        <div className="mw-scene-grid absolute inset-0 opacity-30" />
-      </div>
+      <>
+        <div
+          aria-hidden="true"
+          className={cn("mw-scene opacity-60", className)}
+        >
+          <div className="mw-orb mw-orb-mint -right-20 -top-24 h-[340px] w-[340px]" />
+          <div className="mw-orb mw-orb-sky -left-24 top-24 h-[300px] w-[300px]" />
+          <div className="mw-scene-grid absolute inset-0 opacity-30" />
+        </div>
+        <WaveBackground className={cn("mw-wave-field", className)} />
+      </>
     );
   }
 

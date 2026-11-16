@@ -102,6 +102,7 @@ class CounselorController extends Controller
                 'counselors' => $profiles->map(fn (CounselorProfile $p) => [
                     'id' => $p->id,
                     'name' => $users[$p->user_id]['full_name'] ?? 'Counselor',
+                    'avatar_url' => $users[$p->user_id]['avatar_url'] ?? null,
                     'specialization' => $p->specialization,
                     'credentials' => $p->credentials,
                     'bio' => $p->bio,

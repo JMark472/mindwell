@@ -1,11 +1,12 @@
 import { useEffect, useState } from "react";
 import { Card, Button, Input } from "@/components/ui/Primitives";
-import { adminListUsers, adminCreateUser, adminSetUserStatus, adminSetUserRole } from "@/api/wellness";
+import { adminListUsers, adminCreateUser, adminSetUserStatus } from "@/api/wellness";
 import { errorMessage } from "@/api/client";
+import UserAvatar from "@/components/profile/UserAvatar";
 
 export default function UserManagementPage() {
   const [users, setUsers] = useState<any[]>([]);
-  const [form, setForm] = useState({ fullName: "", email: "", password: "", role: "student" });
+  const [form, setForm] = useState({ fullName: "", email: "", password: "", role: "admin" });
   const [error, setError] = useState<string | null>(null);
 
   async function load() {
@@ -21,7 +22,7 @@ export default function UserManagementPage() {
     setError(null);
     try {
       await adminCreateUser(form);
-      setForm({ fullName: "", email: "", password: "", role: "student" });
+      setForm({ fullName: "", email: "", password: "", role: "admin" });
       await load();
     } catch (err) {
       setError(errorMessage(err, "Could not create user."));
@@ -33,10 +34,7 @@ export default function UserManagementPage() {
     await load();
   }
 
-  async function setRole(id: number, role: string) {
-    await adminSetUserRole(id, role);
-    await load();
-  }
+  // Role changes restricted to Admin only as per requirements.
 
   return (
     <div className="flex flex-col gap-6">
@@ -50,9 +48,8 @@ export default function UserManagementPage() {
             value={form.role}
             onChange={(e) => setForm({ ...form, role: e.target.value })}
             className="h-10 rounded-field border border-line px-3 text-sm"
+            disabled
           >
-            <option value="student">Student</option>
-            <option value="counselor">Counselor</option>
             <option value="admin">Admin</option>
           </select>
         </div>
@@ -80,18 +77,21 @@ export default function UserManagementPage() {
             <tbody className="divide-y divide-line">
               {users.map((user) => (
                 <tr key={user.id}>
-                  <td className="px-6 py-3">{user.fullName}</td>
+                  <td className="px-6 py-3">
+                    <div className="flex items-center gap-3">
+                      <UserAvatar
+                        user={{
+                          fullName: user.fullName || user.email,
+                          avatarUrl: user.avatarUrl || user.avatar_url || null,
+                        }}
+                        size="md"
+                      />
+                      <span className="font-medium">{user.fullName}</span>
+                    </div>
+                  </td>
                   <td className="px-6 py-3 text-ink-400">{user.email}</td>
                   <td className="px-6 py-3">
-                    <select
-                      value={user.role}
-                      onChange={(e) => void setRole(user.id, e.target.value)}
-                      className="rounded-field border border-line px-2 py-1 text-xs"
-                    >
-                      <option value="student">student</option>
-                      <option value="counselor">counselor</option>
-                      <option value="admin">admin</option>
-                    </select>
+                    <span className="rounded-pill bg-navy-050 px-2 py-0.5 text-xs">{user.role}</span>
                   </td>
                   <td className="px-6 py-3">
                     <select

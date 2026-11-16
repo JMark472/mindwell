@@ -17,6 +17,8 @@ export interface Appointment {
   cancellation_reason?: string | null;
   student_name?: string | null;
   counselor_name?: string | null;
+  student_avatar_url?: string | null;
+  counselor_avatar_url?: string | null;
   created_at: string;
 }
 
@@ -31,6 +33,7 @@ export interface CounselorSummary {
   id: number;
   user_id?: number;
   name: string;
+  avatar_url?: string | null;
   specialization: string | null;
   credentials: string | null;
   bio: string | null;

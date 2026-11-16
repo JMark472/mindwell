@@ -1,14 +1,32 @@
 import { useEffect, useState } from "react";
-import { Card, Button } from "@/components/ui/Primitives";
+import { Card, Button, Input, Label } from "@/components/ui/Primitives";
+import { Alert } from "@/components/ui/Feedback";
 import { getMyCounselorProfile, updateCounselorProfile, updateAvailability, type CounselorProfile, type AvailabilityWindow } from "@/api/appointments";
+import { changePassword, updateMyProfile } from "@/api/auth";
+import { errorMessage } from "@/api/client";
+import ProfilePhotoUpload from "@/components/profile/ProfilePhotoUpload";
+import { useAuth } from "@/context/AuthContext";
 
 const days = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 
 export default function CounselorProfilePage() {
+  const { user, setUser } = useAuth();
+  const [fullName, setFullName] = useState(user?.fullName || "");
+  const [nameSaving, setNameSaving] = useState(false);
+  const [nameMsg, setNameMsg] = useState<string | null>(null);
+  const [nameErr, setNameErr] = useState<string | null>(null);
   const [profile, setProfile] = useState<CounselorProfile | null>(null);
   const [availability, setAvailability] = useState<AvailabilityWindow[]>([]);
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
+  const [passwordForm, setPasswordForm] = useState({
+    currentPassword: "",
+    newPassword: "",
+    confirmPassword: "",
+  });
+  const [changingPassword, setChangingPassword] = useState(false);
+  const [passwordMessage, setPasswordMessage] = useState<string | null>(null);
+  const [passwordError, setPasswordError] = useState<string | null>(null);
 
   useEffect(() => {
     void getMyCounselorProfile().then((result) => {
@@ -16,6 +34,10 @@ export default function CounselorProfilePage() {
       setAvailability(result.availability);
     });
   }, []);
+
+  useEffect(() => {
+    setFullName(user?.fullName || "");
+  }, [user?.fullName]);
 
   async function saveProfile() {
     if (!profile) return;
@@ -35,13 +57,83 @@ export default function CounselorProfilePage() {
     setTimeout(() => setMessage(null), 2000);
   }
 
+  async function handleChangePassword() {
+    setPasswordMessage(null);
+    setPasswordError(null);
+    if (!passwordForm.currentPassword || !passwordForm.newPassword) {
+      setPasswordError("Please fill in all password fields.");
+      return;
+    }
+    if (passwordForm.newPassword !== passwordForm.confirmPassword) {
+      setPasswordError("New passwords do not match.");
+      return;
+    }
+    if (passwordForm.newPassword.length < 8) {
+      setPasswordError("New password must be at least 8 characters.");
+      return;
+    }
+    if (!/[a-zA-Z]/.test(passwordForm.newPassword) || !/[0-9]/.test(passwordForm.newPassword)) {
+      setPasswordError("Password must contain at least one letter and one number.");
+      return;
+    }
+    setChangingPassword(true);
+    try {
+      await changePassword(passwordForm.currentPassword, passwordForm.newPassword);
+      setPasswordMessage("Password changed successfully.");
+      setPasswordForm({ currentPassword: "", newPassword: "", confirmPassword: "" });
+    } catch (err) {
+      setPasswordError(errorMessage(err, "Could not change password."));
+    } finally {
+      setChangingPassword(false);
+    }
+  }
+
   if (!profile) return <p className="text-sm text-ink-400">Loading…</p>;
 
   return (
     <div className="flex flex-col gap-6">
       <Card className="p-6">
         <h2 className="text-lg font-semibold">Counselor profile</h2>
-        <div className="mt-4 grid gap-4 md:grid-cols-2">
+        <div className="mt-4 flex flex-col items-center gap-4 sm:flex-row">
+          <ProfilePhotoUpload size="lg" />
+          <div className="flex-1 space-y-1.5 text-center sm:text-left">
+            <p className="text-base font-semibold">{user?.fullName || "Counselor"}</p>
+            <p className="text-sm text-ink-400">Upload a photo from your device to personalize your profile. JPG, PNG, WebP, or GIF up to 5MB.</p>
+          </div>
+        </div>
+        <div className="mt-6 grid gap-4 md:grid-cols-2">
+          <div className="flex flex-col gap-1.5 md:col-span-2">
+            <Label htmlFor="counselorName">Full name</Label>
+            <Input
+              id="counselorName"
+              value={fullName}
+              onChange={(e) => setFullName(e.target.value)}
+              placeholder="Enter your full name"
+            />
+            {nameMsg ? <p className="text-xs text-teal">{nameMsg}</p> : null}
+            {nameErr ? <p className="text-xs text-danger">{nameErr}</p> : null}
+            <Button
+              size="sm"
+              className="w-fit"
+              disabled={nameSaving || fullName === user?.fullName}
+              onClick={async () => {
+                setNameSaving(true);
+                setNameMsg(null);
+                setNameErr(null);
+                try {
+                  const res = await updateMyProfile({ fullName });
+                  setUser(res.user);
+                  setNameMsg("Name updated.");
+                } catch (err) {
+                  setNameErr(errorMessage(err, "Could not update name."));
+                } finally {
+                  setNameSaving(false);
+                }
+              }}
+            >
+              {nameSaving ? "Saving…" : "Update name"}
+            </Button>
+          </div>
           <label className="flex flex-col gap-1.5">
             <span className="text-sm font-medium">Specialization</span>
             <input
@@ -121,6 +213,48 @@ export default function CounselorProfilePage() {
           Save availability
         </Button>
         {message ? <p className="mt-2 text-sm text-teal">{message}</p> : null}
+      </Card>
+
+      <Card className="p-6">
+        <h2 className="text-lg font-semibold">Change Password</h2>
+        <p className="mt-1 text-sm text-ink-400">
+          Update your password to keep your account secure.
+        </p>
+        <div className="mt-4 grid gap-4 md:grid-cols-2">
+          <div className="flex flex-col gap-1.5 md:col-span-2">
+            <Label htmlFor="currentPassword">Current Password</Label>
+            <Input
+              id="currentPassword"
+              type="password"
+              value={passwordForm.currentPassword}
+              onChange={(e) => setPasswordForm((prev) => ({ ...prev, currentPassword: e.target.value }))}
+            />
+          </div>
+          <div className="flex flex-col gap-1.5">
+            <Label htmlFor="newPassword">New Password</Label>
+            <Input
+              id="newPassword"
+              type="password"
+              value={passwordForm.newPassword}
+              onChange={(e) => setPasswordForm((prev) => ({ ...prev, newPassword: e.target.value }))}
+            />
+          </div>
+          <div className="flex flex-col gap-1.5">
+            <Label htmlFor="confirmPassword">Confirm New Password</Label>
+            <Input
+              id="confirmPassword"
+              type="password"
+              value={passwordForm.confirmPassword}
+              onChange={(e) => setPasswordForm((prev) => ({ ...prev, confirmPassword: e.target.value }))}
+            />
+          </div>
+        </div>
+        <p className="mt-2 text-xs text-ink-400">Password must be at least 8 characters with letters and numbers.</p>
+        {passwordMessage ? <Alert tone="success" className="mt-4">{passwordMessage}</Alert> : null}
+        {passwordError ? <Alert className="mt-4">{passwordError}</Alert> : null}
+        <Button className="mt-4" disabled={changingPassword} onClick={() => void handleChangePassword()}>
+          {changingPassword ? "Changing…" : "Change Password"}
+        </Button>
       </Card>
     </div>
   );

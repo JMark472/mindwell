@@ -17,6 +17,7 @@ import StudentAppointmentDetailPage from "@/pages/student/StudentAppointmentDeta
 import MoodHistoryPage from "@/pages/student/MoodHistoryPage";
 import NotificationsPage from "@/pages/student/NotificationsPage";
 import MessagesPage from "@/pages/messages/MessagesPage";
+import AIAssistantPage from "@/pages/assistant/AIAssistantPage";
 import ProfileSettingsPage from "@/pages/student/ProfileSettingsPage";
 import HelpCrisisPage from "@/pages/student/HelpCrisisPage";
 import AssessmentPage from "@/pages/student/AssessmentPage";
@@ -26,17 +27,21 @@ import SessionExpiredPage from "@/pages/auth/SessionExpiredPage";
 import CounselorDashboardPage from "@/pages/counselor/CounselorDashboardPage";
 import AppointmentRequestsPage from "@/pages/counselor/AppointmentRequestsPage";
 import CounselorSchedulePage from "@/pages/counselor/CounselorSchedulePage";
-import StudentCasesPage from "@/pages/counselor/StudentCasesPage";
+import StudentManagementPage from "@/pages/counselor/StudentManagementPage";
+import SessionNotesPage from "@/pages/counselor/SessionNotesPage";
 import CaseDetailPage from "@/pages/counselor/CaseDetailPage";
 import CounselorProfilePage from "@/pages/counselor/CounselorProfilePage";
 import AdminDashboardPage from "@/pages/admin/AdminDashboardPage";
 import UserManagementPage from "@/pages/admin/UserManagementPage";
-import AdminListPage from "@/pages/admin/AdminListPage";
+
 import AdminAppointmentsPage from "@/pages/admin/AdminAppointmentsPage";
 import AdminContentPage from "@/pages/admin/AdminContentPage";
+import AdminReportsPage from "@/pages/admin/AdminReportsPage";
 import AdminSettingsPage from "@/pages/admin/AdminSettingsPage";
-import PlaceholderPage from "@/pages/PlaceholderPage";
 import NotFoundPage from "@/pages/NotFoundPage";
+import CallSessionsPage from "@/pages/student/CallSessionsPage";
+import CounselorCallSessionsPage from "@/pages/counselor/CallSessionsPage";
+import AdminCallSessionsPage from "@/pages/admin/CallSessionsPage";
 
 export default function App() {
   return (
@@ -63,7 +68,10 @@ export default function App() {
         <Route path="/student/appointments" element={<AppointmentsPage />} />
         <Route path="/student/appointments/confirmation" element={<BookingConfirmationPage />} />
         <Route path="/student/appointments/:id" element={<StudentAppointmentDetailPage />} />
+        <Route path="/student/callsessions" element={<CallSessionsPage />} />
+        <Route path="/student/call-sessions" element={<CallSessionsPage />} />
         <Route path="/student/messages" element={<MessagesPage />} />
+        <Route path="/student/assistant" element={<AIAssistantPage />} />
         <Route path="/student/resources" element={<ResourcesPage />} />
         <Route path="/student/resources/:slug" element={<ResourceDetailPage />} />
         <Route path="/student/mood-history" element={<MoodHistoryPage />} />
@@ -78,10 +86,13 @@ export default function App() {
         <Route path="/counselor/dashboard" element={<CounselorDashboardPage />} />
         <Route path="/counselor/requests" element={<AppointmentRequestsPage />} />
         <Route path="/counselor/schedule" element={<CounselorSchedulePage />} />
-        <Route path="/counselor/cases" element={<StudentCasesPage />} />
+        <Route path="/counselor/cases" element={<StudentManagementPage />} />
         <Route path="/counselor/cases/:id" element={<CaseDetailPage />} />
+        <Route path="/counselor/callsessions" element={<CounselorCallSessionsPage />} />
+        <Route path="/counselor/call-sessions" element={<CounselorCallSessionsPage />} />
         <Route path="/counselor/messages" element={<MessagesPage />} />
-        <Route path="/counselor/notes" element={<StudentCasesPage />} />
+        <Route path="/counselor/assistant" element={<AIAssistantPage />} />
+        <Route path="/counselor/notes" element={<SessionNotesPage />} />
         <Route path="/counselor/resources" element={<ResourcesPage />} />
         <Route path="/counselor/profile" element={<CounselorProfilePage />} />
       </Route>
@@ -89,11 +100,11 @@ export default function App() {
       <Route element={<ProtectedRoute roles={["admin"]}><AppShell title="Admin Portal" subtitle="System oversight and governance" /></ProtectedRoute>}>
         <Route path="/admin/dashboard" element={<AdminDashboardPage />} />
         <Route path="/admin/users" element={<UserManagementPage />} />
-        <Route path="/admin/counselors" element={<AdminListPage role="counselor" title="Counselors" />} />
-        <Route path="/admin/students" element={<AdminListPage role="student" title="Students" />} />
         <Route path="/admin/appointments" element={<AdminAppointmentsPage />} />
+        <Route path="/admin/callsessions" element={<AdminCallSessionsPage />} />
+        <Route path="/admin/call-sessions" element={<AdminCallSessionsPage />} />
         <Route path="/admin/content" element={<AdminContentPage />} />
-        <Route path="/admin/reports" element={<PlaceholderPage title="Reports & Analytics" />} />
+        <Route path="/admin/reports" element={<AdminReportsPage />} />
         <Route path="/admin/settings" element={<AdminSettingsPage />} />
       </Route>
 

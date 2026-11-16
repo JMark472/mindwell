@@ -45,6 +45,7 @@ export const users = mysqlTable(
     role: mysqlEnum("role", ROLES).notNull().default("student"),
     status: mysqlEnum("status", USER_STATUSES).notNull().default("active"),
     phone: varchar("phone", { length: 40 }),
+    avatarUrl: varchar("avatar_url", { length: 512 }),
     createdAt: datetime("created_at", { mode: "date" })
       .notNull()
       .default(sql`CURRENT_TIMESTAMP`),

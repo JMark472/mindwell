@@ -7,6 +7,7 @@ export interface User {
   role: Role;
   status: "active" | "inactive" | "suspended";
   phone: string | null;
+  avatarUrl?: string | null;
 }
 
 export interface StudentProfile {

@@ -63,6 +63,7 @@ export type ConversationSummary = {
   otherUserId: number;
   otherName: string;
   otherRole: "student" | "counselor" | "admin";
+  otherAvatarUrl?: string | null;
   lastMessageBody: string | null;
   lastMessageSenderId: number | null;
   unreadCount: number;
@@ -79,6 +80,7 @@ export async function listConversations(userId: number): Promise<ConversationSum
       otherUserId: users.id,
       otherName: users.fullName,
       otherRole: users.role,
+      otherAvatarUrl: users.avatarUrl,
       lastMessageBody: sql<string | null>`(
         select m.body from messages m
         where m.conversation_id = ${conversations.id}
@@ -129,6 +131,7 @@ export type ChatMessage = {
   senderUserId: number;
   senderName: string;
   senderRole: "student" | "counselor" | "admin";
+  senderAvatarUrl?: string | null;
   body: string;
   createdAt: Date;
 };
@@ -147,6 +150,7 @@ export async function listMessages(
       senderUserId: messages.senderUserId,
       senderName: users.fullName,
       senderRole: users.role,
+      senderAvatarUrl: users.avatarUrl,
       body: messages.body,
       createdAt: messages.createdAt,
     })
@@ -295,6 +299,7 @@ export async function sendMessage(
     senderUserId: sender.id,
     senderName: sender.fullName,
     senderRole: sender.role,
+    senderAvatarUrl: sender.avatarUrl ?? null,
     body,
     createdAt: new Date(),
   };
@@ -347,6 +352,7 @@ export async function listContacts(
     fullName: string;
     role: "student" | "counselor" | "admin";
     status: "active" | "inactive" | "suspended";
+    avatarUrl?: string | null;
   }>
 > {
   const role = assertMessagingRole(actor.role);
@@ -367,6 +373,7 @@ export async function listContacts(
       fullName: users.fullName,
       role: users.role,
       status: users.status,
+      avatarUrl: users.avatarUrl,
     })
     .from(users)
     .where(and(...conditions))
