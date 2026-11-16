@@ -109,4 +109,34 @@ router.get(
   }),
 );
 
+/**
+ * Proxies platform/wellness analytics from the Laravel service.
+ */
+router.get(
+  "/platform",
+  asyncHandler(async (_req, res) => {
+    try {
+      const response = await fetch(
+        `${ENV.LARAVEL_URL}/api/internal/reports/platform-summary`,
+        {
+          headers: { "X-Service-Key": ENV.SERVICE_KEY, Accept: "application/json" },
+        },
+      );
+      if (!response.ok) {
+        res.status(502).json({
+          status: "error",
+          message: "Platform report service is unavailable.",
+        });
+        return;
+      }
+      const payload = (await response.json()) as { data?: unknown };
+      res.json({ status: "success", data: payload.data ?? {} });
+    } catch {
+      res
+        .status(502)
+        .json({ status: "error", message: "Platform report service is unavailable." });
+    }
+  }),
+);
+
 export default router;

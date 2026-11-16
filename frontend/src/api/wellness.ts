@@ -216,12 +216,29 @@ export async function getReportSummary() {
 
 export async function getRegistrationTrend(months = 6) {
   const { data } = await express.get("/reports/registration-trend", { params: { months } });
-  return data.data;
+  return data.data as { trend: Array<{ month: string; count: number }> };
 }
 
 export async function getAppointmentReports() {
   const { data } = await express.get("/reports/appointments");
-  return data.data;
+  return data.data as {
+    total?: number;
+    by_status?: Record<string, number>;
+    completion_rate?: number;
+    cancellation_rate?: number;
+    monthly?: Array<{ month: string; total: number }>;
+    counselor_workload?: Array<{ counselor_profile_id: number; total: number; name?: string | null }>;
+  };
+}
+
+export async function getPlatformReports() {
+  const { data } = await express.get("/reports/platform");
+  return data.data as {
+    published_resources?: number;
+    total_resources?: number;
+    checkins_total?: number;
+    checkins_shared?: number;
+  };
 }
 
 export type { Notification } from "@/types";
