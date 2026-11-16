@@ -11,25 +11,29 @@ function resolveOrigin(
   localDefault: string,
 ): string {
   const fromEnv = envUrl?.replace(/\/$/, "");
+  const isBrowser = typeof window !== "undefined";
+  const hostname = isBrowser ? window.location.hostname : "";
+  const hostIsLocal = /^(localhost|127\.0\.0\.1)$/i.test(hostname);
+  // Same-origin API proxy paths are provided by Vite preview/tunnel setups
+  // (see vite.config.ts preview.proxy). Avoid using them on generic hosted
+  // frontends (e.g. Vercel) where SPA rewrites would turn them into 405/404s.
+  const supportsSameOriginProxy =
+    hostIsLocal || hostname.endsWith(".trycloudflare.com");
+
   if (fromEnv) {
     const isLocalhostUrl =
       /^https?:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/i.test(fromEnv);
-    const isBrowser = typeof window !== "undefined";
-    const hostIsLocal =
-      isBrowser && /^(localhost|127\.0\.0\.1)$/i.test(window.location.hostname);
 
-    // Builds baked with localhost API URLs cannot reach the user's machine when
-    // the app is opened from a remote/tunneled origin (e.g. Vite preview via
-    // Cloudflare tunnel). Fall back to same-origin proxy paths in that case.
-    if (isLocalhostUrl && isBrowser && !hostIsLocal) {
+    // Builds baked with localhost API URLs cannot reach the viewer when opened
+    // from a tunneled/preview origin. Use same-origin proxy paths there.
+    if (isLocalhostUrl && isBrowser && !hostIsLocal && supportsSameOriginProxy) {
       return proxyPath;
     }
     return fromEnv;
   }
 
-  if (typeof window !== "undefined") {
-    const hostIsLocal = /^(localhost|127\.0\.0\.1)$/i.test(window.location.hostname);
-    if (!hostIsLocal) return proxyPath;
+  if (isBrowser && !hostIsLocal && supportsSameOriginProxy) {
+    return proxyPath;
   }
 
   return localDefault;
@@ -160,12 +164,27 @@ export function errorMessage(error: unknown, fallback = "Something went wrong.")
   if (axios.isAxiosError(error)) {
     const data = error.response?.data as { message?: string } | undefined;
     if (data?.message) return data.message;
+
+    const status = error.response?.status;
     if (error.code === "ECONNABORTED") return "The request timed out. Please try again.";
+
     if (!error.response) {
       if (typeof navigator !== "undefined" && navigator.onLine === false) {
         return "You appear to be offline. Check your internet connection and try again.";
       }
+      const host = typeof window !== "undefined" ? window.location.hostname : "";
+      const hostIsLocal = /^(localhost|127\.0\.0\.1)$/i.test(host);
+      const usingLocalApi =
+        /^https?:\/\/(localhost|127\.0\.0\.1)(:\d+)?/i.test(API_ORIGINS.express) ||
+        /^https?:\/\/(localhost|127\.0\.0\.1)(:\d+)?/i.test(API_ORIGINS.laravel);
+      if (!hostIsLocal && usingLocalApi) {
+        return "The app cannot reach its API servers. Set VITE_EXPRESS_API_URL and VITE_LARAVEL_API_URL to your deployed backend URLs and redeploy the frontend.";
+      }
       return "Cannot reach the server. Check your connection and try again.";
+    }
+
+    if (status === 405) {
+      return "The server rejected this request (405). Check that VITE_EXPRESS_API_URL and VITE_LARAVEL_API_URL point to the correct backend API URLs and redeploy the frontend.";
     }
   }
   if (error instanceof Error && error.message) return error.message;
