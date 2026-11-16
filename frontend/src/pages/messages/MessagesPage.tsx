@@ -31,6 +31,7 @@ import {
   Video,
   X,
 } from "lucide-react";
+import InPageCall, { type InPageCallInfo } from "@/components/ui/InPageCall";
 
 function initials(name: string) {
   return name
@@ -178,12 +179,22 @@ export default function MessagesPage() {
   const [draft, setDraft] = useState("");
   const [sending, setSending] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [activeCall, setActiveCall] = useState<InPageCallInfo | null>(null);
 
   const scrollRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
   const activeConversation =
     conversations.find((conversation) => conversation.id === activeId) ?? null;
+
+  const startInPageCall = useCallback(
+    (video: boolean) => {
+      if (!activeConversation) return;
+      const room = `Mindwell-${activeConversation.id}-${activeConversation.otherUserId}`;
+      setActiveCall({ room, video, name: activeConversation.otherName });
+    },
+    [activeConversation],
+  );
 
   const filteredContacts = useMemo(() => {
     const query = contactSearch.trim().toLowerCase();
@@ -630,10 +641,7 @@ export default function MessagesPage() {
                   <div className="ml-auto flex items-center gap-1">
                     <button
                       type="button"
-                      onClick={() => {
-                        const room = `Mindwell-${activeConversation.id}-${activeConversation.otherUserId}`;
-                        window.open(`https://meet.jit.si/${encodeURIComponent(room)}#config.prejoinConfig.enabled=true&config.startWithVideoMuted=true`, "_blank", "noopener,noreferrer");
-                      }}
+                      onClick={() => void startInPageCall(false)}
                       aria-label={`Start audio call with ${activeConversation.otherName}`}
                       title="Audio call"
                       className="flex h-9 w-9 items-center justify-center rounded-field text-ink-600 transition-colors hover:bg-navy-050 hover:text-teal"
@@ -642,10 +650,7 @@ export default function MessagesPage() {
                     </button>
                     <button
                       type="button"
-                      onClick={() => {
-                        const room = `Mindwell-${activeConversation.id}-${activeConversation.otherUserId}`;
-                        window.open(`https://meet.jit.si/${encodeURIComponent(room)}#config.prejoinConfig.enabled=true`, "_blank", "noopener,noreferrer");
-                      }}
+                      onClick={() => void startInPageCall(true)}
                       aria-label={`Start video call with ${activeConversation.otherName}`}
                       title="Video call"
                       className="flex h-9 w-9 items-center justify-center rounded-field text-ink-600 transition-colors hover:bg-navy-050 hover:text-teal"
@@ -845,6 +850,15 @@ export default function MessagesPage() {
           </section>
         </div>
       </div>
+
+      {activeCall ? (
+        <InPageCall
+          call={activeCall}
+          displayName={user?.fullName || "Mindwell User"}
+          onClose={() => setActiveCall(null)}
+          onError={(message) => setError(message)}
+        />
+      ) : null}
     </div>
   );
 }

@@ -5,10 +5,14 @@ import { EmptyState } from "@/components/ui/Feedback";
 import { listAppointments, type Appointment } from "@/api/appointments";
 import { formatDateTime } from "@/components/ui/Helpers";
 import { Video, Calendar, Clock, Users, Plus } from "lucide-react";
+import InPageCall, { type InPageCallInfo } from "@/components/ui/InPageCall";
+import { useAuth } from "@/context/AuthContext";
 
 export default function CounselorCallSessionsPage() {
+  const { user } = useAuth();
   const [appointments, setAppointments] = useState<Appointment[]>([]);
   const [loading, setLoading] = useState(true);
+  const [activeCall, setActiveCall] = useState<InPageCallInfo | null>(null);
 
   useEffect(() => {
     listAppointments()
@@ -122,7 +126,11 @@ export default function CounselorCallSessionsPage() {
                     className="flex-1"
                     onClick={() => {
                       const room = `Mindwell-Appointment-${session.id}`;
-                      window.open(`https://meet.jit.si/${encodeURIComponent(room)}#config.prejoinConfig.enabled=true`, "_blank", "noopener,noreferrer");
+                      setActiveCall({
+                        room,
+                        video: true,
+                        name: session.student_name || "Student session",
+                      });
                     }}
                   >
                     <Video className="h-4 w-4" />
@@ -139,6 +147,14 @@ export default function CounselorCallSessionsPage() {
           </div>
         )}
       </section>
+
+      {activeCall ? (
+        <InPageCall
+          call={activeCall}
+          displayName={user?.fullName || "Mindwell User"}
+          onClose={() => setActiveCall(null)}
+        />
+      ) : null}
     </div>
   );
 }
