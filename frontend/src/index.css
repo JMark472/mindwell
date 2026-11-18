@@ -114,7 +114,13 @@
 @layer components {
   /* A single card primitive used by every screen. */
   .mw-card {
-    @apply relative overflow-hidden rounded-[20px] border border-white/60 bg-surface/95 shadow-card backdrop-blur-sm;
+    @apply relative overflow-hidden rounded-[20px] border border-white/60 shadow-card backdrop-blur-sm;
+    background-color: rgb(255 255 255 / 0.95);
+    background-image:
+      radial-gradient(circle at 1px 1px, rgb(11 53 95 / 0.045) 1px, transparent 0),
+      radial-gradient(circle at 12px 12px, rgb(16 169 155 / 0.035) 1px, transparent 0),
+      linear-gradient(135deg, rgb(255 255 255 / 0.96), rgb(246 249 251 / 0.94));
+    background-size: 22px 22px, 22px 22px, auto;
     transition:
       transform 0.28s cubic-bezier(0.22, 1, 0.36, 1),
       box-shadow 0.28s cubic-bezier(0.22, 1, 0.36, 1),
@@ -124,7 +130,13 @@
   }
 
   .mw-card-glass {
-    @apply relative overflow-hidden rounded-[20px] border border-white/70 bg-white/80 shadow-card backdrop-blur-xl;
+    @apply relative overflow-hidden rounded-[20px] border border-white/70 shadow-card backdrop-blur-xl;
+    background-color: rgb(255 255 255 / 0.8);
+    background-image:
+      radial-gradient(circle at 1px 1px, rgb(11 53 95 / 0.04) 1px, transparent 0),
+      radial-gradient(circle at 12px 12px, rgb(16 169 155 / 0.03) 1px, transparent 0),
+      linear-gradient(135deg, rgb(255 255 255 / 0.86), rgb(246 249 251 / 0.76));
+    background-size: 22px 22px, 22px 22px, auto;
     transition:
       transform 0.28s cubic-bezier(0.22, 1, 0.36, 1),
       box-shadow 0.28s cubic-bezier(0.22, 1, 0.36, 1),
