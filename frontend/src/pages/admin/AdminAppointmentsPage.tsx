@@ -84,11 +84,11 @@ export default function AdminAppointmentsPage() {
   return (
     <div className="flex flex-col gap-6">
       {analytics ? (
-        <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
-          <Card className="p-6"><p className="text-xs text-ink-400">Total</p><p className="mt-1 text-xl font-semibold">{analytics.total}</p></Card>
-          <Card className="p-6"><p className="text-xs text-ink-400">Confirmed</p><p className="mt-1 text-xl font-semibold">{analytics.by_status?.confirmed ?? 0}</p></Card>
-          <Card className="p-6"><p className="text-xs text-ink-400">Completed</p><p className="mt-1 text-xl font-semibold">{analytics.by_status?.completed ?? 0}</p></Card>
-          <Card className="p-6"><p className="text-xs text-ink-400">Cancelled/Declined</p><p className="mt-1 text-xl font-semibold">{(analytics.by_status?.cancelled ?? 0) + (analytics.by_status?.declined ?? 0)}</p></Card>
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
+          <Card className="p-6"><p className="text-xs uppercase tracking-[0.22em] text-ink-300">Total appointments</p><p className="mt-2 text-3xl font-semibold">{analytics.total}</p><p className="mt-1 text-sm text-ink-400">All recorded sessions</p></Card>
+          <Card className="p-6"><p className="text-xs uppercase tracking-[0.22em] text-ink-300">Confirmed</p><p className="mt-2 text-3xl font-semibold">{analytics.by_status?.confirmed ?? 0}</p><p className="mt-1 text-sm text-ink-400">Upcoming/confirmed bookings</p></Card>
+          <Card className="p-6"><p className="text-xs uppercase tracking-[0.22em] text-ink-300">Completed</p><p className="mt-2 text-3xl font-semibold">{analytics.by_status?.completed ?? 0}</p><p className="mt-1 text-sm text-ink-400">Finished sessions</p></Card>
+          <Card className="p-6"><p className="text-xs uppercase tracking-[0.22em] text-ink-300">Cancelled/Declined</p><p className="mt-2 text-3xl font-semibold">{(analytics.by_status?.cancelled ?? 0) + (analytics.by_status?.declined ?? 0)}</p><p className="mt-1 text-sm text-ink-400">Unsuccessful bookings</p></Card>
         </div>
       ) : null}
 

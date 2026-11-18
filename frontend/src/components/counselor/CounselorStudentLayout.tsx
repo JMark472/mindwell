@@ -29,17 +29,21 @@ export default function CounselorStudentLayout({
   return (
     <div className="grid gap-6 lg:grid-cols-[280px_1fr]">
       <Card className="p-4">
-        <h3 className="px-2 text-sm font-semibold">Caseload</h3>
+        <div className="flex items-center justify-between px-2">
+          <h3 className="text-sm font-semibold">Caseload</h3>
+          <span className="rounded-pill bg-mint-soft px-2 py-0.5 text-xs font-medium text-teal-700">{caseload.length}</span>
+        </div>
+        <p className="mt-1 px-2 text-xs text-ink-400">Select a student to view details and actions.</p>
         {caseload.length === 0 ? (
-          <p className="px-2 py-3 text-xs text-ink-400">No students in your caseload yet.</p>
+          <p className="px-2 py-4 text-xs text-ink-400">No students in your caseload yet. Assigned students will appear here.</p>
         ) : (
-          <ul className="mt-2 max-h-[40vh] space-y-0.5 overflow-y-auto lg:max-h-none">
+          <ul className="mt-3 max-h-[40vh] space-y-1 overflow-y-auto lg:max-h-none">
             {caseload.map((entry) => (
               <li key={entry.student_user_id}>
                 <button
                   onClick={() => onSelect(entry.student_user_id)}
-                  className={`flex w-full items-center gap-2.5 rounded-field px-2 py-2 text-left text-sm ${
-                    selected === entry.student_user_id ? "bg-mint-soft" : "hover:bg-navy-050"
+                  className={`flex w-full items-center gap-2.5 rounded-xl px-2.5 py-2.5 text-left text-sm transition-all ${
+                    selected === entry.student_user_id ? "bg-mint-soft ring-1 ring-teal/20" : "hover:bg-navy-050/70"
                   }`}
                 >
                   <UserAvatar
@@ -50,8 +54,8 @@ export default function CounselorStudentLayout({
                     size="sm"
                   />
                   <div className="min-w-0 flex-1">
-                    <p className="truncate font-medium">{entry.name}</p>
-                    <p className="text-xs text-ink-400">{entry.total_sessions} sessions</p>
+                    <p className="truncate font-medium text-ink">{entry.name}</p>
+                    <p className="text-xs text-ink-400">{entry.total_sessions} sessions{entry.last_session ? ` • Last: ${new Date(entry.last_session).toLocaleDateString("en-PH")}` : ""}</p>
                   </div>
                 </button>
               </li>
