@@ -3,6 +3,7 @@ import { Link, useNavigate } from "react-router";
 import { Card, Button } from "@/components/ui/Primitives";
 import { listCounselors, listSlots, bookAppointment, type CounselorSummary, type Slot } from "@/api/appointments";
 import { errorMessage } from "@/api/client";
+import UserAvatar from "@/components/profile/UserAvatar";
 
 const categories = ["Academic stress", "Exam anxiety", "Family concerns", "Relationships", "Other"];
 
@@ -76,9 +77,15 @@ export default function BookAppointmentPage() {
                     selectedCounselor === counselor.id ? "text-navy" : "text-ink"
                   }`}
                 >
-                  <div>
-                    <p className="font-medium">{counselor.name}</p>
-                    <p className="text-sm text-ink-400">{counselor.specialization}</p>
+                  <div className="flex items-center gap-3">
+                    <UserAvatar
+                      user={{ fullName: counselor.name, avatarUrl: counselor.avatar_url ?? null }}
+                      size="md"
+                    />
+                    <div>
+                      <p className="font-medium">{counselor.name}</p>
+                      <p className="text-sm text-ink-400">{counselor.specialization}</p>
+                    </div>
                   </div>
                   {selectedCounselor === counselor.id ? (
                     <span className="text-sm text-teal">Selected</span>

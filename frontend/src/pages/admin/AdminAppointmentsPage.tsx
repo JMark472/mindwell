@@ -4,6 +4,7 @@ import { adminUpdateAppointment, appointmentAnalytics, listAppointments, type Ap
 import { adminListCounselorProfiles, adminListUsers } from "@/api/wellness";
 import { errorMessage } from "@/api/client";
 import { Pencil, Save, X } from "lucide-react";
+import UserAvatar from "@/components/profile/UserAvatar";
 
 type AdminUser = { id: number; fullName: string; email: string; role: string };
 type CounselorProfile = { id: number; user_id: number; name: string; specialization: string | null };
@@ -141,9 +142,15 @@ export default function AdminAppointmentsPage() {
                           <p className="text-xs text-ink-400">Student user ID: {draft.student_user_id || "—"}</p>
                         </div>
                       ) : (
-                        <div>
-                          <p className="font-medium text-ink">{appointment.student_name || student?.fullName || "Unknown student"}</p>
-                          <p className="text-xs text-ink-400">User ID: {appointment.student_user_id}{student?.email ? ` · ${student.email}` : ""}</p>
+                        <div className="flex items-center gap-3">
+                          <UserAvatar
+                            user={{ fullName: appointment.student_name || student?.fullName || "Student", avatarUrl: appointment.student_avatar_url ?? null }}
+                            size="sm"
+                          />
+                          <div>
+                            <p className="font-medium text-ink">{appointment.student_name || student?.fullName || "Unknown student"}</p>
+                            <p className="text-xs text-ink-400">User ID: {appointment.student_user_id}{student?.email ? ` · ${student.email}` : ""}</p>
+                          </div>
                         </div>
                       )}
                     </td>
@@ -163,9 +170,15 @@ export default function AdminAppointmentsPage() {
                           <p className="text-xs text-ink-400">Counselor profile ID: {draft.counselor_profile_id || "—"}{counselor ? ` · User ID: ${counselor.user_id}` : ""}</p>
                         </div>
                       ) : (
-                        <div>
-                          <p className="font-medium text-ink">{appointment.counselor_name || counselor?.name || "Unknown counselor"}</p>
-                          <p className="text-xs text-ink-400">Profile ID: {appointment.counselor_profile_id}{appointment.counselor_user_id ? ` · User ID: ${appointment.counselor_user_id}` : counselor ? ` · User ID: ${counselor.user_id}` : ""}</p>
+                        <div className="flex items-center gap-3">
+                          <UserAvatar
+                            user={{ fullName: appointment.counselor_name || counselor?.name || "Counselor", avatarUrl: appointment.counselor_avatar_url ?? null }}
+                            size="sm"
+                          />
+                          <div>
+                            <p className="font-medium text-ink">{appointment.counselor_name || counselor?.name || "Unknown counselor"}</p>
+                            <p className="text-xs text-ink-400">Profile ID: {appointment.counselor_profile_id}{appointment.counselor_user_id ? ` · User ID: ${appointment.counselor_user_id}` : counselor ? ` · User ID: ${counselor.user_id}` : ""}</p>
+                          </div>
                         </div>
                       )}
                     </td>

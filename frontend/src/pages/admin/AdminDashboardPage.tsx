@@ -4,6 +4,7 @@ import { getReportSummary, getRegistrationTrend } from "@/api/wellness";
 import { appointmentAnalytics } from "@/api/appointments";
 import { Link } from "react-router";
 import {
+  Activity,
   ArrowRight,
   BarChart3,
   CalendarCheck,
@@ -43,6 +44,16 @@ export default function AdminDashboardPage() {
         <div className="absolute -right-24 -top-20 h-72 w-72 rounded-full bg-mint/25 blur-3xl" />
         <div className="absolute -bottom-28 left-1/4 h-80 w-80 rounded-full bg-sky/18 blur-3xl" />
         <div className="mw-grid-lines absolute inset-0 opacity-25" />
+        <div className="pointer-events-none absolute inset-0 opacity-[0.10]" style={{ backgroundImage: "radial-gradient(circle at 1px 1px, rgba(255,255,255,0.9) 1px, transparent 0)", backgroundSize: "22px 22px" }} />
+        <svg className="pointer-events-none absolute bottom-0 left-0 right-0 h-24 w-full opacity-20" viewBox="0 0 1200 120" preserveAspectRatio="none" aria-hidden="true">
+          <path d="M0,40 C150,90 350,0 600,50 C850,100 1050,20 1200,60 L1200,120 L0,120 Z" fill="rgba(255,255,255,0.3)" />
+          <path d="M0,70 C200,20 400,110 600,70 C800,30 1000,100 1200,80 L1200,120 L0,120 Z" fill="rgba(82,208,176,0.3)" />
+        </svg>
+        <div className="pointer-events-none absolute right-6 top-6 hidden gap-3 text-white/15 lg:hidden sm:flex">
+          <Users className="h-7 w-7" />
+          <BarChart3 className="h-7 w-7" />
+          <Activity className="h-7 w-7" />
+        </div>
         <div className="relative z-10 flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
           <div className="flex flex-col gap-3">
             <Badge tone="teal" className="w-fit border border-white/20 bg-white/10 text-white">

@@ -3,6 +3,7 @@ import { Card, Button } from "@/components/ui/Primitives";
 import { listAppointments, updateAppointmentStatus, type Appointment } from "@/api/appointments";
 import { formatDateTime } from "@/components/ui/Helpers";
 import { errorMessage } from "@/api/client";
+import UserAvatar from "@/components/profile/UserAvatar";
 
 export default function AppointmentRequestsPage() {
   const [appointments, setAppointments] = useState<Appointment[]>([]);
@@ -42,11 +43,17 @@ export default function AppointmentRequestsPage() {
         <ul className="mt-4 divide-y divide-line">
           {appointments.map((appointment) => (
             <li key={appointment.id} className="flex flex-col gap-3 py-4 sm:flex-row sm:items-center sm:justify-between">
-              <div>
-                <p className="font-medium">{appointment.student_name ?? `Student #${appointment.student_user_id}`}</p>
-                <p className="text-sm text-ink-400">{formatDateTime(appointment.slot_start)} • {appointment.mode}</p>
-                {appointment.student_note ? <p className="mt-1 text-sm text-ink-400">{appointment.student_note}</p> : null}
-                {appointment.concern_category ? <p className="text-xs text-ink-300">{appointment.concern_category}</p> : null}
+              <div className="flex items-start gap-3">
+                <UserAvatar
+                  user={{ fullName: appointment.student_name ?? `Student ${appointment.student_user_id}`, avatarUrl: appointment.student_avatar_url ?? null }}
+                  size="md"
+                />
+                <div>
+                  <p className="font-medium">{appointment.student_name ?? `Student #${appointment.student_user_id}`}</p>
+                  <p className="text-sm text-ink-400">{formatDateTime(appointment.slot_start)} • {appointment.mode}</p>
+                  {appointment.student_note ? <p className="mt-1 text-sm text-ink-400">{appointment.student_note}</p> : null}
+                  {appointment.concern_category ? <p className="text-xs text-ink-300">{appointment.concern_category}</p> : null}
+                </div>
               </div>
               <div className="flex gap-2">
                 <Button size="sm" onClick={() => void act(appointment.id, "confirmed")}>

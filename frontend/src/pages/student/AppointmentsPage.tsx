@@ -4,6 +4,7 @@ import { Card, Button } from "@/components/ui/Primitives";
 import { EmptyState } from "@/components/ui/Feedback";
 import { listAppointments, type Appointment } from "@/api/appointments";
 import { formatDateTime } from "@/components/ui/Helpers";
+import UserAvatar from "@/components/profile/UserAvatar";
 
 export default function AppointmentsPage() {
   const [appointments, setAppointments] = useState<Appointment[]>([]);
@@ -42,14 +43,20 @@ export default function AppointmentsPage() {
           <ul className="divide-y divide-line">
             {appointments.map((appointment) => (
               <li key={appointment.id} className="flex flex-col gap-2 px-6 py-4 sm:flex-row sm:items-center sm:justify-between">
-                <div>
-                  <p className="font-medium">{appointment.counselor_name ?? "Counselor"}</p>
-                  <p className="text-sm text-ink-400">
-                    {formatDateTime(appointment.slot_start)} • {appointment.mode}
-                  </p>
-                  {appointment.concern_category ? (
-                    <p className="text-xs text-ink-400">{appointment.concern_category}</p>
-                  ) : null}
+                <div className="flex items-center gap-3">
+                  <UserAvatar
+                    user={{ fullName: appointment.counselor_name ?? "Counselor", avatarUrl: appointment.counselor_avatar_url ?? null }}
+                    size="md"
+                  />
+                  <div>
+                    <p className="font-medium">{appointment.counselor_name ?? "Counselor"}</p>
+                    <p className="text-sm text-ink-400">
+                      {formatDateTime(appointment.slot_start)} • {appointment.mode}
+                    </p>
+                    {appointment.concern_category ? (
+                      <p className="text-xs text-ink-400">{appointment.concern_category}</p>
+                    ) : null}
+                  </div>
                 </div>
                 <div className="flex items-center gap-3">
                   <span className="rounded-pill bg-navy-050 px-2 py-0.5 text-xs capitalize">

@@ -4,19 +4,10 @@ import { Card, Button, Badge, IconBadge } from "@/components/ui/Primitives";
 import { EmptyState } from "@/components/ui/Feedback";
 import { listAppointments, type Appointment } from "@/api/appointments";
 import { formatDateTime } from "@/components/ui/Helpers";
-import { Video, Calendar, Clock, Users, Plus, Phone, ArrowRight, Sparkles } from "lucide-react";
+import { Video, Calendar, Clock, Users, Plus, Phone, ArrowRight, Sparkles, HeartPulse, ShieldCheck } from "lucide-react";
 import InPageCall, { type InPageCallInfo } from "@/components/ui/InPageCall";
 import { useAuth } from "@/context/AuthContext";
-
-function initials(name?: string | null) {
-  if (!name) return "S";
-  return name
-    .split(/\s+/)
-    .filter(Boolean)
-    .slice(0, 2)
-    .map((n) => n[0]?.toUpperCase() ?? "")
-    .join("") || "S";
-}
+import UserAvatar from "@/components/profile/UserAvatar";
 
 export default function CounselorCallSessionsPage() {
   const { user } = useAuth();
@@ -56,6 +47,16 @@ export default function CounselorCallSessionsPage() {
       <Card hover={false} className="relative overflow-hidden border-0 bg-gradient-to-br from-navy via-navy-800 to-teal-700 p-6 text-white shadow-lift sm:p-8">
         <div className="pointer-events-none absolute -right-20 -top-20 h-64 w-64 rounded-full bg-mint/20 blur-3xl" />
         <div className="pointer-events-none absolute -bottom-16 left-10 h-48 w-48 rounded-full bg-teal/30 blur-3xl" />
+        <div className="pointer-events-none absolute inset-0 opacity-[0.12]" style={{ backgroundImage: "radial-gradient(circle at 1px 1px, rgba(255,255,255,0.9) 1px, transparent 0)", backgroundSize: "22px 22px" }} />
+        <svg className="pointer-events-none absolute bottom-0 left-0 right-0 h-24 w-full opacity-20" viewBox="0 0 1200 120" preserveAspectRatio="none" aria-hidden="true">
+          <path d="M0,40 C150,90 350,0 600,50 C850,100 1050,20 1200,60 L1200,120 L0,120 Z" fill="rgba(255,255,255,0.35)" />
+          <path d="M0,70 C200,20 400,110 600,70 C800,30 1000,100 1200,80 L1200,120 L0,120 Z" fill="rgba(82,208,176,0.35)" />
+        </svg>
+        <div className="pointer-events-none absolute right-6 top-6 hidden gap-3 text-white/20 sm:flex">
+          <Video className="h-8 w-8" />
+          <HeartPulse className="h-8 w-8" />
+          <ShieldCheck className="h-8 w-8" />
+        </div>
         <div className="relative z-10 flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
           <div className="max-w-xl">
             <div className="mb-3 inline-flex items-center gap-2 rounded-pill bg-white/10 px-3 py-1 text-xs font-medium text-white/90 ring-1 ring-white/15 backdrop-blur">
@@ -159,9 +160,11 @@ export default function CounselorCallSessionsPage() {
                 <div className="pointer-events-none absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-teal via-mint to-teal/40" />
                 <div className="flex items-start justify-between gap-3">
                   <div className="flex min-w-0 items-center gap-3">
-                    <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-teal/10 to-mint/20 text-sm font-semibold text-teal-700 ring-1 ring-teal/10">
-                      {initials(session.student_name)}
-                    </div>
+                    <UserAvatar
+                      user={{ fullName: session.student_name || "Student", avatarUrl: session.student_avatar_url ?? null }}
+                      size="lg"
+                      className="ring-2 ring-white shadow-sm"
+                    />
                     <div className="min-w-0">
                       <p className="truncate font-semibold">{session.student_name || "Student"}</p>
                       <p className="truncate text-sm text-ink-400">{session.concern_category || "Counseling session"}</p>

@@ -3,17 +3,8 @@ import { Card, Badge, IconBadge } from "@/components/ui/Primitives";
 import { EmptyState } from "@/components/ui/Feedback";
 import { listAppointments, type Appointment } from "@/api/appointments";
 import { formatDateTime } from "@/components/ui/Helpers";
-import { Video, Calendar, Clock, Activity, Users, Sparkles } from "lucide-react";
-
-function initials(name?: string | null) {
-  if (!name) return "S";
-  return name
-    .split(/\s+/)
-    .filter(Boolean)
-    .slice(0, 2)
-    .map((n) => n[0]?.toUpperCase() ?? "")
-    .join("") || "S";
-}
+import UserAvatar from "@/components/profile/UserAvatar";
+import { Video, Calendar, Clock, Activity, Users, Sparkles, ShieldCheck, Wifi } from "lucide-react";
 
 export default function AdminCallSessionsPage() {
   const [appointments, setAppointments] = useState<Appointment[]>([]);
@@ -45,6 +36,16 @@ export default function AdminCallSessionsPage() {
       <Card hover={false} className="relative overflow-hidden border-0 bg-gradient-to-br from-navy via-navy-800 to-teal-700 p-6 text-white shadow-lift sm:p-8">
         <div className="pointer-events-none absolute -right-20 -top-20 h-64 w-64 rounded-full bg-mint/20 blur-3xl" />
         <div className="pointer-events-none absolute -bottom-16 left-10 h-48 w-48 rounded-full bg-teal/30 blur-3xl" />
+        <div className="pointer-events-none absolute inset-0 opacity-[0.12]" style={{ backgroundImage: "radial-gradient(circle at 1px 1px, rgba(255,255,255,0.9) 1px, transparent 0)", backgroundSize: "22px 22px" }} />
+        <svg className="pointer-events-none absolute bottom-0 left-0 right-0 h-24 w-full opacity-20" viewBox="0 0 1200 120" preserveAspectRatio="none" aria-hidden="true">
+          <path d="M0,40 C150,90 350,0 600,50 C850,100 1050,20 1200,60 L1200,120 L0,120 Z" fill="rgba(255,255,255,0.35)" />
+          <path d="M0,70 C200,20 400,110 600,70 C800,30 1000,100 1200,80 L1200,120 L0,120 Z" fill="rgba(82,208,176,0.35)" />
+        </svg>
+        <div className="pointer-events-none absolute right-6 top-6 hidden gap-3 text-white/20 sm:flex">
+          <Video className="h-8 w-8" />
+          <ShieldCheck className="h-8 w-8" />
+          <Wifi className="h-8 w-8" />
+        </div>
         <div className="relative z-10 max-w-2xl">
           <div className="mb-3 inline-flex items-center gap-2 rounded-pill bg-white/10 px-3 py-1 text-xs font-medium text-white/90 ring-1 ring-white/15 backdrop-blur">
             <Sparkles className="h-3.5 w-3.5" />
@@ -130,8 +131,17 @@ export default function AdminCallSessionsPage() {
             {sessions.slice(0, 30).map((session) => (
               <li key={session.id} className="flex flex-col gap-3 px-4 py-4 transition-colors hover:bg-surface-2/50 sm:flex-row sm:items-center sm:justify-between sm:px-6">
                 <div className="flex min-w-0 items-center gap-4">
-                  <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-teal/10 to-mint/20 text-xs font-semibold text-teal-700 ring-1 ring-teal/10">
-                    {initials(session.student_name)}
+                  <div className="flex shrink-0 items-center -space-x-2">
+                    <UserAvatar
+                      user={{ fullName: session.student_name || "Student", avatarUrl: session.student_avatar_url ?? null }}
+                      size="md"
+                      className="ring-2 ring-white"
+                    />
+                    <UserAvatar
+                      user={{ fullName: session.counselor_name || "Counselor", avatarUrl: session.counselor_avatar_url ?? null }}
+                      size="sm"
+                      className="ring-2 ring-white"
+                    />
                   </div>
                   <div className="min-w-0">
                     <p className="truncate font-medium">

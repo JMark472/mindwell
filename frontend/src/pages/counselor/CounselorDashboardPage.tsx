@@ -4,9 +4,9 @@ import { listAppointments, type Appointment } from "@/api/appointments";
 import { getCaseload, type CaseloadEntry } from "@/api/counseling";
 import { formatDateTime } from "@/components/ui/Helpers";
 import { Link } from "react-router";
-import { CalendarClock, Inbox, MessageSquare, Users, ArrowRight, Sparkles, Clock } from "lucide-react";
+import { CalendarClock, Inbox, MessageSquare, PhoneCall, Users, ArrowRight, Sparkles, Clock } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
-import UserAvatar, { resolveAvatarUrl } from "@/components/profile/UserAvatar";
+import UserAvatar from "@/components/profile/UserAvatar";
 
 function getGreeting() {
   const hour = new Date().getHours();
@@ -38,6 +38,16 @@ export default function CounselorDashboardPage() {
         <div className="absolute -right-24 -top-20 h-72 w-72 rounded-full bg-mint/25 blur-3xl" />
         <div className="absolute -bottom-28 left-1/4 h-80 w-80 rounded-full bg-sky/18 blur-3xl" />
         <div className="mw-grid-lines absolute inset-0 opacity-25" />
+        <div className="pointer-events-none absolute inset-0 opacity-[0.10]" style={{ backgroundImage: "radial-gradient(circle at 1px 1px, rgba(255,255,255,0.9) 1px, transparent 0)", backgroundSize: "22px 22px" }} />
+        <svg className="pointer-events-none absolute bottom-0 left-0 right-0 h-24 w-full opacity-20" viewBox="0 0 1200 120" preserveAspectRatio="none" aria-hidden="true">
+          <path d="M0,40 C150,90 350,0 600,50 C850,100 1050,20 1200,60 L1200,120 L0,120 Z" fill="rgba(255,255,255,0.3)" />
+          <path d="M0,70 C200,20 400,110 600,70 C800,30 1000,100 1200,80 L1200,120 L0,120 Z" fill="rgba(82,208,176,0.3)" />
+        </svg>
+        <div className="pointer-events-none absolute right-6 top-6 hidden gap-3 text-white/15 lg:hidden sm:flex">
+          <Users className="h-7 w-7" />
+          <MessageSquare className="h-7 w-7" />
+          <PhoneCall className="h-7 w-7" />
+        </div>
         <div className="relative z-10 flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
           <div className="flex flex-col gap-3">
             <Badge tone="teal" className="w-fit border border-white/20 bg-white/10 text-white">
@@ -45,17 +55,11 @@ export default function CounselorDashboardPage() {
               Counselor command center
             </Badge>
             <div className="flex items-center gap-4">
-              {user?.avatarUrl ? (
-                <img
-                  src={resolveAvatarUrl(user.avatarUrl) ?? undefined}
-                  alt={user.fullName}
-                  className="hidden h-16 w-16 rounded-full object-cover ring-2 ring-white/40 shadow-[0_20px_60px_-30px_rgba(255,255,255,0.8)] sm:flex"
-                />
-              ) : (
-                <div className="hidden h-16 w-16 items-center justify-center rounded-full bg-white/90 text-lg font-semibold text-navy shadow-[0_20px_60px_-30px_rgba(255,255,255,0.8)] ring-2 ring-white/40 sm:flex">
-                  {firstName.slice(0, 2).toUpperCase()}
-                </div>
-              )}
+              <UserAvatar
+                user={{ fullName: user?.fullName ?? "Counselor", avatarUrl: user?.avatarUrl ?? null }}
+                size="xl"
+                className="hidden ring-2 ring-white/40 shadow-[0_20px_60px_-30px_rgba(255,255,255,0.8)] sm:inline-flex"
+              />
               <div>
                 <p className="text-sm text-white/80">{getGreeting()}, {firstName}</p>
                 <h2 className="mt-1 text-2xl font-semibold tracking-tight text-white sm:text-3xl">

@@ -4,6 +4,7 @@ import { getAppointment, cancelAppointment, type Appointment } from "@/api/appoi
 import { useParams, useNavigate } from "react-router";
 import { formatDateTime } from "@/components/ui/Helpers";
 import { errorMessage } from "@/api/client";
+import UserAvatar from "@/components/profile/UserAvatar";
 
 export default function StudentAppointmentDetailPage() {
   const { id } = useParams();
@@ -42,11 +43,12 @@ export default function StudentAppointmentDetailPage() {
       <Card className="p-6">
         <div className="flex items-start justify-between">
           <div className="flex items-center gap-3">
-            <div className="flex h-12 w-12 items-center justify-center rounded-full bg-mint-soft text-sm font-semibold text-navy">
-              AR
-            </div>
+            <UserAvatar
+              user={{ fullName: appointment.counselor_name ?? "Counselor", avatarUrl: appointment.counselor_avatar_url ?? null }}
+              size="lg"
+            />
             <div>
-              <h2 className="text-lg font-semibold">{appointment.counselor_name ?? "Angela Reyes"}</h2>
+              <h2 className="text-lg font-semibold">{appointment.counselor_name ?? "Counselor"}</h2>
               <p className="text-sm text-ink-400">Guidance Counselor</p>
             </div>
           </div>

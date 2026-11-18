@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { Card } from "@/components/ui/Primitives";
 import { listAppointments, type Appointment } from "@/api/appointments";
 import { formatDateTime } from "@/components/ui/Helpers";
+import UserAvatar from "@/components/profile/UserAvatar";
 
 export default function CounselorSchedulePage() {
   const [appointments, setAppointments] = useState<Appointment[]>([]);
@@ -22,9 +23,15 @@ export default function CounselorSchedulePage() {
       <ul className="mt-4 divide-y divide-line">
         {appointments.map((appointment) => (
           <li key={appointment.id} className="flex items-center justify-between py-3">
-            <div>
-              <p className="font-medium">{appointment.student_name ?? `Student #${appointment.student_user_id}`}</p>
-              <p className="text-sm text-ink-400">{formatDateTime(appointment.slot_start)} • {appointment.mode}</p>
+            <div className="flex items-center gap-3">
+              <UserAvatar
+                user={{ fullName: appointment.student_name ?? `Student ${appointment.student_user_id}`, avatarUrl: appointment.student_avatar_url ?? null }}
+                size="md"
+              />
+              <div>
+                <p className="font-medium">{appointment.student_name ?? `Student #${appointment.student_user_id}`}</p>
+                <p className="text-sm text-ink-400">{formatDateTime(appointment.slot_start)} • {appointment.mode}</p>
+              </div>
             </div>
             <span className="rounded-pill bg-navy-050 px-2 py-0.5 text-xs capitalize">{appointment.status}</span>
           </li>
