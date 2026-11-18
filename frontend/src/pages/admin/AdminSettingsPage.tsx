@@ -33,18 +33,19 @@ export default function AdminSettingsPage() {
 
   return (
     <div className="flex flex-col gap-6">
-      <Card hover={false} className="relative overflow-hidden border-0 bg-gradient-to-br from-navy via-navy-800 to-teal-700 p-6 text-white shadow-lift sm:p-8">
-        <div className="pointer-events-none absolute -right-20 -top-20 h-64 w-64 rounded-full bg-mint/20 blur-3xl" />
-        <div className="pointer-events-none absolute -bottom-16 left-10 h-48 w-48 rounded-full bg-teal/30 blur-3xl" />
-        <div className="pointer-events-none absolute inset-0 opacity-[0.12]" style={{ backgroundImage: "radial-gradient(circle at 1px 1px, rgba(255,255,255,0.9) 1px, transparent 0)", backgroundSize: "22px 22px" }} />
+      <Card hover={false} className="relative overflow-hidden border-0 !bg-none bg-gradient-to-br from-navy via-[#102a4c] to-teal p-6 text-white shadow-lift sm:p-8">
+        <div className="pointer-events-none absolute -right-24 -top-20 h-72 w-72 rounded-full bg-mint/25 blur-3xl" />
+        <div className="pointer-events-none absolute -bottom-28 left-1/4 h-80 w-80 rounded-full bg-sky/18 blur-3xl" />
+        <div className="mw-grid-lines pointer-events-none absolute inset-0 opacity-25" />
+        <div className="pointer-events-none absolute inset-0 opacity-[0.10]" style={{ backgroundImage: "radial-gradient(circle at 1px 1px, rgba(255,255,255,0.9) 1px, transparent 0)", backgroundSize: "22px 22px" }} />
         <svg className="pointer-events-none absolute bottom-0 left-0 right-0 h-24 w-full opacity-20" viewBox="0 0 1200 120" preserveAspectRatio="none" aria-hidden="true">
-          <path d="M0,40 C150,90 350,0 600,50 C850,100 1050,20 1200,60 L1200,120 L0,120 Z" fill="rgba(255,255,255,0.35)" />
-          <path d="M0,70 C200,20 400,110 600,70 C800,30 1000,100 1200,80 L1200,120 L0,120 Z" fill="rgba(82,208,176,0.35)" />
+          <path d="M0,40 C150,90 350,0 600,50 C850,100 1050,20 1200,60 L1200,120 L0,120 Z" fill="rgba(255,255,255,0.30)" />
+          <path d="M0,70 C200,20 400,110 600,70 C800,30 1000,100 1200,80 L1200,120 L0,120 Z" fill="rgba(82,208,176,0.30)" />
         </svg>
-        <div className="pointer-events-none absolute right-6 top-6 hidden gap-3 text-white/20 sm:flex">
-          <Settings className="h-8 w-8" />
-          <ShieldCheck className="h-8 w-8" />
-          <Database className="h-8 w-8" />
+        <div className="pointer-events-none absolute right-6 top-6 hidden gap-3 text-white/15 sm:flex">
+          <Settings className="h-7 w-7" />
+          <ShieldCheck className="h-7 w-7" />
+          <Database className="h-7 w-7" />
         </div>
         <div className="relative z-10 max-w-2xl">
           <div className="mb-3 inline-flex items-center gap-2 rounded-pill bg-white/10 px-3 py-1 text-xs font-medium text-white/90 ring-1 ring-white/15 backdrop-blur">
