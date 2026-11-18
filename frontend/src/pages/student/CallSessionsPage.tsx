@@ -71,7 +71,7 @@ export default function CallSessionsPage() {
               <Sparkles className="h-3.5 w-3.5" />
               Private & secure sessions
             </div>
-            <h2 className="text-2xl font-semibold tracking-tight sm:text-3xl">Call Sessions</h2>
+            <h2 className="text-2xl font-semibold tracking-tight text-white sm:text-3xl">Call Sessions</h2>
             <p className="mt-2 text-sm text-white/75 sm:text-base">
               Join your scheduled audio or video counseling sessions in one place. When it’s time, start your call right from this page.
             </p>

@@ -50,7 +50,7 @@ export default function AdminCallSessionsPage() {
             <Sparkles className="h-3.5 w-3.5" />
             System overview
           </div>
-          <h2 className="text-2xl font-semibold tracking-tight sm:text-3xl">Call Session Monitoring</h2>
+          <h2 className="text-2xl font-semibold tracking-tight text-white sm:text-3xl">Call Session Monitoring</h2>
           <p className="mt-2 text-sm text-white/75 sm:text-base">
             Monitor scheduled audio and video counseling sessions across the platform, including today’s activity and session status.
           </p>

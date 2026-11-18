@@ -62,7 +62,7 @@ export default function CounselorCallSessionsPage() {
               <Sparkles className="h-3.5 w-3.5" />
               Counselor workspace
             </div>
-            <h2 className="text-2xl font-semibold tracking-tight sm:text-3xl">Call Sessions</h2>
+            <h2 className="text-2xl font-semibold tracking-tight text-white sm:text-3xl">Call Sessions</h2>
             <p className="mt-2 text-sm text-white/75 sm:text-base">
               Start and manage your counseling calls in one place. Open a session to connect with students securely.
             </p>
