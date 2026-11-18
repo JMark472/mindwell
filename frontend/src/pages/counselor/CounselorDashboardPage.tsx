@@ -34,16 +34,16 @@ export default function CounselorDashboardPage() {
 
   return (
     <div className="flex flex-col gap-6">
-      <div className="relative overflow-hidden rounded-[28px] border border-white/70 bg-gradient-to-br from-navy via-[#123b6b] to-teal p-6 text-white shadow-lift sm:p-8">
+      <div className="relative overflow-hidden rounded-[28px] border border-white/70 bg-gradient-to-br from-navy via-[#102a4c] to-teal p-6 text-white shadow-lift sm:p-8">
         <div className="absolute -right-24 -top-20 h-72 w-72 rounded-full bg-mint/25 blur-3xl" />
         <div className="absolute -bottom-28 left-1/4 h-80 w-80 rounded-full bg-sky/18 blur-3xl" />
         <div className="mw-grid-lines absolute inset-0 opacity-25" />
         <div className="pointer-events-none absolute inset-0 opacity-[0.10]" style={{ backgroundImage: "radial-gradient(circle at 1px 1px, rgba(255,255,255,0.9) 1px, transparent 0)", backgroundSize: "22px 22px" }} />
         <svg className="pointer-events-none absolute bottom-0 left-0 right-0 h-24 w-full opacity-20" viewBox="0 0 1200 120" preserveAspectRatio="none" aria-hidden="true">
-          <path d="M0,40 C150,90 350,0 600,50 C850,100 1050,20 1200,60 L1200,120 L0,120 Z" fill="rgba(255,255,255,0.3)" />
-          <path d="M0,70 C200,20 400,110 600,70 C800,30 1000,100 1200,80 L1200,120 L0,120 Z" fill="rgba(82,208,176,0.3)" />
+          <path d="M0,40 C150,90 350,0 600,50 C850,100 1050,20 1200,60 L1200,120 L0,120 Z" fill="rgba(255,255,255,0.30)" />
+          <path d="M0,70 C200,20 400,110 600,70 C800,30 1000,100 1200,80 L1200,120 L0,120 Z" fill="rgba(82,208,176,0.30)" />
         </svg>
-        <div className="pointer-events-none absolute right-6 top-6 hidden gap-3 text-white/15 lg:hidden sm:flex">
+        <div className="pointer-events-none absolute right-6 top-6 hidden gap-3 text-white/15 sm:flex">
           <Users className="h-7 w-7" />
           <MessageSquare className="h-7 w-7" />
           <PhoneCall className="h-7 w-7" />
