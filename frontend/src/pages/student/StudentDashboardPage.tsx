@@ -105,18 +105,23 @@ export default function StudentDashboardPage() {
         </div>
       </div>
 
-      <Card className="flex flex-col gap-3 border-danger/20 bg-gradient-to-r from-danger-soft/80 via-white to-white p-6 md:flex-row md:items-center md:justify-between">
-        <div className="flex items-start gap-3">
-          <IconBadge icon={ShieldAlert} tone="danger" />
+      <Card className="relative flex flex-col gap-4 overflow-hidden border-danger/25 !bg-none bg-gradient-to-r from-danger-soft via-white to-white p-6 md:flex-row md:items-center md:justify-between">
+        <div className="pointer-events-none absolute -right-10 -top-10 h-40 w-40 rounded-full bg-danger/10 blur-3xl" />
+        <div className="pointer-events-none absolute inset-y-0 left-0 w-1.5 bg-gradient-to-b from-danger/70 to-danger/30" />
+        <div className="pointer-events-none absolute inset-0 opacity-[0.06]" style={{ backgroundImage: "radial-gradient(circle at 1px 1px, rgb(180 35 24) 1px, transparent 0)", backgroundSize: "18px 18px" }} />
+        <div className="relative z-10 flex items-start gap-4">
+          <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-danger/10 text-danger ring-1 ring-danger/15">
+            <ShieldAlert aria-hidden="true" className="h-6 w-6" />
+          </div>
           <div>
-            <h2 className="text-lg font-semibold">Need urgent help?</h2>
-            <p className="mt-1 text-sm text-ink-400">
-              Mindwell is not an emergency service. If you are in immediate danger,
-              call your local emergency number or go to the nearest emergency room.
+            <div className="mb-1 inline-flex rounded-pill bg-danger/10 px-2.5 py-0.5 text-[11px] font-semibold uppercase tracking-[0.16em] text-danger">Urgent support</div>
+            <h2 className="text-lg font-semibold text-ink">Need urgent help?</h2>
+            <p className="mt-1 max-w-2xl text-sm text-ink-600">
+              MindWell is not an emergency service. If you are in immediate danger, call your local emergency number or go to the nearest emergency room now.
             </p>
           </div>
         </div>
-        <Button asChild variant="danger">
+        <Button asChild variant="danger" className="relative z-10 shrink-0 md:self-center">
           <Link to="/student/help">
             View crisis resources
             <ArrowRight aria-hidden="true" strokeWidth={1.8} className="h-4 w-4" />
