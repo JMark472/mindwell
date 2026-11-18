@@ -1,4 +1,4 @@
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Camera, Trash2, Upload, X } from "lucide-react";
 import { Button } from "@/components/ui/Primitives";
 import { useAuth } from "@/context/AuthContext";
@@ -14,7 +14,9 @@ function getInitials(name?: string | null) {
 
 function resolveAvatarUrl(avatarUrl?: string | null) {
   if (!avatarUrl) return null;
-  if (avatarUrl.startsWith("http")) return avatarUrl;
+  if (avatarUrl.startsWith("http") || avatarUrl.startsWith("data:") || avatarUrl.startsWith("blob:")) {
+    return avatarUrl;
+  }
   let base = ((import.meta as any).env?.VITE_EXPRESS_API_URL || "http://localhost:3000").replace(/\/$/, "");
   if (typeof window !== "undefined") {
     const hostIsLocalPage = /^(localhost|127\.0\.0\.1)$/i.test(window.location.hostname);
@@ -43,6 +45,7 @@ export default function ProfilePhotoUpload({
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [previewFailed, setPreviewFailed] = useState(false);
 
   const sizeClasses = {
     sm: "h-12 w-12",
@@ -52,6 +55,10 @@ export default function ProfilePhotoUpload({
 
   const currentAvatar = preview || user?.avatarUrl || null;
   const resolvedUrl = resolveAvatarUrl(currentAvatar);
+
+  useEffect(() => {
+    setPreviewFailed(false);
+  }, [resolvedUrl]);
 
   function handleFileSelect(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
@@ -72,9 +79,16 @@ export default function ProfilePhotoUpload({
     }
 
     setSelectedFile(file);
+    setPreviewFailed(false);
     const reader = new FileReader();
     reader.onloadend = () => {
       setPreview(reader.result as string);
+    };
+    reader.onerror = () => {
+      setError("Could not preview this photo. Please try another file.");
+      setPreview(null);
+      setSelectedFile(null);
+      if (fileInputRef.current) fileInputRef.current.value = "";
     };
     reader.readAsDataURL(file);
   }
@@ -124,11 +138,12 @@ export default function ProfilePhotoUpload({
   return (
     <div className="flex flex-col items-center gap-4">
       <div className="relative">
-        {resolvedUrl ? (
+        {resolvedUrl && !previewFailed ? (
           <img
             src={resolvedUrl}
             alt={user?.fullName || "Profile"}
             className={`${sizeClasses[size]} rounded-full object-cover ring-4 ring-white shadow-card`}
+            onError={() => setPreviewFailed(true)}
           />
         ) : (
           <div
@@ -158,6 +173,12 @@ export default function ProfilePhotoUpload({
           onChange={handleFileSelect}
         />
       </div>
+
+      {selectedFile ? (
+        <p className="max-w-[240px] truncate text-xs text-ink-400" title={selectedFile.name}>
+          Selected: {selectedFile.name}
+        </p>
+      ) : null}
 
       {showActions ? (
         <div className="flex flex-wrap items-center justify-center gap-2">
