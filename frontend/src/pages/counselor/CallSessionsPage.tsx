@@ -44,46 +44,47 @@ export default function CounselorCallSessionsPage() {
 
   return (
     <div className="flex flex-col gap-6">
-      <Card hover={false} className="relative overflow-hidden border-0 !bg-none bg-gradient-to-br from-navy via-[#102a4c] to-teal p-6 text-white shadow-lift sm:p-8">
-        <div className="pointer-events-none absolute -right-24 -top-20 h-72 w-72 rounded-full bg-mint/25 blur-3xl" />
-        <div className="pointer-events-none absolute -bottom-28 left-1/4 h-80 w-80 rounded-full bg-sky/18 blur-3xl" />
-        <div className="mw-grid-lines pointer-events-none absolute inset-0 opacity-25" />
+      <Card hover={false} className="relative overflow-hidden border-0 !bg-none bg-gradient-to-br from-navy via-[#102a4c] to-teal p-5 text-white shadow-lift ring-1 ring-white/10 sm:p-7 lg:p-8">
+        <div className="pointer-events-none absolute -right-16 -top-14 h-44 w-44 rounded-full bg-mint/25 blur-3xl sm:-right-24 sm:-top-20 sm:h-72 sm:w-72" />
+        <div className="pointer-events-none absolute -bottom-20 -left-8 h-52 w-52 rounded-full bg-sky/20 blur-3xl sm:-bottom-28 sm:left-1/4 sm:h-80 sm:w-80" />
+        <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(255,255,255,0.18),transparent_45%)]" />
+        <div className="mw-grid-lines pointer-events-none absolute inset-0 opacity-20 sm:opacity-25" />
         <div className="pointer-events-none absolute inset-0 opacity-[0.10]" style={{ backgroundImage: "radial-gradient(circle at 1px 1px, rgba(255,255,255,0.9) 1px, transparent 0)", backgroundSize: "22px 22px" }} />
-        <svg className="pointer-events-none absolute bottom-0 left-0 right-0 h-24 w-full opacity-20" viewBox="0 0 1200 120" preserveAspectRatio="none" aria-hidden="true">
+        <svg className="pointer-events-none absolute bottom-0 left-0 right-0 h-16 w-full opacity-20 sm:h-24" viewBox="0 0 1200 120" preserveAspectRatio="none" aria-hidden="true">
           <path d="M0,40 C150,90 350,0 600,50 C850,100 1050,20 1200,60 L1200,120 L0,120 Z" fill="rgba(255,255,255,0.30)" />
           <path d="M0,70 C200,20 400,110 600,70 C800,30 1000,100 1200,80 L1200,120 L0,120 Z" fill="rgba(82,208,176,0.30)" />
         </svg>
-        <div className="pointer-events-none absolute right-6 top-6 hidden gap-3 text-white/15 sm:flex">
-          <Video className="h-7 w-7" />
-          <HeartPulse className="h-7 w-7" />
-          <ShieldCheck className="h-7 w-7" />
+        <div className="pointer-events-none absolute right-4 top-4 hidden gap-2 text-white/15 sm:right-6 sm:top-6 sm:flex sm:gap-3">
+          <Video className="h-5 w-5 sm:h-7 sm:w-7" />
+          <HeartPulse className="h-5 w-5 sm:h-7 sm:w-7" />
+          <ShieldCheck className="h-5 w-5 sm:h-7 sm:w-7" />
         </div>
-        <div className="relative z-10 flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
-          <div className="max-w-xl">
-            <div className="mb-3 inline-flex items-center gap-2 rounded-pill bg-white/10 px-3 py-1 text-xs font-medium text-white/90 ring-1 ring-white/15 backdrop-blur">
-              <Sparkles className="h-3.5 w-3.5" />
+        <div className="relative z-10 flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
+          <div className="max-w-2xl min-w-0 flex-1">
+            <div className="mb-3 inline-flex max-w-full items-center gap-2 rounded-pill bg-white/10 px-3 py-1 text-xs font-medium text-white/90 ring-1 ring-white/15 backdrop-blur shadow-[inset_0_1px_0_rgba(255,255,255,0.12)]">
+              <Sparkles className="h-3.5 w-3.5 shrink-0" />
               Counselor workspace
             </div>
-            <h2 className="text-2xl font-semibold tracking-tight text-white sm:text-3xl">Call Sessions</h2>
-            <p className="mt-2 text-sm text-white/75 sm:text-base">
+            <h2 className="text-xl font-semibold leading-tight tracking-tight text-white sm:text-2xl lg:text-3xl">Call Sessions</h2>
+            <p className="mt-2 text-sm leading-relaxed text-white/80 sm:text-base">
               Start and manage your counseling calls in one place. Open a session to connect with students securely.
             </p>
             {nextSession ? (
-              <div className="mt-5 inline-flex flex-wrap items-center gap-x-4 gap-y-2 rounded-2xl bg-white/10 px-4 py-3 text-sm ring-1 ring-white/15 backdrop-blur">
+              <div className="mt-4 flex w-full flex-col gap-1.5 rounded-2xl bg-white/10 px-4 py-3 text-sm ring-1 ring-white/15 backdrop-blur sm:mt-5 sm:inline-flex sm:w-auto sm:flex-row sm:flex-wrap sm:items-center sm:gap-x-4 sm:gap-y-2">
                 <span className="font-medium text-white">Next up</span>
-                <span className="text-white/80">{nextSession.student_name || "Student"}</span>
+                <span className="text-white/85">{nextSession.student_name || "Student"}</span>
                 <span className="text-white/70">{formatDateTime(nextSession.slot_start)}</span>
               </div>
             ) : null}
           </div>
-          <div className="flex flex-wrap gap-3">
-            <Button asChild className="bg-white text-navy hover:bg-white/90 shadow-none">
+          <div className="flex w-full flex-col gap-2 sm:w-auto sm:flex-row sm:flex-wrap sm:gap-3">
+            <Button asChild className="w-full justify-center bg-white text-navy shadow-none hover:bg-white/90 sm:w-auto">
               <Link to="/counselor/schedule">
                 <Plus className="h-4 w-4" />
                 Schedule Session
               </Link>
             </Button>
-            <Button asChild variant="ghost" className="border border-white/20 bg-white/5 text-white hover:bg-white/10 hover:text-white">
+            <Button asChild variant="ghost" className="w-full justify-center border border-white/20 bg-white/5 text-white hover:bg-white/10 hover:text-white sm:w-auto">
               <Link to="/counselor/appointments">Appointments</Link>
             </Button>
           </div>
