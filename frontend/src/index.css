@@ -115,10 +115,22 @@
   /* A single card primitive used by every screen. */
   .mw-card {
     @apply relative overflow-hidden rounded-[20px] border border-white/60 bg-surface/95 shadow-card backdrop-blur-sm;
+    transition:
+      transform 0.28s cubic-bezier(0.22, 1, 0.36, 1),
+      box-shadow 0.28s cubic-bezier(0.22, 1, 0.36, 1),
+      border-color 0.28s ease,
+      background-color 0.28s ease;
+    animation: mw-card-enter 0.45s cubic-bezier(0.22, 1, 0.36, 1) both;
   }
 
   .mw-card-glass {
     @apply relative overflow-hidden rounded-[20px] border border-white/70 bg-white/80 shadow-card backdrop-blur-xl;
+    transition:
+      transform 0.28s cubic-bezier(0.22, 1, 0.36, 1),
+      box-shadow 0.28s cubic-bezier(0.22, 1, 0.36, 1),
+      border-color 0.28s ease,
+      background-color 0.28s ease;
+    animation: mw-card-enter 0.45s cubic-bezier(0.22, 1, 0.36, 1) both;
   }
 
   .mw-panel {
@@ -367,29 +379,33 @@
   animation: mw-rise 0.4s ease-out both;
 }
 
-.mw-card-hover {
-  transition:
-    transform 0.25s ease,
-    box-shadow 0.25s ease,
-    border-color 0.25s ease;
-}
-
 .mw-card-hover:hover {
-  transform: translateY(-4px);
+  transform: translateY(-4px) scale(1.005);
   box-shadow: var(--shadow-lift);
-  border-color: rgb(16 169 155 / 0.4);
+  border-color: rgb(16 169 155 / 0.35);
 }
 
 .mw-card-interactive {
   transition:
-    transform 0.25s ease,
-    box-shadow 0.25s ease,
-    background 0.25s ease;
+    transform 0.28s cubic-bezier(0.22, 1, 0.36, 1),
+    box-shadow 0.28s cubic-bezier(0.22, 1, 0.36, 1),
+    background 0.28s ease;
 }
 
 .mw-card-interactive:hover {
-  transform: translateY(-4px);
+  transform: translateY(-4px) scale(1.005);
   box-shadow: var(--shadow-glow);
+}
+
+@keyframes mw-card-enter {
+  from {
+    opacity: 0;
+    transform: translateY(10px) scale(0.995);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
 }
 
 .mw-lift {
