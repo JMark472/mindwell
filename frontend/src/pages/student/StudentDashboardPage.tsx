@@ -5,6 +5,7 @@ import { Card, Button, IconBadge, Badge } from "@/components/ui/Primitives";
 import { EmptyState, SkeletonCard } from "@/components/ui/Feedback";
 import { useAuth } from "@/context/AuthContext";
 import UserAvatar from "@/components/profile/UserAvatar";
+import { ResourceCover } from "@/components/ui/ResourceCover";
 import {
   ArrowRight,
   BookOpen,
@@ -153,21 +154,28 @@ export default function StudentDashboardPage() {
         ) : (
           <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
             {resources.map((resource) => (
-              <Card key={resource.id} className="flex flex-col p-6">
-                <div className="flex items-center justify-between">
-                  <p className="text-[11px] uppercase tracking-[0.22em] text-ink-300">
-                    {resource.category?.name ?? "Resource"}
-                  </p>
-                  <Badge tone="teal">{resource.reading_minutes ?? 3} min</Badge>
-                </div>
-                <h3 className="mt-3 text-base font-semibold">{resource.title}</h3>
-                <p className="mt-2 flex-1 text-sm text-ink-400">{resource.excerpt}</p>
-                <Button asChild variant="ghost" className="mt-5 self-start px-0">
-                  <Link to={`/student/resources/${resource.slug}`}>
-                    Read article
-                    <ArrowRight aria-hidden="true" strokeWidth={1.8} className="h-4 w-4" />
-                  </Link>
-                </Button>
+              <Card key={resource.id} hover className="group overflow-hidden p-0">
+                <Link to={`/student/resources/${resource.slug}`} className="flex h-full flex-col">
+                  <div className="relative h-36 w-full overflow-hidden">
+                    <div className="h-full w-full transition-transform duration-500 group-hover:scale-[1.03]">
+                      <ResourceCover src={resource.cover_image} alt={resource.title} title={resource.title} compact iconClassName="h-6 w-6" />
+                    </div>
+                  </div>
+                  <div className="flex flex-1 flex-col p-5">
+                    <div className="flex items-center justify-between">
+                      <p className="text-[11px] uppercase tracking-[0.22em] text-ink-300">
+                        {resource.category?.name ?? "Resource"}
+                      </p>
+                      <Badge tone="teal">{resource.reading_minutes ?? 3} min</Badge>
+                    </div>
+                    <h3 className="mt-3 text-base font-semibold text-ink transition-colors group-hover:text-teal-700">{resource.title}</h3>
+                    <p className="mt-2 flex-1 text-sm text-ink-400 line-clamp-3">{resource.excerpt}</p>
+                    <div className="mt-4 inline-flex items-center gap-1 text-sm font-medium text-teal">
+                      Read article
+                      <ArrowRight aria-hidden="true" strokeWidth={1.8} className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
+                    </div>
+                  </div>
+                </Link>
               </Card>
             ))}
           </div>

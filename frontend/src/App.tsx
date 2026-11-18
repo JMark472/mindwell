@@ -94,6 +94,7 @@ export default function App() {
         <Route path="/counselor/assistant" element={<AIAssistantPage />} />
         <Route path="/counselor/notes" element={<SessionNotesPage />} />
         <Route path="/counselor/resources" element={<ResourcesPage />} />
+        <Route path="/counselor/resources/:slug" element={<ResourceDetailPage />} />
         <Route path="/counselor/profile" element={<CounselorProfilePage />} />
       </Route>
 
