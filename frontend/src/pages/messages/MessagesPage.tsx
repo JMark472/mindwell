@@ -67,19 +67,26 @@ function Avatar({
   avatarUrl?: string | null;
 }) {
   const resolved = resolveAvatarUrl(avatarUrl);
-  if (resolved) {
+  const [failed, setFailed] = useState(false);
+
+  useEffect(() => {
+    setFailed(false);
+  }, [resolved]);
+
+  if (resolved && !failed) {
     return (
       <img
         src={resolved}
         alt={name}
-        aria-hidden="true"
         className={cn(
           "shrink-0 rounded-full object-cover ring-1 ring-line",
           size === "lg" ? "h-11 w-11" : "h-10 w-10",
         )}
+        onError={() => setFailed(true)}
       />
     );
   }
+
   return (
     <span
       aria-hidden="true"
@@ -723,24 +730,12 @@ export default function MessagesPage() {
                             >
                               {!mine ? (
                                 <div className="flex items-end gap-2">
-                                  {message.senderAvatarUrl ? (
-                                    <img
-                                      src={
-                                        message.senderAvatarUrl.startsWith("http")
-                                          ? message.senderAvatarUrl
-                                          : `${(import.meta as any).env?.VITE_EXPRESS_API_URL || "http://localhost:3000"}${message.senderAvatarUrl.startsWith("/") ? message.senderAvatarUrl : `/${message.senderAvatarUrl}`}`
-                                      }
-                                      alt={message.senderName}
-                                      className="h-8 w-8 shrink-0 rounded-full object-cover ring-1 ring-line"
-                                    />
-                                  ) : (
-                                    <Avatar
-                                      name={message.senderName}
-                                      role={message.senderRole}
-                                      avatarUrl={null}
-                                      size="md"
-                                    />
-                                  )}
+                                  <Avatar
+                                    name={message.senderName}
+                                    role={message.senderRole}
+                                    avatarUrl={message.senderAvatarUrl}
+                                    size="md"
+                                  />
                                   <div className="flex flex-col gap-1">
                                     <span className="px-1 text-[11px] font-medium text-ink-400">
                                       {message.senderName}

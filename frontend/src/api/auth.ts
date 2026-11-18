@@ -66,8 +66,6 @@ export async function uploadAvatar(file: File) {
   await ensureCsrf();
   const formData = new FormData();
   formData.append("avatar", file);
-  const { data } = await express.post("/users/me/avatar", formData, {
-    headers: { "Content-Type": "multipart/form-data" },
-  });
+  const { data } = await express.post("/users/me/avatar", formData);
   return data.data as { user: User; avatarUrl: string };
 }
