@@ -51,7 +51,14 @@ function roleLabel(role: ChatConversation["otherRole"]) {
 function resolveAvatarUrl(avatarUrl?: string | null) {
   if (!avatarUrl) return null;
   if (avatarUrl.startsWith("http")) return avatarUrl;
-  const base = (import.meta as any).env?.VITE_EXPRESS_API_URL || "http://localhost:3000";
+  let base = ((import.meta as any).env?.VITE_EXPRESS_API_URL || "http://localhost:3000").replace(/\/$/, "");
+  if (typeof window !== "undefined") {
+    const hostIsLocalPage = /^(localhost|127\.0\.0\.1)$/i.test(window.location.hostname);
+    const baseIsLocalhost = /^https?:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/i.test(base);
+    if (!hostIsLocalPage && baseIsLocalhost) {
+      base = base.replace(/localhost|127\.0\.0\.1/i, window.location.hostname);
+    }
+  }
   return `${base}${avatarUrl.startsWith("/") ? avatarUrl : `/${avatarUrl}`}`;
 }
 
