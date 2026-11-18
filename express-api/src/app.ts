@@ -23,7 +23,8 @@ if (!ENV.isProduction) {
   allowedOrigins.add("http://127.0.0.1:8080");
 }
 
-app.use(helmet());
+// Allow uploaded assets (e.g. /uploads avatars) to be loaded by the frontend on a different origin/port.
+app.use(helmet({ crossOriginResourcePolicy: { policy: "cross-origin" } }));
 app.use(
   cors({
     origin(origin, callback) {
