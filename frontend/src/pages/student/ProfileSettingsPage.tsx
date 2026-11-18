@@ -16,6 +16,10 @@ export default function ProfileSettingsPage() {
     studentNumber: "",
     program: "",
     yearLevel: "",
+    dateOfBirth: "",
+    gender: "",
+    emergencyContactName: "",
+    emergencyContactPhone: "",
   });
   const [consents, setConsents] = useState<Record<string, boolean>>({});
   const [saving, setSaving] = useState(false);
@@ -41,6 +45,10 @@ export default function ProfileSettingsPage() {
         studentNumber: (result.profile?.studentNumber as string) ?? "",
         program: (result.profile?.program as string) ?? "",
         yearLevel: (result.profile?.yearLevel as string) ?? "",
+        dateOfBirth: result.profile?.dateOfBirth ? String(result.profile.dateOfBirth).slice(0, 10) : "",
+        gender: (result.profile?.gender as string) ?? "",
+        emergencyContactName: (result.profile?.emergencyContactName as string) ?? "",
+        emergencyContactPhone: (result.profile?.emergencyContactPhone as string) ?? "",
       }));
     });
     void getConsents().then((result) => {
@@ -72,6 +80,10 @@ export default function ProfileSettingsPage() {
         studentNumber,
         program: form.program.trim(),
         yearLevel,
+        dateOfBirth: form.dateOfBirth || null,
+        gender: form.gender.trim() || null,
+        emergencyContactName: form.emergencyContactName.trim() || null,
+        emergencyContactPhone: form.emergencyContactPhone.trim() || null,
       });
       setUser(result.user);
       setMessage("Profile updated.");
@@ -131,7 +143,8 @@ export default function ProfileSettingsPage() {
   return (
     <div className="flex flex-col gap-6">
       <Card className="p-6">
-        <h2 className="text-lg font-semibold">Profile</h2>
+        <h2 className="text-lg font-semibold">Profile Information</h2>
+        <p className="mt-1 text-sm text-ink-400">Keep your personal and student information up to date.</p>
         <div className="mt-4 flex flex-col items-center gap-4 sm:flex-row">
           <ProfilePhotoUpload size="lg" onChange={handleAvatarChange} />
           <div className="flex-1 space-y-1.5 text-center sm:text-left">
@@ -192,6 +205,40 @@ export default function ProfileSettingsPage() {
               onChange={(e) => setForm((prev) => ({ ...prev, yearLevel: e.target.value }))}
               placeholder="e.g. 2nd year"
               required
+            />
+          </div>
+          <div className="flex flex-col gap-1.5">
+            <Label htmlFor="dateOfBirth">Date of birth</Label>
+            <Input
+              id="dateOfBirth"
+              type="date"
+              value={form.dateOfBirth}
+              onChange={(e) => setForm((prev) => ({ ...prev, dateOfBirth: e.target.value }))}
+            />
+          </div>
+          <div className="flex flex-col gap-1.5">
+            <Label htmlFor="gender">Gender</Label>
+            <Input
+              id="gender"
+              value={form.gender}
+              onChange={(e) => setForm((prev) => ({ ...prev, gender: e.target.value }))}
+              placeholder="Optional"
+            />
+          </div>
+          <div className="flex flex-col gap-1.5">
+            <Label htmlFor="emergencyContactName">Emergency contact name</Label>
+            <Input
+              id="emergencyContactName"
+              value={form.emergencyContactName}
+              onChange={(e) => setForm((prev) => ({ ...prev, emergencyContactName: e.target.value }))}
+            />
+          </div>
+          <div className="flex flex-col gap-1.5">
+            <Label htmlFor="emergencyContactPhone">Emergency contact phone</Label>
+            <Input
+              id="emergencyContactPhone"
+              value={form.emergencyContactPhone}
+              onChange={(e) => setForm((prev) => ({ ...prev, emergencyContactPhone: e.target.value }))}
             />
           </div>
         </div>

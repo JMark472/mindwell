@@ -7,10 +7,11 @@ import {
   adminResetPassword,
   adminSetPassword,
   adminSetUserStatus,
+  adminUpdateUser,
 } from "@/api/wellness";
 import { errorMessage } from "@/api/client";
 import UserAvatar from "@/components/profile/UserAvatar";
-import { Copy, Eye, EyeOff, KeyRound, RefreshCw, Shield, UserPlus } from "lucide-react";
+import { Copy, Eye, EyeOff, KeyRound, Pencil, RefreshCw, Save, Shield, UserPlus, X } from "lucide-react";
 
 type StudentProfile = {
   studentNumber?: string | null;
@@ -89,6 +90,21 @@ export default function UserManagementPage() {
   const [pwBusy, setPwBusy] = useState(false);
   const [revealed, setRevealed] = useState<Record<number, string>>({});
   const [showPw, setShowPw] = useState(false);
+
+  const [editId, setEditId] = useState<number | null>(null);
+  const [editBusy, setEditBusy] = useState(false);
+  const [editForm, setEditForm] = useState({
+    fullName: "",
+    email: "",
+    phone: "",
+    studentNumber: "",
+    program: "",
+    yearLevel: "",
+    dateOfBirth: "",
+    gender: "",
+    emergencyContactName: "",
+    emergencyContactPhone: "",
+  });
 
   async function load() {
     setLoading(true);
@@ -206,6 +222,63 @@ export default function UserManagementPage() {
     }
   }
 
+  function startEdit(u: AdminUser) {
+    setError(null);
+    setNotice(null);
+    setEditId(u.id);
+    setExpanded(u.id);
+    setEditForm({
+      fullName: u.fullName ?? "",
+      email: u.email ?? "",
+      phone: u.phone ?? "",
+      studentNumber: u.studentProfile?.studentNumber ?? "",
+      program: u.studentProfile?.program ?? "",
+      yearLevel: u.studentProfile?.yearLevel ?? "",
+      dateOfBirth: u.studentProfile?.dateOfBirth ? String(u.studentProfile.dateOfBirth).slice(0, 10) : "",
+      gender: u.studentProfile?.gender ?? "",
+      emergencyContactName: u.studentProfile?.emergencyContactName ?? "",
+      emergencyContactPhone: u.studentProfile?.emergencyContactPhone ?? "",
+    });
+  }
+
+  function cancelEdit() {
+    setEditId(null);
+  }
+
+  async function saveEdit(u: AdminUser) {
+    setEditBusy(true);
+    setError(null);
+    setNotice(null);
+    try {
+      const payload: Record<string, unknown> = {
+        fullName: editForm.fullName.trim(),
+        email: editForm.email.trim(),
+        phone: editForm.phone.trim() || null,
+      };
+      if (u.role === "student") {
+        payload.studentNumber = editForm.studentNumber.trim() || null;
+        payload.program = editForm.program.trim() || null;
+        payload.yearLevel = editForm.yearLevel.trim() || null;
+        payload.dateOfBirth = editForm.dateOfBirth || null;
+        payload.gender = editForm.gender.trim() || null;
+        payload.emergencyContactName = editForm.emergencyContactName.trim() || null;
+        payload.emergencyContactPhone = editForm.emergencyContactPhone.trim() || null;
+      }
+      const updated = await adminUpdateUser(u.id, payload);
+      if (updated) {
+        setUsers((prev) => prev.map((x) => (x.id === u.id ? { ...x, ...(updated as any) } : x)));
+      } else {
+        await load();
+      }
+      setEditId(null);
+      setNotice("User information updated.");
+    } catch (err) {
+      setError(errorMessage(err, "Could not update user information."));
+    } finally {
+      setEditBusy(false);
+    }
+  }
+
   return (
     <div className="flex flex-col gap-6">
       <Card className="p-6">
@@ -249,7 +322,7 @@ export default function UserManagementPage() {
               <h2 className="text-lg font-semibold">Students, counselors & account information</h2>
             </div>
             <p className="mt-1 text-sm text-ink-400">
-              View full account and profile information, manage status, and set/reset passwords (shown once). Private counseling records are not accessible to admins.
+              View and edit account and student profile information, manage status, and set/reset passwords (shown once). Updates are saved and reflected immediately. Private counseling records are not accessible to admins.
             </p>
           </div>
           <div className="flex flex-wrap gap-2">
@@ -293,6 +366,9 @@ export default function UserManagementPage() {
                     </div>
                   </button>
                   <div className="flex flex-wrap gap-2">
+                    <Button size="sm" variant="secondary" onClick={() => (editId === u.id ? cancelEdit() : startEdit(u))}>
+                      {editId === u.id ? <><X className="h-3.5 w-3.5" /> Cancel</> : <><Pencil className="h-3.5 w-3.5" /> Edit</>}
+                    </Button>
                     <Button size="sm" variant="secondary" onClick={() => void setStatus(u.id, "active")}>Activate</Button>
                     <Button size="sm" variant="ghost" onClick={() => void setStatus(u.id, "inactive")}>Disable</Button>
                     <Button size="sm" variant="secondary" onClick={() => setPwOpen(pwOpen === u.id ? null : u.id)}><KeyRound className="h-3.5 w-3.5" /> Password</Button>
@@ -329,7 +405,70 @@ export default function UserManagementPage() {
                 ) : null}
 
                 {isOpen ? (
-                  <div className="mt-4 grid gap-4 border-t border-line/70 pt-4 sm:grid-cols-2 lg:grid-cols-3">
+                  <div className="mt-4 border-t border-line/70 pt-4">
+                    {editId === u.id ? (
+                      <div className="rounded-xl border border-line/70 bg-surface/40 p-4">
+                        <div className="flex items-center justify-between gap-3">
+                          <div>
+                            <p className="text-sm font-semibold">Edit {u.role} information</p>
+                            <p className="mt-0.5 text-xs text-ink-400">Update account and profile details. Changes are saved immediately and reflected in the list.</p>
+                          </div>
+                        </div>
+                        <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+                          <div className="flex flex-col gap-1.5">
+                            <label className="text-xs font-medium text-ink-600">Full name</label>
+                            <Input value={editForm.fullName} onChange={(e) => setEditForm((f) => ({ ...f, fullName: e.target.value }))} />
+                          </div>
+                          <div className="flex flex-col gap-1.5">
+                            <label className="text-xs font-medium text-ink-600">Email</label>
+                            <Input type="email" value={editForm.email} onChange={(e) => setEditForm((f) => ({ ...f, email: e.target.value }))} />
+                          </div>
+                          <div className="flex flex-col gap-1.5">
+                            <label className="text-xs font-medium text-ink-600">Phone</label>
+                            <Input value={editForm.phone} onChange={(e) => setEditForm((f) => ({ ...f, phone: e.target.value }))} />
+                          </div>
+                          {u.role === "student" ? (
+                            <>
+                              <div className="sm:col-span-2 lg:col-span-3 mt-1 text-xs font-semibold uppercase tracking-wide text-ink-400">Student profile information</div>
+                              <div className="flex flex-col gap-1.5">
+                                <label className="text-xs font-medium text-ink-600">Student number</label>
+                                <Input value={editForm.studentNumber} onChange={(e) => setEditForm((f) => ({ ...f, studentNumber: e.target.value }))} />
+                              </div>
+                              <div className="flex flex-col gap-1.5">
+                                <label className="text-xs font-medium text-ink-600">Year level</label>
+                                <Input value={editForm.yearLevel} onChange={(e) => setEditForm((f) => ({ ...f, yearLevel: e.target.value }))} />
+                              </div>
+                              <div className="flex flex-col gap-1.5">
+                                <label className="text-xs font-medium text-ink-600">Program</label>
+                                <Input value={editForm.program} onChange={(e) => setEditForm((f) => ({ ...f, program: e.target.value }))} />
+                              </div>
+                              <div className="flex flex-col gap-1.5">
+                                <label className="text-xs font-medium text-ink-600">Date of birth</label>
+                                <Input type="date" value={editForm.dateOfBirth} onChange={(e) => setEditForm((f) => ({ ...f, dateOfBirth: e.target.value }))} />
+                              </div>
+                              <div className="flex flex-col gap-1.5">
+                                <label className="text-xs font-medium text-ink-600">Gender</label>
+                                <Input value={editForm.gender} onChange={(e) => setEditForm((f) => ({ ...f, gender: e.target.value }))} />
+                              </div>
+                              <div className="flex flex-col gap-1.5">
+                                <label className="text-xs font-medium text-ink-600">Emergency contact name</label>
+                                <Input value={editForm.emergencyContactName} onChange={(e) => setEditForm((f) => ({ ...f, emergencyContactName: e.target.value }))} />
+                              </div>
+                              <div className="flex flex-col gap-1.5">
+                                <label className="text-xs font-medium text-ink-600">Emergency contact phone</label>
+                                <Input value={editForm.emergencyContactPhone} onChange={(e) => setEditForm((f) => ({ ...f, emergencyContactPhone: e.target.value }))} />
+                              </div>
+                            </>
+                          ) : null}
+                        </div>
+                        <div className="mt-4 flex flex-wrap gap-2">
+                          <Button size="sm" onClick={() => void saveEdit(u)} disabled={editBusy}><Save className="h-3.5 w-3.5" /> {editBusy ? "Saving…" : "Save changes"}</Button>
+                          <Button size="sm" variant="ghost" onClick={cancelEdit} disabled={editBusy}>Cancel</Button>
+                        </div>
+                      </div>
+                    ) : null}
+
+                    <div className="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
                     <Field label="User ID" value={u.id} />
                     <Field label="Email" value={u.email} />
                     <Field label="Phone" value={u.phone} />
@@ -369,6 +508,7 @@ export default function UserManagementPage() {
                     {u.role === "admin" ? (
                       <p className="text-xs text-ink-400 sm:col-span-2 lg:col-span-3">Admin account: full administrative access per system permissions. Passwords are securely hashed and cannot be displayed; use the Password action to set or generate a new one (shown once).</p>
                     ) : null}
+                    </div>
                   </div>
                 ) : null}
               </div>

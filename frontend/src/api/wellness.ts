@@ -179,6 +179,11 @@ export async function adminSetPassword(id: number, payload: { password?: string;
   return data.data as { temporaryPassword: string };
 }
 
+export async function adminUpdateUser(id: number, payload: Record<string, unknown>) {
+  const { data } = await express.patch(`/admin/users/${id}`, payload);
+  return data.data?.user;
+}
+
 export async function adminListCounselorProfiles() {
   const { data } = await laravel.get("/appointments/counselors");
   return (data.data.counselors ?? []) as Array<{

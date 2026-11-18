@@ -1,5 +1,5 @@
 import { Router, NextFunction, Request, Response } from "express";
-import { and, desc, eq, isNull } from "drizzle-orm";
+import { and, desc, eq, inArray, isNull } from "drizzle-orm";
 import bcrypt from "bcrypt";
 import { z } from "zod";
 import { db } from "@/db";
@@ -10,6 +10,25 @@ import { requireRole } from "@/middlewares/role-middleware";
 import { writeAudit } from "@/lib/audit";
 import { ApiError } from "@/services/auth-service";
 import { createUser, findUserById, toSafeUser } from "@/services/user-service";
+
+function toAdminUser(row: typeof users.$inferSelect, profile?: typeof studentProfiles.$inferSelect | null) {
+  return {
+    ...toSafeUser(row),
+    createdAt: row.createdAt ? new Date(row.createdAt).toISOString() : null,
+    updatedAt: row.updatedAt ? new Date(row.updatedAt).toISOString() : null,
+    studentProfile: profile
+      ? {
+          studentNumber: profile.studentNumber ?? null,
+          program: profile.program ?? null,
+          yearLevel: profile.yearLevel ?? null,
+          dateOfBirth: profile.dateOfBirth ? new Date(profile.dateOfBirth as any).toISOString().slice(0, 10) : null,
+          gender: profile.gender ?? null,
+          emergencyContactName: profile.emergencyContactName ?? null,
+          emergencyContactPhone: profile.emergencyContactPhone ?? null,
+        }
+      : null,
+  };
+}
 
 const router = Router();
 
@@ -53,10 +72,16 @@ router.get(
         )
       : rows;
 
+    const ids = filtered.map((r) => r.id);
+    const profiles = ids.length
+      ? await db.select().from(studentProfiles).where(inArray(studentProfiles.userId, ids))
+      : [];
+    const profileByUserId = new Map(profiles.map((p) => [Number(p.userId), p]));
+
     res.json({
       status: "success",
       data: {
-        users: filtered.map(toSafeUser),
+        users: filtered.map((u) => toAdminUser(u, profileByUserId.get(u.id) ?? null)),
         page,
         pageSize,
       },
@@ -226,6 +251,106 @@ router.post(
       ip: req.ip,
     });
     res.json({ status: "success", data: { temporaryPassword: tempPassword } });
+  }),
+);
+
+const adminUpdateUserSchema = z.object({
+  body: z.object({
+    fullName: z.string().min(2).max(120).optional(),
+    email: z.string().email().max(190).optional(),
+    phone: z.string().max(40).nullable().optional(),
+    studentNumber: z.string().max(40).nullable().optional(),
+    program: z.string().max(120).nullable().optional(),
+    yearLevel: z.string().max(40).nullable().optional(),
+    gender: z.string().max(40).nullable().optional(),
+    dateOfBirth: z.string().regex(/^\d{4}-\d{2}-\d{2}$/).nullable().optional(),
+    emergencyContactName: z.string().max(120).nullable().optional(),
+    emergencyContactPhone: z.string().max(40).nullable().optional(),
+  }),
+});
+
+router.patch(
+  "/users/:id",
+  validate(adminUpdateUserSchema),
+  asyncHandler(async (req, res) => {
+    const { user: actor } = req as AuthenticatedRequest;
+    const targetId = Number(req.params.id);
+    const target = await findUserById(targetId);
+    if (!target) throw new ApiError(404, "User not found.");
+
+    const body = req.body as Record<string, unknown>;
+
+    if (body.email !== undefined && typeof body.email === "string") {
+      const email = body.email.toLowerCase().trim();
+      const [existing] = await db
+        .select({ id: users.id })
+        .from(users)
+        .where(and(eq(users.email, email), isNull(users.deletedAt)))
+        .limit(1);
+      if (existing && Number(existing.id) !== targetId) {
+        throw new ApiError(409, "Email is already in use.");
+      }
+      body.email = email;
+    }
+
+    const userFields: Record<string, unknown> = {};
+    for (const key of ["fullName", "email", "phone"] as const) {
+      if (body[key] !== undefined) userFields[key] = body[key];
+    }
+    if (Object.keys(userFields).length > 0) {
+      await db
+        .update(users)
+        .set({ ...userFields, updatedAt: new Date() })
+        .where(eq(users.id, targetId))
+        .execute();
+    }
+
+    if (target.role === "student") {
+      const profileFields: Record<string, unknown> = {};
+      for (const key of [
+        "studentNumber",
+        "program",
+        "yearLevel",
+        "gender",
+        "dateOfBirth",
+        "emergencyContactName",
+        "emergencyContactPhone",
+      ] as const) {
+        if (body[key] !== undefined) profileFields[key] = body[key];
+      }
+      if (Object.keys(profileFields).length > 0) {
+        const [existingProfile] = await db
+          .select({ userId: studentProfiles.userId })
+          .from(studentProfiles)
+          .where(eq(studentProfiles.userId, targetId))
+          .limit(1);
+        if (existingProfile) {
+          await db
+            .update(studentProfiles)
+            .set(profileFields as any)
+            .where(eq(studentProfiles.userId, targetId))
+            .execute();
+        } else {
+          await db.insert(studentProfiles).values({ userId: targetId, ...(profileFields as any) }).execute();
+        }
+      }
+    }
+
+    await writeAudit({
+      actorUserId: actor!.sub,
+      action: "admin.user_profile_updated",
+      entityType: "user",
+      entityId: targetId,
+      ip: req.ip,
+    });
+
+    const updated = await findUserById(targetId);
+    let profile: typeof studentProfiles.$inferSelect | null = null;
+    if (updated?.role === "student") {
+      const [p] = await db.select().from(studentProfiles).where(eq(studentProfiles.userId, targetId)).limit(1);
+      profile = p ?? null;
+    }
+    res.json({ status: "success", data: { user: updated ? toAdminUser(updated, profile) : null } });
   }),
 );
 

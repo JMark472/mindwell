@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { Card, Button, Input, Label } from "@/components/ui/Primitives";
 import { Alert } from "@/components/ui/Feedback";
 import { getMyCounselorProfile, updateCounselorProfile, updateAvailability, type CounselorProfile, type AvailabilityWindow } from "@/api/appointments";
-import { changePassword, updateMyProfile } from "@/api/auth";
+import { changePassword, fetchMyProfile, updateMyProfile } from "@/api/auth";
 import { errorMessage } from "@/api/client";
 import ProfilePhotoUpload from "@/components/profile/ProfilePhotoUpload";
 import { useAuth } from "@/context/AuthContext";
@@ -12,6 +12,7 @@ const days = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 export default function CounselorProfilePage() {
   const { user, setUser } = useAuth();
   const [fullName, setFullName] = useState(user?.fullName || "");
+  const [phone, setPhone] = useState(user?.phone || "");
   const [nameSaving, setNameSaving] = useState(false);
   const [nameMsg, setNameMsg] = useState<string | null>(null);
   const [nameErr, setNameErr] = useState<string | null>(null);
@@ -33,11 +34,17 @@ export default function CounselorProfilePage() {
       setProfile(result.profile);
       setAvailability(result.availability);
     });
-  }, []);
+    void fetchMyProfile().then((result) => {
+      setUser(result.user);
+      setFullName(result.user.fullName || "");
+      setPhone(result.user.phone || "");
+    }).catch(() => {});
+  }, [setUser]);
 
   useEffect(() => {
     setFullName(user?.fullName || "");
-  }, [user?.fullName]);
+    setPhone(user?.phone || "");
+  }, [user?.fullName, user?.phone]);
 
   async function saveProfile() {
     if (!profile) return;
@@ -93,16 +100,18 @@ export default function CounselorProfilePage() {
   return (
     <div className="flex flex-col gap-6">
       <Card className="p-6">
-        <h2 className="text-lg font-semibold">Counselor profile</h2>
+        <h2 className="text-lg font-semibold">Profile Information</h2>
+        <p className="mt-1 text-sm text-ink-400">Manage your account details and professional profile information.</p>
         <div className="mt-4 flex flex-col items-center gap-4 sm:flex-row">
           <ProfilePhotoUpload size="lg" />
           <div className="flex-1 space-y-1.5 text-center sm:text-left">
             <p className="text-base font-semibold">{user?.fullName || "Counselor"}</p>
+            <p className="text-sm text-ink-400">{user?.email || ""}</p>
             <p className="text-sm text-ink-400">Upload a photo from your device to personalize your profile. JPG, PNG, WebP, or GIF up to 5MB.</p>
           </div>
         </div>
         <div className="mt-6 grid gap-4 md:grid-cols-2">
-          <div className="flex flex-col gap-1.5 md:col-span-2">
+          <div className="flex flex-col gap-1.5">
             <Label htmlFor="counselorName">Full name</Label>
             <Input
               id="counselorName"
@@ -110,28 +119,43 @@ export default function CounselorProfilePage() {
               onChange={(e) => setFullName(e.target.value)}
               placeholder="Enter your full name"
             />
-            {nameMsg ? <p className="text-xs text-teal">{nameMsg}</p> : null}
-            {nameErr ? <p className="text-xs text-danger">{nameErr}</p> : null}
+          </div>
+          <div className="flex flex-col gap-1.5">
+            <Label htmlFor="counselorPhone">Phone</Label>
+            <Input
+              id="counselorPhone"
+              value={phone}
+              onChange={(e) => setPhone(e.target.value)}
+              placeholder="Phone number"
+            />
+          </div>
+          <div className="flex flex-col gap-1.5 md:col-span-2">
+            <Label htmlFor="counselorEmail">Email</Label>
+            <Input id="counselorEmail" value={user?.email || ""} disabled readOnly />
+          </div>
+          {nameMsg ? <p className="text-xs text-teal md:col-span-2">{nameMsg}</p> : null}
+          {nameErr ? <p className="text-xs text-danger md:col-span-2">{nameErr}</p> : null}
+          <div className="md:col-span-2">
             <Button
               size="sm"
               className="w-fit"
-              disabled={nameSaving || fullName === user?.fullName}
+              disabled={nameSaving || (fullName === (user?.fullName || "") && phone === (user?.phone || ""))}
               onClick={async () => {
                 setNameSaving(true);
                 setNameMsg(null);
                 setNameErr(null);
                 try {
-                  const res = await updateMyProfile({ fullName });
+                  const res = await updateMyProfile({ fullName, phone });
                   setUser(res.user);
-                  setNameMsg("Name updated.");
+                  setNameMsg("Profile information updated.");
                 } catch (err) {
-                  setNameErr(errorMessage(err, "Could not update name."));
+                  setNameErr(errorMessage(err, "Could not update profile information."));
                 } finally {
                   setNameSaving(false);
                 }
               }}
             >
-              {nameSaving ? "Saving…" : "Update name"}
+              {nameSaving ? "Saving…" : "Update profile information"}
             </Button>
           </div>
           <label className="flex flex-col gap-1.5">
