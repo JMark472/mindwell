@@ -19,13 +19,14 @@ RUN mkdir -p storage/framework/cache \
     bootstrap/cache
 
 
-
 RUN composer install \
     --no-dev \
     --prefer-dist \
     --optimize-autoloader \
     --no-interaction \
-    --no-scripts
+    --no-scripts \
+    --no-progress \
+    -vvv
 
 RUN php artisan package:discover --ansi
 
