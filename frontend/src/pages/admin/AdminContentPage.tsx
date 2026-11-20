@@ -80,6 +80,7 @@ export default function AdminContentPage() {
             />
             <div className="grid gap-3 sm:grid-cols-2">
               <select
+                aria-label="Resource category"
                 value={form.wellness_category_id}
                 onChange={(e) => setForm({ ...form, wellness_category_id: Number(e.target.value) })}
                 className="h-10 rounded-field border border-line/80 bg-white/80 px-3 text-sm"
@@ -90,6 +91,7 @@ export default function AdminContentPage() {
                 ))}
               </select>
               <select
+                aria-label="Resource status"
                 value={form.status}
                 onChange={(e) => setForm({ ...form, status: e.target.value })}
                 className="h-10 rounded-field border border-line/80 bg-white/80 px-3 text-sm"

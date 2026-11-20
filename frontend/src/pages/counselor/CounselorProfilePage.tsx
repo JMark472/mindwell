@@ -209,6 +209,7 @@ export default function CounselorProfilePage() {
               <div key={day} className="flex flex-wrap items-center gap-3 rounded-field border border-line p-3">
                 <span className="w-10 text-sm font-medium">{days[day]}</span>
                 <input
+                  aria-label={`${days[day]} start time`}
                   type="time"
                   value={existing?.start_time ?? "09:00"}
                   onChange={(e) => {
@@ -220,6 +221,7 @@ export default function CounselorProfilePage() {
                 />
                 <span className="text-sm text-ink-400">to</span>
                 <input
+                  aria-label={`${days[day]} end time`}
                   type="time"
                   value={existing?.end_time ?? "12:00"}
                   onChange={(e) => {

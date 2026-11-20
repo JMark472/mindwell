@@ -298,6 +298,7 @@ export default function UserManagementPage() {
           <Input placeholder="Email" type="email" value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} />
           <Input placeholder="Password (min 8 chars)" type="password" value={form.password} onChange={(e) => setForm({ ...form, password: e.target.value })} />
           <select
+            aria-label="Role for new user"
             value={form.role}
             onChange={(e) => setForm({ ...form, role: e.target.value })}
             className="h-11 w-full rounded-field border border-line/80 bg-white px-4 py-2.5 text-sm shadow-sm"
@@ -327,7 +328,7 @@ export default function UserManagementPage() {
           </div>
           <div className="flex flex-wrap gap-2">
             <Input className="w-64" placeholder="Search name, email, ID, program…" value={search} onChange={(e) => setSearch(e.target.value)} />
-            <select value={filter} onChange={(e) => setFilter(e.target.value as "all" | "student" | "counselor" | "admin")} className="h-11 rounded-field border border-line/80 bg-white px-3 text-sm shadow-sm">
+            <select aria-label="Filter users by role" value={filter} onChange={(e) => setFilter(e.target.value as "all" | "student" | "counselor" | "admin")} className="h-11 rounded-field border border-line/80 bg-white px-3 text-sm shadow-sm">
               <option value="all">All roles</option>
               <option value="student">Students</option>
               <option value="counselor">Counselors</option>
@@ -380,7 +381,7 @@ export default function UserManagementPage() {
                     <p className="text-sm font-medium">Set or reset password</p>
                     <p className="mt-1 text-xs text-ink-400">The new password will be shown once. Share it securely with the user. Existing passwords cannot be displayed.</p>
                     <div className="mt-3 flex flex-wrap items-end gap-2">
-                      <select value={pwMode} onChange={(e) => setPwMode(e.target.value as "generate" | "set")} className="h-10 rounded-field border border-line/80 bg-white px-3 text-sm">
+                      <select aria-label="Password reset mode" value={pwMode} onChange={(e) => setPwMode(e.target.value as "generate" | "set")} className="h-10 rounded-field border border-line/80 bg-white px-3 text-sm">
                         <option value="generate">Generate temporary password</option>
                         <option value="set">Set specific password</option>
                       </select>

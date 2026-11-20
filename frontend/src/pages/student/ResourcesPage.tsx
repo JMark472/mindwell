@@ -30,18 +30,18 @@ export default function ResourcesPage() {
 
   return (
     <div className="flex flex-col gap-6">
-      <Card className="p-6">
+      <Card className="p-4 sm:p-6">
         <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
           <input
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder="Search resources…"
-            className="h-10 w-full rounded-field border border-line/80 bg-white/80 px-3 text-sm md:max-w-sm"
+            className="min-h-11 w-full min-w-0 rounded-field border border-line/80 bg-white/80 px-3 text-base md:max-w-sm sm:text-sm"
           />
           <div className="flex flex-wrap gap-2">
             <button
               onClick={() => setActive(null)}
-              className={`rounded-pill px-3 py-1.5 text-sm transition-colors ${
+              className={`min-h-11 rounded-pill px-4 py-2 text-sm transition-colors sm:min-h-0 sm:px-3 sm:py-1.5 ${
                 active === null ? "bg-mint-soft text-navy ring-1 ring-teal/20" : "border border-line bg-white/70 hover:bg-white"
               }`}
             >
@@ -51,7 +51,7 @@ export default function ResourcesPage() {
               <button
                 key={category.slug}
                 onClick={() => setActive(category.slug)}
-                className={`rounded-pill px-3 py-1.5 text-sm transition-colors ${
+                className={`min-h-11 rounded-pill px-4 py-2 text-sm transition-colors sm:min-h-0 sm:px-3 sm:py-1.5 ${
                   active === category.slug
                     ? "bg-mint-soft text-navy ring-1 ring-teal/20"
                     : "border border-line bg-white/70 hover:bg-white"
@@ -89,14 +89,14 @@ export default function ResourcesPage() {
                 </div>
                 <div className="flex flex-1 flex-col p-5 sm:p-6">
                   <div className="flex items-center justify-between gap-2">
-                    <p className="text-[11px] uppercase tracking-[0.18em] text-ink-300">
+                    <p className="min-w-0 truncate text-[11px] uppercase tracking-[0.14em] text-ink-300 sm:tracking-[0.18em]">
                       {resource.category?.name ?? "Resource"}
                     </p>
-                    <span className="inline-flex items-center gap-1 text-xs text-ink-400">
-                      <Clock3 className="h-3.5 w-3.5" /> {resource.reading_minutes ?? 3} min
+                    <span className="inline-flex shrink-0 items-center gap-1 text-xs text-ink-400">
+                      <Clock3 className="h-3.5 w-3.5 shrink-0" /> {resource.reading_minutes ?? 3} min
                     </span>
                   </div>
-                  <h3 className="mt-2 text-base font-semibold text-ink group-hover:text-teal-700 transition-colors">{resource.title}</h3>
+                  <h2 className="mt-2 text-base font-semibold text-ink group-hover:text-teal-700 transition-colors">{resource.title}</h2>
                   <p className="mt-2 flex-1 text-sm text-ink-400 line-clamp-3">{resource.excerpt}</p>
                   <div className="mt-4 inline-flex items-center gap-1 text-sm font-medium text-teal">
                     Open resource <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />

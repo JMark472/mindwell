@@ -97,7 +97,7 @@ export default function AssessmentPage() {
             <button
               key={option.value}
               onClick={() => selectAnswer(option.value)}
-              className={`rounded-2xl border p-4 text-left transition-all duration-200 ${
+              className={`min-h-14 w-full rounded-2xl border p-4 text-left transition-all duration-200 ${
                 answers[currentQuestion] === option.value
                   ? "border-teal/50 bg-mint-soft ring-2 ring-teal/10 shadow-card"
                   : "border-line/80 bg-white/80 hover:-translate-y-0.5 hover:border-teal/30 hover:bg-white hover:shadow-card"
@@ -109,10 +109,10 @@ export default function AssessmentPage() {
         </div>
 
         <div className="mt-6 flex flex-col-reverse gap-2 sm:flex-row sm:justify-between">
-          <Button variant="secondary" onClick={previous} disabled={currentQuestion === 0}>
+          <Button variant="secondary" className="w-full justify-center sm:w-auto" onClick={previous} disabled={currentQuestion === 0}>
             Previous
           </Button>
-          <Button onClick={next} disabled={answers[currentQuestion] === undefined}>
+          <Button className="w-full justify-center sm:w-auto" onClick={next} disabled={answers[currentQuestion] === undefined}>
             {currentQuestion === questions.length - 1 ? "View results" : "Next"}
           </Button>
         </div>

@@ -47,10 +47,10 @@ export function StatusBadge({ status }: { status: string }) {
       className={cn(
         "inline-flex items-center rounded-pill px-2 py-0.5 text-[11px] font-medium",
         {
-          "bg-warning-soft text-warning": map[status] === "warning",
-          "bg-success-soft text-success": map[status] === "success",
-          "bg-info-soft text-info": map[status] === "info",
-          "bg-danger-soft text-danger": map[status] === "danger",
+          "bg-warning-soft text-warning-ink": map[status] === "warning",
+          "bg-success-soft text-success-ink": map[status] === "success",
+          "bg-info-soft text-info-ink": map[status] === "info",
+          "bg-danger-soft text-danger-ink": map[status] === "danger",
           "bg-navy-050 text-ink-600": map[status] === "neutral",
         },
       )}

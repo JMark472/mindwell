@@ -6,12 +6,15 @@ import { NavLink, Outlet } from "react-router";
 export default function AuthLayout({ children }: { children?: React.ReactNode }) {
   return (
     <div className="relative min-h-screen overflow-hidden bg-canvas">
+      <a href="#main-content" className="mw-skip-link">
+        Skip to main content
+      </a>
       <AnimatedBackground />
 
       <div className="relative z-10 mx-auto grid min-h-screen w-full max-w-6xl grid-cols-1 items-center gap-10 px-4 py-10 lg:grid-cols-[1.05fr_0.95fr] lg:px-8">
         <div className="hidden flex-col gap-8 lg:flex">
           <div className="flex items-center gap-3">
-            <div className="mw-float flex h-12 w-12 items-center justify-center rounded-2xl bg-white/80 shadow-card ring-1 ring-white/70 backdrop-blur-xl">
+            <div className="flex h-12 w-12 items-center justify-center rounded-2xl border border-border bg-white shadow-card">
               <img src="/logo.png" alt="Mindwell" className="h-9 w-9 rounded-field object-cover" />
             </div>
             <div>
@@ -61,9 +64,9 @@ export default function AuthLayout({ children }: { children?: React.ReactNode })
           </div>
         </div>
 
-        <div className="relative z-10 mx-auto flex w-full max-w-md flex-col">
+        <main id="main-content" className="relative z-10 mx-auto flex w-full max-w-md flex-col">
           <div className="mb-6 flex flex-col items-center text-center lg:hidden">
-            <div className="mb-3 flex h-14 w-14 items-center justify-center rounded-2xl bg-white/80 shadow-card ring-1 ring-white/70 backdrop-blur-xl">
+            <div className="mb-3 flex h-14 w-14 items-center justify-center rounded-2xl border border-border bg-white shadow-card">
               <img
                 src="/logo.png"
                 alt="Mindwell"
@@ -76,8 +79,8 @@ export default function AuthLayout({ children }: { children?: React.ReactNode })
             </p>
           </div>
 
-          <Card className="mw-rise relative overflow-hidden border-white/70 bg-white/90 p-8 shadow-lift backdrop-blur-xl">
-            <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-teal/40 to-transparent" />
+          <Card hover={false} className="relative overflow-hidden border-border bg-white p-6 shadow-lift sm:p-8">
+            <div className="absolute inset-x-0 top-0 h-1 bg-primary" />
             {children ?? <Outlet />}
           </Card>
 
@@ -101,7 +104,7 @@ export default function AuthLayout({ children }: { children?: React.ReactNode })
               Need urgent help? View crisis resources
             </NavLink>
           </p>
-        </div>
+        </main>
       </div>
     </div>
   );

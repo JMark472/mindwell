@@ -65,7 +65,7 @@ export default function MoodCheckInPage() {
 
   if (saved) {
     return (
-      <Card className="relative overflow-hidden p-8 text-center">
+      <Card className="relative overflow-hidden p-6 text-center sm:p-8">
         <div className="absolute -right-10 -top-10 h-32 w-32 rounded-full bg-mint/20 blur-3xl" />
         <div className="absolute -bottom-10 left-10 h-32 w-32 rounded-full bg-teal/20 blur-3xl" />
         <div className="relative z-10">
@@ -80,7 +80,7 @@ export default function MoodCheckInPage() {
               : " Your check-in stays private to you."}
           </p>
           <Button
-            className="mt-6"
+            className="mt-6 w-full justify-center sm:w-auto"
             onClick={() => {
               setSaved(false);
               setMood(null);
@@ -122,7 +122,7 @@ export default function MoodCheckInPage() {
               <button
                 key={item.value}
                 onClick={() => setMood(item.value)}
-                className={`group relative overflow-hidden rounded-2xl border p-4 text-center transition-all duration-200 ${
+                className={`group relative min-h-20 overflow-hidden rounded-2xl border p-3 text-center transition-all duration-200 sm:p-4 ${
                   mood === item.value
                     ? `border-transparent bg-gradient-to-br ${item.color} shadow-lift ring-2 ring-teal/20`
                     : "border-line/70 bg-white/80 hover:-translate-y-1 hover:border-teal/40 hover:shadow-card"
@@ -145,7 +145,7 @@ export default function MoodCheckInPage() {
               value={note}
               onChange={(e) => setNote(e.target.value)}
               rows={4}
-              className="rounded-field border border-line/80 bg-white/90 px-3 py-2 text-sm shadow-[inset_0_1px_0_rgb(255_255_255/0.7)] transition-all focus-visible:border-teal focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-teal/10"
+              className="w-full min-w-0 rounded-field border border-line/80 bg-white/90 px-3 py-2 text-base shadow-[inset_0_1px_0_rgb(255_255_255/0.7)] transition-all focus-visible:border-teal focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-teal/10 sm:text-sm"
               placeholder="What's been on your mind? Add any context you'd like to reflect on..."
             />
           </div>
@@ -165,7 +165,7 @@ export default function MoodCheckInPage() {
                     type="button"
                     aria-pressed={!share}
                     onClick={() => setShare(false)}
-                    className={`rounded-full border px-3 py-1.5 text-xs font-medium transition-colors ${
+                    className={`min-h-11 rounded-full border px-4 py-2 text-xs font-medium transition-colors sm:min-h-0 sm:px-3 sm:py-1.5 ${
                       !share
                         ? "border-teal bg-mint-soft text-teal-600"
                         : "border-line bg-white text-ink-600 hover:border-teal/40"
@@ -178,7 +178,7 @@ export default function MoodCheckInPage() {
                     aria-pressed={share}
                     disabled={canShare !== true}
                     onClick={() => setShare(true)}
-                    className={`rounded-full border px-3 py-1.5 text-xs font-medium transition-colors ${
+                    className={`min-h-11 rounded-full border px-4 py-2 text-xs font-medium transition-colors sm:min-h-0 sm:px-3 sm:py-1.5 ${
                       share
                         ? "border-teal bg-mint-soft text-teal-600"
                         : "border-line bg-white text-ink-600 hover:border-teal/40"
@@ -198,15 +198,15 @@ export default function MoodCheckInPage() {
               </div>
             </div>
           </div>
-          {error ? <p className="mt-3 text-sm text-danger">{error}</p> : null}
-          <Button className="mt-4" disabled={!mood || submitting} onClick={() => void submit()}>
+          {error ? <p className="mt-3 break-words text-sm text-danger">{error}</p> : null}
+          <Button className="mt-4 w-full justify-center sm:w-auto" disabled={!mood || submitting} onClick={() => void submit()}>
             {submitting ? "Saving…" : "Save check-in"}
           </Button>
         </div>
       </Card>
 
       <div className="grid gap-6 lg:grid-cols-2">
-        <Card className="p-6">
+        <Card className="p-5 sm:p-6">
           <h3 className="text-base font-semibold">Last 7 check-ins</h3>
           {trend.length === 0 ? (
             <p className="mt-2 text-sm text-ink-400">No trend data yet.</p>
@@ -223,7 +223,7 @@ export default function MoodCheckInPage() {
             </ul>
           )}
         </Card>
-        <Card className="p-6">
+        <Card className="p-5 sm:p-6">
           <h3 className="text-base font-semibold">History</h3>
           {history.length === 0 ? (
             <EmptyState title="No check-ins yet" description="Your first check-in will appear here." />

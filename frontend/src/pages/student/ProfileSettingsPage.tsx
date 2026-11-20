@@ -142,7 +142,7 @@ export default function ProfileSettingsPage() {
 
   return (
     <div className="flex flex-col gap-6">
-      <Card className="p-6">
+      <Card className="p-5 sm:p-6">
         <h2 className="text-lg font-semibold">Profile Information</h2>
         <p className="mt-1 text-sm text-ink-400">Keep your personal and student information up to date.</p>
         <div className="mt-4 flex flex-col items-center gap-4 sm:flex-row">
@@ -244,27 +244,28 @@ export default function ProfileSettingsPage() {
         </div>
         {message ? <Alert tone="success" className="mt-4">{message}</Alert> : null}
         {error ? <Alert className="mt-4">{error}</Alert> : null}
-        <Button className="mt-4" disabled={saving} onClick={() => void save()}>
+        <Button className="mt-4 w-full justify-center sm:w-auto" disabled={saving} onClick={() => void save()}>
           {saving ? "Saving…" : "Save changes"}
         </Button>
       </Card>
 
-      <Card className="p-6">
+      <Card className="p-5 sm:p-6">
         <h2 className="text-lg font-semibold">Privacy &amp; consent</h2>
         <p className="mt-1 text-sm text-ink-400">
           You control when a counselor can see your wellness check-ins.
         </p>
-        <label className="mt-4 flex items-center gap-2 text-sm">
+        <label className="mt-4 flex min-h-11 items-start gap-3 py-2 text-sm">
           <input
             type="checkbox"
             checked={consents.checkin_sharing ?? false}
             onChange={(e) => void toggle("checkin_sharing", e.target.checked)}
+            className="mt-0.5 h-5 w-5 shrink-0 accent-teal"
           />
-          Allow sharing of check-ins with my assigned counselor
+          <span className="min-w-0 break-words">Allow sharing of check-ins with my assigned counselor</span>
         </label>
       </Card>
 
-      <Card className="p-6">
+      <Card className="p-5 sm:p-6">
         <h2 className="text-lg font-semibold">Change Password</h2>
         <p className="mt-1 text-sm text-ink-400">
           Update your password to keep your account secure.
@@ -301,7 +302,7 @@ export default function ProfileSettingsPage() {
         <p className="mt-2 text-xs text-ink-400">Password must be at least 8 characters with letters and numbers.</p>
         {passwordMessage ? <Alert tone="success" className="mt-4">{passwordMessage}</Alert> : null}
         {passwordError ? <Alert className="mt-4">{passwordError}</Alert> : null}
-        <Button className="mt-4" disabled={changingPassword} onClick={() => void handleChangePassword()}>
+        <Button className="mt-4 w-full justify-center sm:w-auto" disabled={changingPassword} onClick={() => void handleChangePassword()}>
           {changingPassword ? "Changing…" : "Change Password"}
         </Button>
       </Card>

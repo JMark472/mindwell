@@ -188,12 +188,15 @@ export default function AIAssistantPage() {
           { id: assistantId, role: "assistant", content: "", followUps, prompt: text },
         ]);
 
+        // Iterate by Unicode code point so an emoji/surrogate pair is never
+        // split between two animation frames.
+        const codePoints = Array.from(content);
         let cursor = 0;
-        const step = Math.max(6, Math.ceil(content.length / 140));
+        const step = Math.max(6, Math.ceil(codePoints.length / 140));
 
         streamRef.current = window.setInterval(() => {
-          cursor = Math.min(content.length, cursor + step);
-          const visible = content.slice(0, cursor);
+          cursor = Math.min(codePoints.length, cursor + step);
+          const visible = codePoints.slice(0, cursor).join("");
 
           setMessages((prev) =>
             prev.map((message) =>
@@ -249,25 +252,25 @@ export default function AIAssistantPage() {
   ];
 
   return (
-    <div className="flex flex-col gap-6">
-      <Card className="relative overflow-hidden p-6">
+    <div className="flex h-[calc(100dvh-8.75rem)] min-h-[560px] flex-col gap-4 lg:h-[calc(100vh-11rem)] lg:min-h-0 lg:gap-6">
+      <Card className="relative shrink-0 overflow-hidden p-4 sm:p-6">
         <div className="absolute -right-16 -top-16 h-40 w-40 rounded-full bg-gradient-to-br from-mint/20 to-teal/10 blur-3xl" />
         <div className="relative z-10 flex flex-col gap-4 sm:flex-row sm:items-center">
           <div className="flex items-center gap-4">
-            <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-teal to-mint text-white shadow-[0_20px_60px_-30px_rgba(16,169,155,1)]">
+            <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-primary-dark text-white shadow-[0_20px_60px_-30px_rgba(16,169,155,1)] sm:h-14 sm:w-14">
               <Bot className="h-7 w-7" />
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <h2 className="text-xl font-semibold">Mindwell AI Assistant</h2>
+                <h2 className="text-lg font-semibold sm:text-xl">Mindwell AI Assistant</h2>
                 <Sparkles className="h-4 w-4 text-teal" />
               </div>
               <p className="text-sm text-ink-400">
                 {isCounselor
-                  ? "Professional support with multilingual, adjustable, and easy-to-understand responses"
+                  ? "Mental health information, session support, and safety-aware guidance with adjustable explanations"
                   : isAdmin
                     ? "Administrative guidance with clear, adjustable, and multilingual responses"
-                    : "Supportive, multilingual guidance with short or detailed explanations"}
+                    : "Mental health information and supportive guidance with short, standard, or detailed explanations"}
               </p>
             </div>
           </div>
@@ -287,13 +290,13 @@ export default function AIAssistantPage() {
       </Card>
 
       {messages.length === 1 && (
-        <Card className="p-6">
+        <Card className="hidden shrink-0 p-6 lg:block">
           <div className="mb-1 flex items-center gap-2">
             <Sparkles className="h-5 w-5 text-teal" />
             <h3 className="font-semibold">Suggested prompts</h3>
           </div>
           <p className="mb-4 text-xs text-ink-400">
-            Ask in English, Filipino, Cebuano, or another language. You can also request translations and choose short or detailed answers.
+            Ask in English, Filipino, Cebuano, or mixed language. You can request short/standard/detailed answers, simple explanations, translations, and responsible guidance. This assistant provides information and support—not diagnosis or emergency care.
           </p>
           <div className="flex flex-wrap gap-2">
             {prompts.map((prompt) => (
@@ -310,7 +313,7 @@ export default function AIAssistantPage() {
         </Card>
       )}
 
-      <Card className="flex h-[72dvh] min-h-[500px] flex-col overflow-hidden lg:h-[680px]">
+      <Card className="flex min-h-[340px] flex-1 flex-col overflow-visible sm:min-h-[420px] lg:min-h-0">
         {error ? (
           <div className="border-b border-line/70 p-3 sm:px-4">
             <Alert tone="danger">{error}</Alert>
@@ -320,7 +323,7 @@ export default function AIAssistantPage() {
         <div
           ref={scrollRef}
           aria-live="polite"
-          className="flex-1 overflow-y-auto p-4 sm:p-6"
+          className="mw-scrollbar min-h-0 flex-1 overflow-y-auto p-4 sm:p-6"
         >
           <div className="flex flex-col gap-4">
             {messages.map((msg, idx) => {
@@ -334,7 +337,7 @@ export default function AIAssistantPage() {
                   }`}
                 >
                   {msg.role === "assistant" && (
-                    <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-teal to-mint text-white shadow-sm">
+                    <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-primary-dark text-white shadow-sm">
                       <Bot className="h-5 w-5" />
                     </div>
                   )}
@@ -346,7 +349,7 @@ export default function AIAssistantPage() {
                     <div
                       className={`rounded-2xl px-4 py-3 text-sm leading-relaxed ${
                         msg.role === "user"
-                          ? "rounded-br-md bg-gradient-to-r from-teal to-teal-600 text-white shadow-sm"
+                          ? "rounded-br-md bg-primary-dark text-white shadow-sm"
                           : "rounded-bl-md border border-line/70 bg-white shadow-card"
                       }`}
                     >
@@ -412,7 +415,7 @@ export default function AIAssistantPage() {
             })}
             {loading && (
               <div className="flex gap-2.5 sm:gap-3">
-                <div className="flex h-9 w-9 items-center justify-center rounded-full bg-gradient-to-br from-teal to-mint text-white shadow-sm">
+                <div className="flex h-9 w-9 items-center justify-center rounded-full bg-primary-dark text-white shadow-sm">
                   <Bot className="h-5 w-5" />
                 </div>
                 <div className="rounded-2xl rounded-bl-md border border-line/70 bg-white px-4 py-3 shadow-card">
@@ -430,7 +433,7 @@ export default function AIAssistantPage() {
           </div>
         </div>
 
-        <div className="border-t border-line/70 bg-surface/50 p-3 sm:p-4">
+        <div className="border-t border-line/70 bg-surface/50 p-3 pb-[max(0.75rem,env(safe-area-inset-bottom,0px))] sm:p-4">
           <div className="mb-3 flex flex-col gap-2">
             <div className="flex flex-wrap items-center gap-2">
               <span className="inline-flex items-center gap-1 text-[11px] font-semibold uppercase tracking-wide text-ink-400">
@@ -442,9 +445,9 @@ export default function AIAssistantPage() {
                     key={opt.value}
                     type="button"
                     onClick={() => setResponseMode(opt.value)}
-                    className={`rounded-full px-3 py-1 text-xs font-medium transition-colors ${
+                    className={`inline-flex min-h-11 items-center rounded-full px-3.5 py-1 text-xs font-medium transition-colors ${
                       responseMode === opt.value
-                        ? "bg-teal text-white shadow-sm"
+                        ? "bg-primary-dark text-white shadow-sm"
                         : "text-ink-500 hover:bg-navy-050"
                     }`}
                     aria-pressed={responseMode === opt.value}
@@ -461,7 +464,7 @@ export default function AIAssistantPage() {
                     type="button"
                     onClick={() => void send(a.prompt)}
                     disabled={busy || !hasAssistantReply}
-                    className="rounded-full border border-line/80 bg-white px-3 py-1 text-xs font-medium text-ink-600 transition-all hover:border-teal/40 hover:bg-mint-soft hover:text-teal-600 disabled:opacity-50"
+                    className="inline-flex min-h-11 items-center rounded-full border border-line/80 bg-white px-3.5 py-1 text-xs font-medium text-ink-600 transition-all hover:border-teal/40 hover:bg-mint-soft hover:text-teal-600 disabled:opacity-50"
                   >
                     {a.label}
                   </button>
@@ -471,7 +474,7 @@ export default function AIAssistantPage() {
                     type="button"
                     onClick={() => setShowTranslate((v) => !v)}
                     disabled={busy || !hasAssistantReply}
-                    className="inline-flex items-center gap-1 rounded-full border border-line/80 bg-white px-3 py-1 text-xs font-medium text-ink-600 transition-all hover:border-teal/40 hover:bg-mint-soft hover:text-teal-600 disabled:opacity-50"
+                    className="inline-flex min-h-11 items-center gap-1 rounded-full border border-line/80 bg-white px-3.5 py-1 text-xs font-medium text-ink-600 transition-all hover:border-teal/40 hover:bg-mint-soft hover:text-teal-600 disabled:opacity-50"
                     aria-expanded={showTranslate}
                   >
                     <Languages className="h-3.5 w-3.5" />
@@ -535,7 +538,7 @@ export default function AIAssistantPage() {
                     ? "Ask about admin tasks, or request a short/detailed answer, translation, or summary…"
                     : "Ask anything, or say “translate to Cebuano”, “explain simply”, “give detailed answer”…"
               }
-              className="max-h-[132px] min-h-[44px] flex-1 resize-none rounded-field border border-line/80 bg-white px-4 py-2.5 text-sm shadow-sm focus:border-teal focus:outline-none focus:ring-2 focus:ring-teal/15"
+              className="max-h-[132px] min-h-[44px] flex-1 resize-none rounded-field border border-line/80 bg-white px-4 py-2.5 text-base shadow-sm focus:border-teal focus:outline-none focus:ring-2 focus:ring-teal/15 sm:text-sm"
               aria-label="Message"
             />
             <Button
@@ -552,10 +555,10 @@ export default function AIAssistantPage() {
             <Heart className="mt-0.5 h-3 w-3 shrink-0" />
             <span>
               {isCounselor
-                ? "AI responses are support suggestions only. Use clinical judgment, supervision, and policy. Translations/explanations are provided to aid understanding."
+                ? "AI responses are supportive suggestions only—use clinical judgment, supervision, direct assessment, and policy. I can help explain concerns, but I cannot diagnose or replace emergency protocols."
                 : isAdmin
-                  ? "AI responses are administrative guidance only. Verify actions against policy, privacy, and security. Never share sensitive data or passwords insecurely."
-                  : "Supportive guidance only, not diagnosis or emergency care. If you may be in danger, contact emergency services or use Help & Crisis."}
+                  ? "AI responses are administrative guidance only. Verify actions against policy, privacy, and security. Never access or share private counseling records or credentials insecurely."
+                  : "This assistant offers mental health information and supportive guidance, not diagnosis, treatment, or emergency care. If you may be in danger or need urgent help, contact emergency services or use Help & Crisis. You can also book a counseling session or message a counselor in MindWell."}
             </span>
           </p>
         </div>

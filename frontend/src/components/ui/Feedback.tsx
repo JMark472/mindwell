@@ -10,10 +10,17 @@ export function Alert({
   tone?: "danger" | "warning" | "info" | "success";
 }) {
   const tones = {
-    danger: "border-danger/30 bg-danger-soft text-danger",
-    warning: "border-warning/30 bg-warning-soft text-warning",
-    info: "border-info/30 bg-info-soft text-info",
-    success: "border-success/30 bg-success-soft text-success",
+    danger: "border-danger/25 bg-danger-soft/90 text-ink",
+    warning: "border-warning/25 bg-warning-soft/90 text-ink",
+    info: "border-info/25 bg-info-soft/90 text-ink",
+    success: "border-success/25 bg-success-soft/90 text-ink",
+  } as const;
+
+  const iconTones = {
+    danger: "text-danger",
+    warning: "text-warning",
+    info: "text-info",
+    success: "text-success",
   } as const;
 
   const icons = {
@@ -29,14 +36,14 @@ export function Alert({
     <div
       role="alert"
       className={cn(
-        "flex items-start gap-2 rounded-field border px-3 py-2 text-sm",
+        "flex items-start gap-2.5 rounded-field border px-3.5 py-3 text-sm leading-relaxed",
         tones[tone],
         className,
       )}
       {...props}
     >
-      <Icon aria-hidden="true" strokeWidth={1.8} className="mt-0.5 h-4 w-4 shrink-0" />
-      <span className="flex-1">{children}</span>
+      <Icon aria-hidden="true" strokeWidth={1.8} className={cn("mt-0.5 h-4 w-4 shrink-0", iconTones[tone])} />
+      <span className="min-w-0 flex-1">{children}</span>
     </div>
   );
 }
@@ -55,7 +62,7 @@ export function EmptyState({
   return (
     <div
       className={cn(
-        "mw-card flex flex-col items-center justify-center px-6 py-10 text-center",
+        "mw-card mw-empty-state flex flex-col items-center justify-center px-6 py-10 text-center",
         className,
       )}
     >
@@ -79,12 +86,12 @@ export function EmptyState({
 }
 
 export function SkeletonLine({ className }: { className?: string }) {
-  return <div className={cn("h-3 animate-pulse rounded-pill bg-surface-2", className)} />;
+  return <div className={cn("mw-shimmer h-3 rounded-pill bg-surface-2", className)} />;
 }
 
 export function SkeletonCard({ className }: { className?: string }) {
   return (
-    <div className={cn("mw-card animate-pulse p-6", className)}>
+    <div className={cn("mw-card p-6", className)}>
       <div className="flex items-center gap-3">
         <div className="h-10 w-10 rounded-full bg-surface-2" />
         <div className="flex-1 space-y-2">

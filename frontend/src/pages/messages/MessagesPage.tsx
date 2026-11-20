@@ -118,10 +118,10 @@ function RoleTag({ role }: { role: ChatConversation["otherRole"] }) {
       className={cn(
         "rounded-pill px-1.5 py-0.5 text-[10px] font-medium leading-none",
         role === "counselor"
-          ? "bg-info-soft text-info"
+          ? "bg-info-soft text-info-ink"
           : role === "student"
             ? "bg-navy-050 text-ink-600"
-            : "bg-warning-soft text-warning",
+            : "bg-warning-soft text-warning-ink",
       )}
     >
       {roleLabel(role)}
@@ -199,6 +199,13 @@ export default function MessagesPage() {
 
   const scrollRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+
+  useEffect(() => {
+    const el = textareaRef.current;
+    if (!el) return;
+    el.style.height = "auto";
+    el.style.height = `${Math.min(el.scrollHeight, 128)}px`;
+  }, [draft, activeId]);
 
   const activeConversation =
     conversations.find((conversation) => conversation.id === activeId) ?? null;
@@ -404,7 +411,7 @@ export default function MessagesPage() {
       {error ? <Alert>{error}</Alert> : null}
 
       <div className="overflow-hidden rounded-card border border-line bg-surface shadow-card">
-        <div className="grid h-[calc(100dvh-10rem)] min-h-[460px] sm:h-[calc(100dvh-11rem)] sm:min-h-[560px] lg:h-[calc(100vh-13rem)] lg:grid-cols-[340px_minmax(0,1fr)]">
+        <div className="grid h-[calc(100dvh-12.5rem)] min-h-[420px] sm:h-[calc(100dvh-12rem)] sm:min-h-[480px] lg:h-[calc(100vh-13rem)] lg:grid-cols-[340px_minmax(0,1fr)]">
           {/* Left rail: conversation list + pattern design */}
           <section
             className={cn(
@@ -603,7 +610,7 @@ export default function MessagesPage() {
                             <div className="mt-1.5 flex items-center gap-2">
                               <RoleTag role={conversation.otherRole} />
                               {conversation.unreadCount > 0 ? (
-                                <span className="rounded-pill bg-teal px-1.5 py-0.5 text-[10px] font-semibold leading-none text-white">
+                                <span className="rounded-pill bg-primary-dark px-1.5 py-0.5 text-[10px] font-semibold leading-none text-white">
                                   {conversation.unreadCount > 9
                                     ? "9+"
                                     : conversation.unreadCount}
@@ -635,7 +642,7 @@ export default function MessagesPage() {
                     type="button"
                     onClick={closeConversation}
                     aria-label="Back to conversations"
-                    className="flex h-9 w-9 items-center justify-center rounded-field text-ink-600 transition-colors hover:bg-navy-050 lg:hidden"
+                    className="flex h-11 w-11 items-center justify-center rounded-field text-ink-600 transition-colors hover:bg-navy-050 lg:hidden"
                   >
                     <ArrowLeft aria-hidden="true" strokeWidth={1.8} className="h-4 w-4" />
                   </button>
@@ -660,7 +667,7 @@ export default function MessagesPage() {
                       onClick={() => void startInPageCall(false)}
                       aria-label={`Start audio call with ${activeConversation.otherName}`}
                       title="Audio call"
-                      className="flex h-9 w-9 items-center justify-center rounded-field text-ink-600 transition-colors hover:bg-navy-050 hover:text-teal"
+                      className="flex h-11 w-11 items-center justify-center rounded-field text-ink-600 transition-colors hover:bg-navy-050 hover:text-teal"
                     >
                       <Phone aria-hidden="true" strokeWidth={1.8} className="h-4 w-4" />
                     </button>
@@ -669,7 +676,7 @@ export default function MessagesPage() {
                       onClick={() => void startInPageCall(true)}
                       aria-label={`Start video call with ${activeConversation.otherName}`}
                       title="Video call"
-                      className="flex h-9 w-9 items-center justify-center rounded-field text-ink-600 transition-colors hover:bg-navy-050 hover:text-teal"
+                      className="flex h-11 w-11 items-center justify-center rounded-field text-ink-600 transition-colors hover:bg-navy-050 hover:text-teal"
                     >
                       <Video aria-hidden="true" strokeWidth={1.8} className="h-4 w-4" />
                     </button>
@@ -761,7 +768,7 @@ export default function MessagesPage() {
                               ) : (
                                 <div
                                   className={cn(
-                                    "whitespace-pre-wrap break-words rounded-2xl px-4 py-2.5 text-sm shadow-card rounded-br-md bg-teal text-white",
+                                    "whitespace-pre-wrap break-words rounded-2xl px-4 py-2.5 text-sm shadow-card rounded-br-md bg-primary-dark text-white",
                                   )}
                                 >
                                   {message.body}
@@ -780,7 +787,7 @@ export default function MessagesPage() {
 
                 <form
                   onSubmit={handleSend}
-                  className="border-t border-line bg-surface px-3 py-3 sm:px-4"
+                  className="border-t border-line bg-surface px-3 py-3 pb-[max(0.75rem,env(safe-area-inset-bottom,0px))] sm:px-4"
                 >
                   <div className="flex items-end gap-2">
                     <label htmlFor="message-body" className="sr-only">
@@ -800,7 +807,7 @@ export default function MessagesPage() {
                       rows={2}
                       maxLength={4000}
                       placeholder="Write a message…"
-                      className="mw-scrollbar max-h-32 min-h-[46px] flex-1 resize-none rounded-field border border-line bg-surface px-3 py-2.5 text-sm text-ink placeholder:text-ink-300 focus-visible:border-teal focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal/15"
+                      className="mw-scrollbar max-h-32 min-h-[46px] flex-1 resize-none rounded-field border border-line bg-surface px-3 py-2.5 text-base text-ink placeholder:text-ink-300 focus-visible:border-teal focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal/15 sm:text-sm"
                     />
                     <Button
                       type="submit"

@@ -84,15 +84,9 @@ export default function ForgotPasswordPage() {
             required
           />
         </div>
-        <Button type="submit" disabled={submitting}>
-          {submitting ? (
-            "Sending…"
-          ) : (
-            <>
-              <Send aria-hidden="true" strokeWidth={1.8} className="h-4 w-4" />
-              Send reset link
-            </>
-          )}
+        <Button type="submit" loading={submitting}>
+          <Send aria-hidden="true" strokeWidth={1.8} className="h-4 w-4" />
+          Send reset link
         </Button>
       </form>
       <p className="mt-6 text-center text-sm text-ink-400">

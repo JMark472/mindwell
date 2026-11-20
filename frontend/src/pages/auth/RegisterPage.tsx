@@ -148,15 +148,9 @@ export default function RegisterPage() {
             required
           />
         </div>
-        <Button type="submit" disabled={submitting} className="mt-2">
-          {submitting ? (
-            "Creating account…"
-          ) : (
-            <>
-              <UserPlus aria-hidden="true" strokeWidth={1.8} className="h-4 w-4" />
-              Create account
-            </>
-          )}
+        <Button type="submit" loading={submitting} className="mt-2">
+          <UserPlus aria-hidden="true" strokeWidth={1.8} className="h-4 w-4" />
+          Create account
         </Button>
       </form>
       <p className="mt-6 text-center text-sm text-ink-400">

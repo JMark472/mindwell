@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router";
-import { Button } from "@/components/ui/Primitives";
+import { Button, Textarea } from "@/components/ui/Primitives";
 import CounselorStudentLayout from "@/components/counselor/CounselorStudentLayout";
 import { useCaseloadSelection } from "@/hooks/useCaseloadSelection";
 import { listCheckins, sendCheckinAdvice, type Checkin } from "@/api/wellness";
@@ -59,24 +59,24 @@ export default function StudentManagementPage() {
       onSelect={setSelected}
       emptyMessage="Select a student to view their shared mood check-ins."
       headerAction={
-        <Button asChild variant="secondary" size="sm">
+        <Button asChild variant="secondary" className="w-full justify-center sm:w-auto">
           <Link to={`/counselor/notes?student=${selected}`}>Session notes</Link>
         </Button>
       }
     >
-      <h2 className="mt-6 text-lg font-semibold">Shared mood check-ins</h2>
-      <p className="mt-1 text-xs text-ink-400">
+      <h2 className="mt-4 text-lg font-semibold sm:mt-6">Shared mood check-ins</h2>
+      <p className="mt-1 text-sm text-ink-400">
         Only check-ins the student chose to share with consent are shown. Your advice is visible to
         the student.
       </p>
 
       {sharedCheckins.length === 0 ? (
-        <p className="mt-2 text-sm text-ink-400">No shared check-ins from this student yet.</p>
+        <p className="mw-empty-state mt-3 break-words text-sm text-ink-400">No shared check-ins from this student yet.</p>
       ) : (
         <ul className="mt-4 divide-y divide-line">
           {sharedCheckins.map((checkin) => (
             <li key={checkin.id} className="py-3">
-              <div className="flex items-center justify-between">
+              <div className="flex flex-wrap items-center justify-between gap-x-3 gap-y-1">
                 <span className="text-sm font-medium">Mood {checkin.mood_score}/5</span>
                 <span className="text-xs text-ink-300">
                   {new Date(checkin.created_at).toLocaleDateString("en-PH", {
@@ -87,7 +87,7 @@ export default function StudentManagementPage() {
                 </span>
               </div>
               {checkin.note ? (
-                <p className="mt-1 whitespace-pre-wrap text-sm text-ink-600">{checkin.note}</p>
+                <p className="mt-1 whitespace-pre-wrap break-words text-sm text-ink-600">{checkin.note}</p>
               ) : (
                 <p className="mt-1 text-sm text-ink-400">No note provided.</p>
               )}
@@ -103,28 +103,28 @@ export default function StudentManagementPage() {
                         })}`
                       : ""}
                   </p>
-                  <p className="mt-1 whitespace-pre-wrap text-sm text-ink-600">
+                  <p className="mt-1 whitespace-pre-wrap break-words text-sm text-ink-600">
                     {checkin.counselor_advice}
                   </p>
                 </div>
               ) : null}
 
               <label className="mt-3 flex flex-col gap-1.5">
-                <span className="text-xs font-medium text-ink-600">
+                <span className="text-sm font-medium text-ink-600">
                   {checkin.counselor_advice ? "Update your advice" : "Advice for the student"}
                 </span>
-                <textarea
+                <Textarea
                   value={adviceDrafts[checkin.id] ?? ""}
                   onChange={(e) =>
                     setAdviceDrafts((prev) => ({ ...prev, [checkin.id]: e.target.value }))
                   }
-                  rows={2}
+                  rows={3}
                   placeholder="Share a supportive next step or reflection…"
-                  className="rounded-field border border-line/80 bg-white/90 px-3 py-2 text-sm transition-all focus-visible:border-teal focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-teal/10"
+                  className="resize-y"
                 />
               </label>
               <Button
-                className="mt-2"
+                className="mt-2 w-full sm:w-auto"
                 disabled={adviceSavingId === checkin.id || !(adviceDrafts[checkin.id] ?? "").trim()}
                 onClick={() => void sendAdvice(checkin.id)}
               >
@@ -139,8 +139,8 @@ export default function StudentManagementPage() {
         </ul>
       )}
 
-      {adviceNotice ? <p className="mt-2 text-sm text-teal-600">{adviceNotice}</p> : null}
-      {adviceError ? <p className="mt-2 text-sm text-danger">{adviceError}</p> : null}
+      {adviceNotice ? <p className="mt-2 break-words text-sm text-teal-600">{adviceNotice}</p> : null}
+      {adviceError ? <p className="mt-2 break-words text-sm text-danger">{adviceError}</p> : null}
     </CounselorStudentLayout>
   );
 }

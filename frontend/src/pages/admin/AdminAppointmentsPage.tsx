@@ -1,13 +1,21 @@
 import { useEffect, useMemo, useState } from "react";
-import { Card, Button } from "@/components/ui/Primitives";
+import { Card, Button, IconBadge, Badge } from "@/components/ui/Primitives";
 import { adminUpdateAppointment, appointmentAnalytics, listAppointments, type Appointment } from "@/api/appointments";
 import { adminListCounselorProfiles, adminListUsers } from "@/api/wellness";
 import { errorMessage } from "@/api/client";
-import { Pencil, Save, X } from "lucide-react";
+import { CalendarCheck2, CalendarDays, CalendarX2, CircleCheck, Pencil, Save, X } from "lucide-react";
 import UserAvatar from "@/components/profile/UserAvatar";
+import AnimatedCounter from "@/components/ui/AnimatedCounter";
 
 type AdminUser = { id: number; fullName: string; email: string; role: string };
 type CounselorProfile = { id: number; user_id: number; name: string; specialization: string | null };
+
+function appointmentStatusTone(status: string) {
+  if (status === "confirmed" || status === "completed") return "success" as const;
+  if (status === "pending") return "warning" as const;
+  if (status === "cancelled" || status === "declined") return "danger" as const;
+  return "neutral" as const;
+}
 
 export default function AdminAppointmentsPage() {
   const [appointments, setAppointments] = useState<Appointment[]>([]);
@@ -85,10 +93,46 @@ export default function AdminAppointmentsPage() {
     <div className="flex flex-col gap-6">
       {analytics ? (
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
-          <Card className="p-6"><p className="text-xs uppercase tracking-[0.22em] text-ink-300">Total appointments</p><p className="mt-2 text-3xl font-semibold">{analytics.total}</p><p className="mt-1 text-sm text-ink-400">All recorded sessions</p></Card>
-          <Card className="p-6"><p className="text-xs uppercase tracking-[0.22em] text-ink-300">Confirmed</p><p className="mt-2 text-3xl font-semibold">{analytics.by_status?.confirmed ?? 0}</p><p className="mt-1 text-sm text-ink-400">Upcoming/confirmed bookings</p></Card>
-          <Card className="p-6"><p className="text-xs uppercase tracking-[0.22em] text-ink-300">Completed</p><p className="mt-2 text-3xl font-semibold">{analytics.by_status?.completed ?? 0}</p><p className="mt-1 text-sm text-ink-400">Finished sessions</p></Card>
-          <Card className="p-6"><p className="text-xs uppercase tracking-[0.22em] text-ink-300">Cancelled/Declined</p><p className="mt-2 text-3xl font-semibold">{(analytics.by_status?.cancelled ?? 0) + (analytics.by_status?.declined ?? 0)}</p><p className="mt-1 text-sm text-ink-400">Unsuccessful bookings</p></Card>
+          <Card className="p-5 sm:p-6">
+            <div className="flex items-start justify-between gap-3">
+              <div className="min-w-0">
+                <p className="text-xs uppercase tracking-[0.22em] text-ink-300">Total appointments</p>
+                <p className="mt-2 text-3xl font-semibold"><AnimatedCounter value={analytics.total} /></p>
+                <p className="mt-1 text-sm text-ink-400">All recorded sessions</p>
+              </div>
+              <IconBadge icon={CalendarDays} tone="teal" />
+            </div>
+          </Card>
+          <Card className="p-5 sm:p-6">
+            <div className="flex items-start justify-between gap-3">
+              <div className="min-w-0">
+                <p className="text-xs uppercase tracking-[0.22em] text-ink-300">Confirmed</p>
+                <p className="mt-2 text-3xl font-semibold"><AnimatedCounter value={analytics.by_status?.confirmed ?? 0} /></p>
+                <p className="mt-1 text-sm text-ink-400">Upcoming/confirmed bookings</p>
+              </div>
+              <IconBadge icon={CalendarCheck2} tone="sky" />
+            </div>
+          </Card>
+          <Card className="p-5 sm:p-6">
+            <div className="flex items-start justify-between gap-3">
+              <div className="min-w-0">
+                <p className="text-xs uppercase tracking-[0.22em] text-ink-300">Completed</p>
+                <p className="mt-2 text-3xl font-semibold"><AnimatedCounter value={analytics.by_status?.completed ?? 0} /></p>
+                <p className="mt-1 text-sm text-ink-400">Finished sessions</p>
+              </div>
+              <IconBadge icon={CircleCheck} tone="mint" />
+            </div>
+          </Card>
+          <Card className="p-5 sm:p-6">
+            <div className="flex items-start justify-between gap-3">
+              <div className="min-w-0">
+                <p className="text-xs uppercase tracking-[0.22em] text-ink-300">Cancelled/Declined</p>
+                <p className="mt-2 text-3xl font-semibold"><AnimatedCounter value={(analytics.by_status?.cancelled ?? 0) + (analytics.by_status?.declined ?? 0)} /></p>
+                <p className="mt-1 text-sm text-ink-400">Unsuccessful bookings</p>
+              </div>
+              <IconBadge icon={CalendarX2} tone="danger" />
+            </div>
+          </Card>
         </div>
       ) : null}
 
@@ -98,13 +142,13 @@ export default function AdminAppointmentsPage() {
             <h2 className="text-lg font-semibold">Appointments</h2>
             <p className="mt-1 text-sm text-ink-400">View appointment records and correct assigned student/counselor identities (IDs). Names shown are resolved from account records; to change a person’s name, update their account in User Management.</p>
           </div>
-          <Button variant="secondary" size="sm" onClick={() => void load()}>Refresh</Button>
+          <Button variant="secondary" size="sm" className="min-h-11 lg:min-h-9" onClick={() => void load()}>Refresh</Button>
         </div>
         {error ? <p className="px-6 pb-2 text-sm text-status-danger">{error}</p> : null}
         {notice ? <p className="px-6 pb-2 text-sm text-teal-700">{notice}</p> : null}
-        <div className="overflow-x-auto">
+        <div className="hidden overflow-x-auto lg:block">
           <table className="w-full min-w-[980px] text-sm">
-            <thead className="bg-navy-050">
+            <thead className="bg-navy-050 text-ink-600">
               <tr>
                 <th className="px-4 py-2 text-left text-xs font-medium sm:px-6">Appt ID</th>
                 <th className="px-4 py-2 text-left text-xs font-medium sm:px-6">Student</th>
@@ -201,6 +245,109 @@ export default function AdminAppointmentsPage() {
               })}
             </tbody>
           </table>
+        </div>
+        <div className="space-y-3 p-4 sm:p-6 lg:hidden">
+          {loading ? (
+            <p className="py-6 text-center text-sm text-ink-400">Loading appointments…</p>
+          ) : appointments.length === 0 ? (
+            <p className="py-6 text-center text-sm text-ink-400">No appointments found.</p>
+          ) : appointments.map((appointment) => {
+            const editing = editingId === appointment.id;
+            const student = studentById.get(Number(editing ? draft.student_user_id : appointment.student_user_id));
+            const counselor = counselorByProfileId.get(Number(editing ? draft.counselor_profile_id : appointment.counselor_profile_id));
+            return (
+              <Card key={appointment.id} hover={false} className="border border-line/70 p-4 shadow-card">
+                <div className="flex flex-wrap items-center justify-between gap-2">
+                  <p className="text-sm font-semibold text-ink">Appointment #{appointment.id}</p>
+                  <Badge tone={appointmentStatusTone(appointment.status)} className="capitalize">{appointment.status}</Badge>
+                </div>
+
+                <div className="mt-3 border-t border-line/70 pt-3">
+                  <p className="text-[11px] font-medium uppercase tracking-wide text-ink-400">Student</p>
+                  {editing ? (
+                    <div className="mt-2 space-y-1">
+                      <select
+                        aria-label="Select student"
+                        value={draft.student_user_id}
+                        onChange={(e) => setDraft((d) => ({ ...d, student_user_id: e.target.value }))}
+                        className="min-h-11 w-full rounded-field border border-line/80 bg-white px-3 text-sm"
+                      >
+                        <option value="">Select student…</option>
+                        {students.map((s) => (
+                          <option key={s.id} value={s.id}>{s.fullName} (ID {s.id})</option>
+                        ))}
+                      </select>
+                      <p className="text-xs text-ink-400">Student user ID: {draft.student_user_id || "—"}</p>
+                    </div>
+                  ) : (
+                    <div className="mt-2 flex min-w-0 items-center gap-3">
+                      <UserAvatar
+                        user={{ fullName: appointment.student_name || student?.fullName || "Student", avatarUrl: appointment.student_avatar_url ?? null }}
+                        size="sm"
+                      />
+                      <div className="min-w-0">
+                        <p className="break-words font-medium text-ink">{appointment.student_name || student?.fullName || "Unknown student"}</p>
+                        <p className="text-xs text-ink-400">User ID: {appointment.student_user_id}{student?.email ? ` · ${student.email}` : ""}</p>
+                      </div>
+                    </div>
+                  )}
+                </div>
+
+                <div className="mt-3 border-t border-line/70 pt-3">
+                  <p className="text-[11px] font-medium uppercase tracking-wide text-ink-400">Counselor</p>
+                  {editing ? (
+                    <div className="mt-2 space-y-1">
+                      <select
+                        aria-label="Select counselor"
+                        value={draft.counselor_profile_id}
+                        onChange={(e) => setDraft((d) => ({ ...d, counselor_profile_id: e.target.value }))}
+                        className="min-h-11 w-full rounded-field border border-line/80 bg-white px-3 text-sm"
+                      >
+                        <option value="">Select counselor…</option>
+                        {counselors.map((c) => (
+                          <option key={c.id} value={c.id}>{c.name} (Profile {c.id}, User {c.user_id})</option>
+                        ))}
+                      </select>
+                      <p className="text-xs text-ink-400">Counselor profile ID: {draft.counselor_profile_id || "—"}{counselor ? ` · User ID: ${counselor.user_id}` : ""}</p>
+                    </div>
+                  ) : (
+                    <div className="mt-2 flex min-w-0 items-center gap-3">
+                      <UserAvatar
+                        user={{ fullName: appointment.counselor_name || counselor?.name || "Counselor", avatarUrl: appointment.counselor_avatar_url ?? null }}
+                        size="sm"
+                      />
+                      <div className="min-w-0">
+                        <p className="break-words font-medium text-ink">{appointment.counselor_name || counselor?.name || "Unknown counselor"}</p>
+                        <p className="text-xs text-ink-400">Profile ID: {appointment.counselor_profile_id}{appointment.counselor_user_id ? ` · User ID: ${appointment.counselor_user_id}` : counselor ? ` · User ID: ${counselor.user_id}` : ""}</p>
+                      </div>
+                    </div>
+                  )}
+                </div>
+
+                <div className="mt-3 border-t border-line/70 pt-3">
+                  <p className="text-[11px] font-medium uppercase tracking-wide text-ink-400">Time</p>
+                  <p className="mt-1 break-words text-sm text-ink-500">{new Date(appointment.slot_start).toLocaleString("en-PH")}</p>
+                </div>
+
+                <div className="mt-3 flex flex-wrap gap-2 border-t border-line/70 pt-3">
+                  {editing ? (
+                    <>
+                      <Button className="min-h-11 flex-1 sm:flex-none" onClick={() => void saveEdit(appointment.id)} disabled={saving}>
+                        <Save className="h-4 w-4" /> {saving ? "Saving…" : "Save"}
+                      </Button>
+                      <Button variant="ghost" className="min-h-11 flex-1 sm:flex-none" onClick={cancelEdit} disabled={saving}>
+                        <X className="h-4 w-4" /> Cancel
+                      </Button>
+                    </>
+                  ) : (
+                    <Button variant="secondary" className="min-h-11 w-full" onClick={() => startEdit(appointment)}>
+                      <Pencil className="h-4 w-4" /> Edit IDs
+                    </Button>
+                  )}
+                </div>
+              </Card>
+            );
+          })}
         </div>
       </Card>
     </div>

@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router";
-import { Button, Label } from "@/components/ui/Primitives";
+import { Button, Label, Textarea } from "@/components/ui/Primitives";
 import CounselorStudentLayout from "@/components/counselor/CounselorStudentLayout";
 import { useCaseloadSelection } from "@/hooks/useCaseloadSelection";
 import {
@@ -9,6 +9,7 @@ import {
   type CounselingRecord,
 } from "@/api/counseling";
 import { errorMessage } from "@/api/client";
+import { FileText } from "lucide-react";
 
 /**
  * Session Notes: confidential counseling notes and follow-up plans.
@@ -66,31 +67,34 @@ export default function SessionNotesPage() {
       onSelect={setSelected}
       emptyMessage="Select a student to view or add session notes."
       headerAction={
-        <Button asChild variant="secondary" size="sm">
+        <Button asChild variant="secondary" className="w-full justify-center sm:w-auto">
           <Link to={`/counselor/cases?student=${selected}`}>Student management</Link>
         </Button>
       }
     >
-      <h2 className="mt-6 text-lg font-semibold">Session notes</h2>
-      <p className="mt-1 text-xs text-ink-400">
+      <h2 className="mt-4 text-lg font-semibold sm:mt-6">Session notes</h2>
+      <p className="mt-1 text-sm text-ink-400">
         Private to you. Session notes are never visible to students or administrators.
       </p>
 
       {records.length === 0 ? (
-        <p className="mt-2 text-sm text-ink-400">No session notes yet.</p>
+        <div className="mw-empty-state mt-3 flex flex-col items-center gap-2 rounded-xl border border-line/70 bg-surface-2/30 px-4 py-6 text-center">
+          <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-mint-soft text-teal ring-1 ring-teal/20"><FileText className="h-5 w-5" /></span>
+          <p className="text-sm text-ink-400">No session notes yet.</p>
+        </div>
       ) : (
         <ul className="mt-4 divide-y divide-line">
           {records.map((record) => (
             <li key={record.id} className="py-3">
-              <div className="flex items-center justify-between">
+              <div className="flex flex-wrap items-center justify-between gap-x-3 gap-y-1">
                 <span className="text-sm font-medium">
                   {new Date(record.session_date).toLocaleDateString("en-PH")}
                 </span>
-                <span className="text-xs text-ink-300">Risk: {record.risk_level}</span>
+                <span className="text-sm text-ink-300">Risk: {record.risk_level}</span>
               </div>
-              <p className="mt-1 whitespace-pre-wrap text-sm text-ink-600">{record.summary}</p>
+              <p className="mt-1 whitespace-pre-wrap break-words text-sm text-ink-600">{record.summary}</p>
               {record.follow_up_plan ? (
-                <p className="mt-2 text-sm text-ink-400">
+                <p className="mt-2 break-words text-sm text-ink-400">
                   <span className="font-medium text-ink">Follow-up:</span> {record.follow_up_plan}
                 </p>
               ) : null}
@@ -99,33 +103,33 @@ export default function SessionNotesPage() {
         </ul>
       )}
 
-      <div className="mt-6 border-t border-line pt-6">
+      <div className="mt-5 border-t border-line pt-5 sm:mt-6 sm:pt-6">
         <h3 className="text-base font-semibold">Add session note</h3>
         <label className="mt-3 flex flex-col gap-1.5">
-          <Label htmlFor="summary">Summary (confidential)</Label>
-          <textarea
+          <Label htmlFor="summary" className="text-sm">Summary (confidential)</Label>
+          <Textarea
             id="summary"
             value={summary}
             onChange={(e) => setSummary(e.target.value)}
             rows={4}
-            className="rounded-field border border-line px-3 py-2 text-sm"
+            className="resize-y"
           />
         </label>
         <label className="mt-3 flex flex-col gap-1.5">
-          <Label htmlFor="followUp">Follow-up plan (optional)</Label>
-          <textarea
+          <Label htmlFor="followUp" className="text-sm">Follow-up plan (optional)</Label>
+          <Textarea
             id="followUp"
             value={followUp}
             onChange={(e) => setFollowUp(e.target.value)}
-            rows={2}
-            className="rounded-field border border-line px-3 py-2 text-sm"
+            rows={3}
+            className="resize-y"
           />
         </label>
-        {error ? <p className="mt-2 text-sm text-danger">{error}</p> : null}
-        <Button className="mt-3" disabled={submitting} onClick={() => void addRecord()}>
+        {error ? <p className="mt-2 break-words text-sm text-danger">{error}</p> : null}
+        <Button className="mt-3 w-full sm:w-auto" disabled={submitting} onClick={() => void addRecord()}>
           {submitting ? "Saving…" : "Save note"}
         </Button>
-        <p className="mt-2 text-xs text-ink-400">
+        <p className="mt-2 text-sm text-ink-400">
           Only you can see these records. They are never visible to students or administrators.
         </p>
       </div>

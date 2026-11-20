@@ -30,7 +30,7 @@ export default function CounselorStudentLayout({
     <div className="grid gap-6 lg:grid-cols-[280px_1fr]">
       <Card className="p-4">
         <div className="flex items-center justify-between px-2">
-          <h3 className="text-sm font-semibold">Caseload</h3>
+          <h2 className="text-sm font-semibold">Caseload</h2>
           <span className="rounded-pill bg-mint-soft px-2 py-0.5 text-xs font-medium text-teal-700">{caseload.length}</span>
         </div>
         <p className="mt-1 px-2 text-xs text-ink-400">Select a student to view details and actions.</p>

@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Middleware\Authenticate;
+use App\Http\Middleware\EnsureUtf8Json;
 use App\Http\Middleware\RequireRole;
 use App\Http\Middleware\RequireServiceKey;
 use App\Http\Middleware\VerifyCsrfToken;
@@ -17,6 +18,8 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
+        $middleware->append(EnsureUtf8Json::class);
+
         $middleware->alias([
             'auth' => Authenticate::class,
             'role' => RequireRole::class,

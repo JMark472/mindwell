@@ -98,15 +98,9 @@ export default function ResetPasswordPage() {
             required
           />
         </div>
-        <Button type="submit" disabled={submitting}>
-          {submitting ? (
-            "Updating…"
-          ) : (
-            <>
-              <KeyRound aria-hidden="true" strokeWidth={1.8} className="h-4 w-4" />
-              Update password
-            </>
-          )}
+        <Button type="submit" loading={submitting}>
+          <KeyRound aria-hidden="true" strokeWidth={1.8} className="h-4 w-4" />
+          Update password
         </Button>
       </form>
     </div>

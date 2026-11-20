@@ -21,7 +21,7 @@ export default function ResourceDetailPage() {
 
   if (error) {
     return (
-      <Card className="p-8 text-center">
+      <Card className="p-6 text-center sm:p-8">
         <h2 className="text-lg font-semibold">Not available</h2>
         <p className="mt-1 text-sm text-ink-400">{error}</p>
         <Button asChild className="mt-4">
@@ -37,7 +37,7 @@ export default function ResourceDetailPage() {
 
   return (
     <div className="mx-auto flex max-w-4xl flex-col gap-6">
-      <Button asChild variant="ghost" className="self-start px-0">
+      <Button asChild variant="ghost" className="min-h-11 self-start px-0">
         <Link to={basePath}>← Back to resources</Link>
       </Button>
       <Card className="overflow-hidden">
@@ -52,8 +52,8 @@ export default function ResourceDetailPage() {
             {resource.is_featured ? <Badge tone="warning" className="bg-white/90 text-navy ring-1 ring-white/40">Featured</Badge> : null}
           </div>
         </div>
-        <div className="p-6 sm:p-8">
-          <h1 className="text-2xl font-semibold tracking-tight text-ink sm:text-3xl">{resource.title}</h1>
+        <div className="p-5 sm:p-8">
+          <h1 className="break-words text-2xl font-semibold tracking-tight text-ink sm:text-3xl">{resource.title}</h1>
           <p className="mt-2 text-sm text-ink-400">
             {resource.published_at
               ? `Updated ${new Date(resource.published_at).toLocaleDateString("en-PH", { year: "numeric", month: "long", day: "numeric" })}`
@@ -61,7 +61,7 @@ export default function ResourceDetailPage() {
           </p>
           <article className="prose prose-sm mt-6 max-w-none text-ink">
             <p className="text-base leading-relaxed text-ink-600">{resource.excerpt}</p>
-            <div className="mt-4 whitespace-pre-wrap leading-relaxed text-ink-600">{resource.body}</div>
+            <div className="mt-4 whitespace-pre-wrap break-words leading-relaxed text-ink-600">{resource.body}</div>
           </article>
           <div className="mt-8 rounded-[20px] border border-teal/20 bg-gradient-to-r from-mint-soft/80 to-white p-4 text-sm">
             <p className="font-medium text-navy">Try this today</p>

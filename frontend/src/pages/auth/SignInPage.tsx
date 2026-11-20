@@ -1,7 +1,8 @@
 import { useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router";
 import { useAuth } from "@/context/AuthContext";
-import { Button, IconInput, Label, PasswordInput } from "@/components/ui/Primitives";
+import { Button, IconInput, PasswordInput } from "@/components/ui/Primitives";
+import FormField from "@/components/ui/FormField";
 import { Alert } from "@/components/ui/Feedback";
 import { errorMessage } from "@/api/client";
 import { LockKeyhole, LogIn, Mail } from "lucide-react";
@@ -45,45 +46,41 @@ export default function SignInPage() {
       </p>
       {(localError || error) ? <Alert className="mt-4">{localError || error}</Alert> : null}
       <form className="mt-6 flex flex-col gap-4" onSubmit={handleSubmit}>
-        <div className="flex flex-col gap-1.5">
-          <Label htmlFor="email">Email</Label>
-          <IconInput
-            id="email"
-            icon={Mail}
-            type="email"
-            autoComplete="email"
-            placeholder="you@school.edu"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            required
-          />
-        </div>
-        <div className="flex flex-col gap-1.5">
-          <Label htmlFor="password">Password</Label>
-          <PasswordInput
-            id="password"
-            icon={LockKeyhole}
-            autoComplete="current-password"
-            placeholder="Enter your password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            required
-          />
-        </div>
+        <FormField label="Email" required>
+          {(field) => (
+            <IconInput
+              {...field}
+              icon={Mail}
+              type="email"
+              autoComplete="email"
+              placeholder="you@school.edu"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required
+            />
+          )}
+        </FormField>
+        <FormField label="Password" required>
+          {(field) => (
+            <PasswordInput
+              {...field}
+              icon={LockKeyhole}
+              autoComplete="current-password"
+              placeholder="Enter your password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
+            />
+          )}
+        </FormField>
         <div className="flex items-center justify-between text-sm">
           <Link to="/forgot-password" className="font-medium text-teal hover:underline">
             Forgot password?
           </Link>
         </div>
-        <Button type="submit" disabled={submitting} className="mt-2">
-          {submitting ? (
-            "Signing in…"
-          ) : (
-            <>
-              <LogIn aria-hidden="true" strokeWidth={1.8} className="h-4 w-4" />
-              Sign in
-            </>
-          )}
+        <Button type="submit" loading={submitting} className="mt-2">
+          <LogIn aria-hidden="true" strokeWidth={1.8} className="h-4 w-4" />
+          Sign in
         </Button>
       </form>
       <p className="mt-6 text-center text-sm text-ink-400">

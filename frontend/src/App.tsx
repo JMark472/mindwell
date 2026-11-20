@@ -59,7 +59,7 @@ export default function App() {
         </Route>
       </Route>
 
-      <Route path="/help" element={<HelpCrisisPage />} />
+      <Route path="/help" element={<main><HelpCrisisPage /></main>} />
 
       <Route element={<ProtectedRoute roles={["student"]}><AppShell title="Student Portal" subtitle="Wellbeing tools and counseling support" /></ProtectedRoute>}>
         <Route path="/student/dashboard" element={<StudentDashboardPage />} />
@@ -96,6 +96,7 @@ export default function App() {
         <Route path="/counselor/resources" element={<ResourcesPage />} />
         <Route path="/counselor/resources/:slug" element={<ResourceDetailPage />} />
         <Route path="/counselor/profile" element={<CounselorProfilePage />} />
+        <Route path="/counselor/notifications" element={<NotificationsPage />} />
       </Route>
 
       <Route element={<ProtectedRoute roles={["admin"]}><AppShell title="Admin Portal" subtitle="System oversight and governance" /></ProtectedRoute>}>
@@ -107,9 +108,10 @@ export default function App() {
         <Route path="/admin/content" element={<AdminContentPage />} />
         <Route path="/admin/reports" element={<AdminReportsPage />} />
         <Route path="/admin/settings" element={<AdminSettingsPage />} />
+        <Route path="/admin/notifications" element={<NotificationsPage />} />
       </Route>
 
-      <Route path="*" element={<NotFoundPage />} />
+      <Route path="*" element={<main><NotFoundPage /></main>} />
     </Routes>
   );
 }

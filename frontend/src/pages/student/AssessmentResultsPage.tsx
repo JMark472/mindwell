@@ -33,7 +33,7 @@ export default function AssessmentResultsPage() {
         </div>
       </Card>
 
-      <Card className="p-6">
+      <Card className="p-5 sm:p-6">
         <h3 className="text-base font-semibold">What this means</h3>
         <div className="mt-3 space-y-2 text-sm text-ink-600">
           <p>Assessment results can help you notice patterns in stress, mood, or wellbeing over time.</p>
@@ -44,29 +44,29 @@ export default function AssessmentResultsPage() {
         </div>
       </Card>
 
-      <Card className="p-6">
+      <Card className="p-5 sm:p-6">
         <h3 className="text-base font-semibold">Recommendations</h3>
         <p className="mt-1 text-sm text-ink-400">Choose a next step that feels manageable right now.</p>
         <div className="mt-4 grid gap-3">
           <div className="flex flex-col gap-3 rounded-2xl border border-line/70 bg-surface-2/40 p-4 sm:flex-row sm:items-center sm:justify-between">
             <div className="flex items-start gap-3"><IconBadge icon={BookOpen} tone="teal" /><div><p className="font-medium">Try a grounding exercise</p><p className="text-sm text-ink-400">Use a short calming technique for immediate relief and focus.</p></div></div>
-            <Button asChild variant="ghost" size="sm"><Link to="/student/resources">Explore resources</Link></Button>
+            <Button asChild variant="ghost" size="sm" className="min-h-11 w-full justify-center sm:min-h-9 sm:w-auto"><Link to="/student/resources">Explore resources</Link></Button>
           </div>
           <div className="flex flex-col gap-3 rounded-2xl border border-line/70 bg-surface-2/40 p-4 sm:flex-row sm:items-center sm:justify-between">
             <div className="flex items-start gap-3"><IconBadge icon={CalendarPlus} tone="navy" /><div><p className="font-medium">Book a counseling session</p><p className="text-sm text-ink-400">Speak with a counselor for personalized support and guidance.</p></div></div>
-            <Button asChild size="sm"><Link to="/student/appointments/book">Book now</Link></Button>
+            <Button asChild size="sm" className="min-h-11 w-full justify-center sm:min-h-9 sm:w-auto"><Link to="/student/appointments/book">Book now</Link></Button>
           </div>
           <div className="flex flex-col gap-3 rounded-2xl border border-line/70 bg-surface-2/40 p-4 sm:flex-row sm:items-center sm:justify-between">
             <div className="flex items-start gap-3"><IconBadge icon={HeartPulse} tone="mint" /><div><p className="font-medium">Track your mood this week</p><p className="text-sm text-ink-400">Daily check-ins can help you notice patterns, triggers, and progress.</p></div></div>
-            <Button asChild variant="secondary" size="sm"><Link to="/student/check-in">Start check-in</Link></Button>
+            <Button asChild variant="secondary" size="sm" className="min-h-11 w-full justify-center sm:min-h-9 sm:w-auto"><Link to="/student/check-in">Start check-in</Link></Button>
           </div>
         </div>
       </Card>
 
       <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap">
-        <Button asChild><Link to="/student/appointments/book">Book counseling</Link></Button>
-        <Button asChild variant="secondary"><Link to="/student/assessment">Retake assessment</Link></Button>
-        <Button asChild variant="ghost"><Link to="/student/messages">Discuss with counselor</Link></Button>
+        <Button asChild className="w-full justify-center sm:w-auto"><Link to="/student/appointments/book">Book counseling</Link></Button>
+        <Button asChild variant="secondary" className="w-full justify-center sm:w-auto"><Link to="/student/assessment">Retake assessment</Link></Button>
+        <Button asChild variant="ghost" className="w-full justify-center sm:w-auto"><Link to="/student/messages">Discuss with counselor</Link></Button>
       </div>
     </div>
   );

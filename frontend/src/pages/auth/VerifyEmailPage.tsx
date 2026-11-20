@@ -42,6 +42,7 @@ export default function VerifyEmailPage() {
             <Input
               key={index}
               id={`code-${index}`}
+              aria-label={`Verification code digit ${index + 1}`}
               value={digit}
               onChange={(e) => updateCode(index, e.target.value)}
               className="h-14 w-12 text-center text-lg font-semibold"
@@ -50,8 +51,8 @@ export default function VerifyEmailPage() {
             />
           ))}
         </div>
-        <Button type="submit" disabled={submitting || code.some(c => !c)}>
-          {submitting ? "Verifying…" : "Verify email"}
+        <Button type="submit" loading={submitting} disabled={code.some(c => !c)}>
+          Verify email
         </Button>
       </form>
       <div className="mt-6 flex flex-col items-center gap-2 text-sm">

@@ -32,7 +32,7 @@ export default function AdminListPage({ role, title }: { role: string; title: st
         <div className="border-b border-line/70 px-6 py-4">
           <h3 className="font-semibold">Account list</h3>
         </div>
-        <div className="overflow-x-auto">
+        <div className="hidden overflow-x-auto lg:block">
           <table className="w-full min-w-[560px] text-sm">
             <thead className="bg-navy-050/70">
               <tr>
@@ -63,6 +63,28 @@ export default function AdminListPage({ role, title }: { role: string; title: st
               ))}
             </tbody>
           </table>
+        </div>
+        <div className="space-y-3 p-4 sm:p-6 lg:hidden">
+          {loading ? (
+            <p className="py-6 text-center text-sm text-ink-400">Loading accounts…</p>
+          ) : users.length === 0 ? (
+            <p className="py-6 text-center text-sm text-ink-400">No {role} accounts found.</p>
+          ) : users.map((user) => (
+            <Card key={user.id} hover={false} className="border border-line/70 p-4 shadow-card">
+              <div className="flex min-w-0 items-center gap-3">
+                <UserAvatar user={{ fullName: user.fullName ?? "User", avatarUrl: user.avatarUrl ?? null }} size="sm" />
+                <div className="min-w-0 flex-1">
+                  <p className="break-words font-medium text-ink">{user.fullName || "—"}</p>
+                  <p className="text-xs text-ink-400">ID: {user.id}</p>
+                </div>
+                <Badge tone={statusTone(user.status) as any} className="shrink-0 capitalize">{user.status || "unknown"}</Badge>
+              </div>
+              <div className="mt-3 border-t border-line/70 pt-3">
+                <p className="text-[11px] font-medium uppercase tracking-wide text-ink-400">Email</p>
+                <p className="mt-1 break-all text-sm text-ink-500">{user.email || "—"}</p>
+              </div>
+            </Card>
+          ))}
         </div>
       </Card>
     </div>

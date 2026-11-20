@@ -18,7 +18,7 @@ export default function NotFoundPage() {
         <div className="mt-6 flex flex-col justify-center gap-2 sm:flex-row">
           <Link
             to="/"
-            className="inline-flex h-10 items-center justify-center gap-2 rounded-field bg-gradient-to-r from-teal to-teal-600 px-4 text-sm font-medium text-white shadow-[0_10px_40px_-18px_rgba(16,169,155,1)] transition-all hover:from-teal-600 hover:to-teal-700"
+            className="inline-flex h-10 items-center justify-center gap-2 rounded-field bg-primary-dark px-4 text-sm font-medium text-white shadow-[0_10px_40px_-18px_rgba(16,169,155,1)] transition-all hover:bg-primary-deep"
           >
             <Home className="h-4 w-4" /> Back to home
           </Link>

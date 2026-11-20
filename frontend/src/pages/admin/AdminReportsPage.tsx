@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { Card, StatCard } from "@/components/ui/Primitives";
+import { Card, StatCard, Badge } from "@/components/ui/Primitives";
 import {
   getAppointmentReports,
   getPlatformReports,
@@ -48,7 +48,7 @@ function BarList({
           <div className="flex-1">
             <div className="h-8 rounded-full bg-mint-soft/70">
               <div
-                className="flex h-8 min-w-[2.25rem] items-center rounded-full bg-gradient-to-r from-teal to-mint px-3 text-xs font-medium text-white"
+                className="flex h-8 min-w-[2.25rem] items-center rounded-full bg-primary-dark px-3 text-xs font-medium text-white"
                 style={{ width: `${Math.max(8, (item.value / max) * 100)}%` }}
               >
                 {item.value}
@@ -123,7 +123,7 @@ export default function AdminReportsPage() {
       <Card className="relative overflow-hidden p-6">
         <div className="absolute -right-16 -top-16 h-40 w-40 rounded-full bg-gradient-to-br from-mint/20 to-teal/10 blur-3xl" />
         <div className="relative z-10 flex items-center gap-3">
-          <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-teal to-mint text-white">
+          <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-primary-dark text-white">
             <BarChart3 className="h-6 w-6" />
           </div>
           <div>
@@ -217,26 +217,45 @@ export default function AdminReportsPage() {
         {workload.length === 0 ? (
           <p className="mt-4 text-sm text-ink-400">No workload data available.</p>
         ) : (
-          <div className="mt-4 overflow-x-auto">
-            <table className="w-full min-w-[520px] text-sm">
-              <thead className="bg-navy-050 text-xs uppercase tracking-wide text-ink-400">
-                <tr>
-                  <th className="px-4 py-2 text-left font-medium">Counselor</th>
-                  <th className="px-4 py-2 text-left font-medium">Profile ID</th>
-                  <th className="px-4 py-2 text-right font-medium">Appointments</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-line/70">
-                {workload.map((w) => (
-                  <tr key={w.counselor_profile_id}>
-                    <td className="px-4 py-3 font-medium text-ink">{w.name || "Counselor"}</td>
-                    <td className="px-4 py-3 text-ink-400">#{w.counselor_profile_id}</td>
-                    <td className="px-4 py-3 text-right font-medium">{Number(w.total ?? 0)}</td>
+          <>
+            <div className="mt-4 hidden overflow-x-auto lg:block">
+              <table className="w-full min-w-[520px] text-sm">
+                <thead className="bg-navy-050 text-xs uppercase tracking-wide text-ink-500">
+                  <tr>
+                    <th className="px-4 py-2 text-left font-medium">Counselor</th>
+                    <th className="px-4 py-2 text-left font-medium">Profile ID</th>
+                    <th className="px-4 py-2 text-right font-medium">Appointments</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+                </thead>
+                <tbody className="divide-y divide-line/70">
+                  {workload.map((w) => (
+                    <tr key={w.counselor_profile_id}>
+                      <td className="px-4 py-3 font-medium text-ink">{w.name || "Counselor"}</td>
+                      <td className="px-4 py-3 text-ink-400">#{w.counselor_profile_id}</td>
+                      <td className="px-4 py-3 text-right font-medium">{Number(w.total ?? 0)}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+            <div className="mt-4 space-y-3 lg:hidden">
+              {workload.map((w) => (
+                <Card key={w.counselor_profile_id} hover={false} className="border border-line/70 p-4 shadow-card">
+                  <div className="flex flex-wrap items-start justify-between gap-3">
+                    <div className="min-w-0">
+                      <p className="text-[11px] font-medium uppercase tracking-wide text-ink-400">Counselor</p>
+                      <p className="mt-1 break-words font-medium text-ink">{w.name || "Counselor"}</p>
+                    </div>
+                    <Badge tone="teal" className="shrink-0">{Number(w.total ?? 0)} appointments</Badge>
+                  </div>
+                  <div className="mt-3 border-t border-line/70 pt-3">
+                    <p className="text-[11px] font-medium uppercase tracking-wide text-ink-400">Profile ID</p>
+                    <p className="mt-1 text-sm text-ink-500">#{w.counselor_profile_id}</p>
+                  </div>
+                </Card>
+              ))}
+            </div>
+          </>
         )}
       </Card>
     </div>
