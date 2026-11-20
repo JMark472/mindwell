@@ -18,7 +18,7 @@ RUN mkdir -p storage/framework/cache \
     storage/logs \
     bootstrap/cache
 
-RUN composer validate --no-check-publish
+
 
 RUN composer install \
     --no-dev \
