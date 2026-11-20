@@ -26,7 +26,9 @@ RUN composer install \
     --no-interaction \
     --no-scripts \
     --no-progress \
-    -vvv
+    || (echo "========== COMPOSER INSTALL FAILED ==========" && exit 1)
+
+RUN php -v && composer --version && composer diagnose
 
 RUN php artisan package:discover --ansi
 
