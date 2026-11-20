@@ -1,30 +1,47 @@
-FROM php:8.2-cli
 
+FROM php:8.3-cli
+
+# Install required system packages
 RUN apt-get update && apt-get install -y \
-    git curl libpng-dev libonig-dev libxml2-dev zip unzip \
-    libzip-dev libfreetype6-dev libjpeg62-turbo-dev \
-    && docker-php-ext-configure gd --with-freetype --with-jpeg \
-    && docker-php-ext-install pdo pdo_mysql mbstring exif pcntl bcmath gd zip \
-    && rm -rf /var/lib/apt/lists/*
+    git unzip zip curl libzip-dev libpng-dev libonig-dev libxml2-dev \
+    libicu-dev libjpeg62-turbo-dev libfreetype6-dev \
+    && docker-php-ext-install pdo_mysql mbstring zip bcmath gd intl \
+    && apt-get clean && rm -rf /var/lib/apt/lists/*
 
-COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
+# Install Composer
+COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 
 WORKDIR /var/www/html
 
+# Copy Laravel project
 COPY . .
 
-RUN mkdir -p storage/framework/cache \
+# Create Laravel writable directories
+RUN mkdir -p \
+    storage/framework/cache \
     storage/framework/sessions \
     storage/framework/views \
     storage/logs \
-    bootstrap/cache \
-    && chmod -R 775 storage bootstrap/cache \
-    && composer install --no-dev --optimize-autoloader --no-interaction --no-scripts \
-    && php artisan package:discover --ansi
+    bootstrap/cache
 
-EXPOSE 8000
+# Install production dependencies
+RUN composer install \
+    --no-dev \
+    --prefer-dist \
+    --optimize-autoloader \
+    --no-interaction \
+    --no-scripts
 
-# Config is intentionally not cached at build time: Render injects the
-# production environment only at runtime, and caching here would bake in
-# empty values. Run migrations first so a fresh database is usable, then serve.
-CMD ["sh", "-c", "php artisan migrate --force && php artisan serve --host=0.0.0.0 --port=${PORT:-8000}"]
+# Run package discovery separately
+RUN php artisan package:discover --ansi
+
+# Permissions
+RUN chmod -R 775 storage bootstrap/cache
+
+# Render provides the PORT environment variable
+ENV PORT=10000
+
+EXPOSE 10000
+
+# Start Laravel server
+CMD php artisan serve --host=0.0.0.0 --port=${PORT}
