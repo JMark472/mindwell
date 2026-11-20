@@ -1,3 +1,4 @@
+
 FROM php:8.3-cli
 
 RUN apt-get update && apt-get install -y \
@@ -11,22 +12,25 @@ WORKDIR /var/www/html
 
 COPY . .
 
-# Prepare Laravel folders before Composer
-RUN mkdir -p \
-    storage/framework/cache \
+RUN mkdir -p storage/framework/cache \
     storage/framework/sessions \
     storage/framework/views \
     storage/logs \
     bootstrap/cache
 
-# Install dependencies
-RUN composer install --no-dev --prefer-dist --no-interaction --no-scripts
+RUN composer validate --no-check-publish
 
-# Run Laravel package discovery
+RUN composer install \
+    --no-dev \
+    --prefer-dist \
+    --optimize-autoloader \
+    --no-interaction \
+    --no-scripts
+
 RUN php artisan package:discover --ansi
 
-# Set writable permissions
 RUN chmod -R 775 storage bootstrap/cache
 
-# Start server
+EXPOSE 10000
+
 CMD php artisan serve --host=0.0.0.0 --port=${PORT:-10000}
